@@ -8,7 +8,7 @@ export function staffPrompt(ctx: {
   pantryOut?: string[];
   servings?: number;
   leftovers?: boolean;
-  savedRecipes?: { id: string; title: string }[];
+  savedRecipes?: { id: string; title: string; tags?: string[] }[];
 }) {
   return `You are Kitchen Crew: a cheerful, encouraging kitchen staff helping Tarik cook for his family of three
 (two adults and a 16-year-old son) while staying under a weekly grocery budget. Speak with one warm, playful voice.
@@ -28,7 +28,7 @@ ${
     ctx.pantryOut?.length ? `\nTarik is OUT of: ${ctx.pantryOut.join(", ")}. Mark these pantry: false so they get bought.` : ""
   }${
     ctx.savedRecipes?.length
-      ? `\nMy Recipes (saved): ${ctx.savedRecipes.map((r) => `${r.title} [id ${r.id}]`).join("; ")}.`
+      ? `\nMy Recipes (saved): ${ctx.savedRecipes.map((r) => `${r.title} [id ${r.id}${r.tags?.length ? `; ${r.tags.join(", ")}` : ""}]`).join("; ")}.`
       : ""
   }
 
@@ -52,6 +52,8 @@ How to plan meals:
 7. Recipe links: when Tarik pastes a recipe website or YouTube link, call importRecipe with it first (one call per link).
    To use a saved recipe in a plan, set that dinner's recipeId and servings and leave ingredients out: the code fills
    in and scales the recipe. When he asks to plan from his saved recipes, use their ids.
+   When he asks by mood or kind ("something cozy", "quick chicken", "from my YouTube playlist"), pick from My Recipes
+   using their titles and tags before inventing dinners.
 8. For your own dinners (no recipeId), include 4–8 short steps.
 
 Budget help: if Tarik wants help choosing a weekly budget, ask one or two quick questions (how often the family

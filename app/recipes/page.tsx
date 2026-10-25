@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ArrowRight, ChefHat, Globe, PlayCircle, RefreshCw, X } from "lucide-react";
+import { ArrowRight, ChefHat, Globe, PlayCircle, RefreshCw, Search, X } from "lucide-react";
+import { filterRecipes, topTags } from "@/lib/recipes/filter";
 import { formatServings } from "@/lib/household";
 import { dayLabel } from "@/lib/weeks";
 
@@ -51,6 +52,21 @@ function SyncPlaylist() {
   );
 }
 
+/** Recipes never tagged (new playlist videos, pasted links, the crew's dinners) get tagged by Claude. Returns true while it works. */
+function useAutoTag(untagged: number) {
+  const [busy, setBusy] = useState(false);
+  const lastTry = useRef(-1); // one try per batch size, so a failure doesn't loop
+  useEffect(() => {
+    if (untagged === 0 || busy || lastTry.current === untagged) return;
+    lastTry.current = untagged;
+    setBusy(true);
+    fetch("/api/recipes/tag", { method: "POST" })
+      .catch(() => {})
+      .finally(() => setBusy(false));
+  }, [untagged, busy]);
+  return busy;
+}
+
 // This week's dinners up top, then everything you've saved. Layout borrowed from Digero's recipe list.
 export default function RecipesPage() {
   const recipes = useQuery(api.recipes.mine);
@@ -59,7 +75,14 @@ export default function RecipesPage() {
   // This week's scheduled dinners, in day order (Ideas live on the Week board).
   const meals = allMeals?.filter((m) => m.dayIndex !== undefined).sort((a, b) => a.dayIndex! - b.dayIndex!);
   const remove = useMutation(api.recipes.remove);
+  const [search, setSearch] = useState("");
+  const [chips, setChips] = useState<string[]>([]);
+  const tagging = useAutoTag(recipes?.filter((r) => r.tags === undefined).length ?? 0);
   if (recipes === undefined || meals === undefined) return null;
+  const shown = filterRecipes(recipes, search, chips);
+  // Chosen chips stay visible even if they drop out of the most-used list.
+  const chipTags = [...new Set([...chips, ...topTags(recipes, 16)])];
+  const toggle = (t: string) => setChips((c) => (c.includes(t) ? c.filter((x) => x !== t) : [...c, t]));
 
   return (
     <div className="flex flex-col gap-4">
@@ -93,8 +116,52 @@ export default function RecipesPage() {
         <SyncPlaylist />
       </header>
 
-      {recipes.length > 0 && <ul className="crate px-3">
-        {recipes.map((r) => (
+      {recipes.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <label className="relative">
+            <span className="sr-only">Search My Recipes</span>
+            <Search size={17} strokeWidth={2.75} aria-hidden className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-soft" />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search recipes, ingredients, tags"
+              className="field w-full pl-10"
+            />
+          </label>
+          {chipTags.length > 0 && (
+            <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none]" role="group" aria-label="Filter by tag">
+              {chipTags.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  aria-pressed={chips.includes(t)}
+                  onClick={() => toggle(t)}
+                  className={`relative shrink-0 rounded-full border-2 px-3 py-1 text-sm font-extrabold ${
+                    chips.includes(t) ? "border-ink bg-ink text-chalk" : "border-line bg-white text-ink"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
+          <p className="text-sm font-bold text-ink-soft" role="status">
+            {search || chips.length ? `${shown.length} of ${recipes.length} recipes` : ""}
+            {tagging ? `${search || chips.length ? " · " : ""}Tagging new recipes…` : ""}
+          </p>
+        </div>
+      )}
+
+      {recipes.length > 0 && shown.length === 0 && (
+        <div className="crate flex flex-col items-start gap-2 p-4">
+          <p className="font-bold text-ink-soft">No recipes match.</p>
+          <button type="button" onClick={() => { setSearch(""); setChips([]); }} className="btn-press">Clear search</button>
+        </div>
+      )}
+
+      {shown.length > 0 && <ul className="crate px-3">
+        {shown.map((r) => (
           <li key={r._id} className="row-rule flex items-center gap-3 py-3">
             <Link href={`/recipes/${r._id}`} className="flex min-w-0 flex-1 items-center gap-3">
               <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-line">
@@ -114,6 +181,7 @@ export default function RecipesPage() {
                   )}
                   {r.sourceName ? `${r.unread ? "" : " · "}${r.sourceName}` : ""}
                 </p>
+                {r.tags && r.tags.length > 0 && <p className="truncate text-xs font-bold text-ink-soft">{r.tags.slice(0, 4).join(" · ")}</p>}
               </div>
             </Link>
             <button

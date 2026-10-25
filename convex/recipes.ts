@@ -102,6 +102,21 @@ export const addUnread = mutation({
   },
 });
 
+/** Sets recipes' tags: Claude's auto-tags (in batches) or Tarik's own edits on one recipe. */
+export const setTags = mutation({
+  args: { updates: v.array(v.object({ id: v.id("recipes"), tags: v.array(v.string()) })) },
+  handler: async (ctx, { updates }) => {
+    if (updates.length > 100) throw new Error("At most 100 recipes at a time");
+    const userId = await requireUserId(ctx);
+    for (const { id, tags } of updates) {
+      const recipe = await ctx.db.get(id);
+      if (!recipe || recipe.userId !== userId) throw new Error("Recipe not found");
+      const clean = [...new Set(tags.map((t) => t.trim().toLowerCase()).filter((t) => t.length > 0 && t.length <= 24))];
+      await ctx.db.patch(id, { tags: clean.slice(0, 12) });
+    }
+  },
+});
+
 /** My Recipes, newest first. */
 export const mine = query({
   args: {},

@@ -79,7 +79,7 @@ export async function POST(req: Request) {
       pantryOut: pantry.filter((p) => !p.have).map((p) => p.name),
       servings,
       leftovers: household.leftovers,
-      savedRecipes: savedRecipes.slice(0, 150).map((r) => ({ id: r._id, title: r.title })),
+      savedRecipes: savedRecipes.slice(0, 150).map((r) => ({ id: r._id, title: r.title, tags: r.tags })),
     }),
     messages: await convertToModelMessages(messages),
     stopWhen: isStepCount(5), // import → plan → (retry once) → closing line

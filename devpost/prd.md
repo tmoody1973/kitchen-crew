@@ -67,6 +67,7 @@ Source: `scope.md > The Core Loop`.
 - As Tarik, I want to plan from real recipes I like so that the plan and shopping list match what I'll actually cook.
   - [ ] Pasting a recipe website or YouTube link makes the crew read the real recipe (ingredients, steps, servings, time, photo) and save it to My Recipes.
   - [ ] *(Slice 9)* "Sync my playlist" adds every video from Tarik's YouTube recipe playlist to My Recipes (syncing again adds only new ones); each recipe is read the first time it's opened or planned — from the written recipe the channel links when there is one, otherwise from the video.
+  - [ ] *(Slice 9)* Recipes get tags automatically (cuisine, main protein, kind of dish, traits like quick, spicy, one-pan, comfort); he can remove a tag or add his own; a search box (titles, ingredients, tags, channel) and tag chips narrow My Recipes; the crew answers "something cozy" or "quick chicken" from his shelf.
   - [ ] He can ask the crew to plan with a pasted or saved recipe; its ingredients are scaled to his servings by code (whole items round up; frying oil and pasta water don't scale; things made earlier in the recipe aren't bought).
   - [ ] Tapping a dinner opens its recipe view, with ingredients rescaled by a servings stepper and a **US | Metric** toggle (e.g. "397 g" ↔ "14 oz", "3¾ cups" ↔ "887 ml").
   - [ ] The crew's own dinners are saved as recipes, with short steps, when he uses a plan.

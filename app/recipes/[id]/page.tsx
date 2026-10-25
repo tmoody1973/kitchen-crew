@@ -9,6 +9,7 @@ import { ArrowUpRight, BookOpen, ChefHat, Globe, Lock, Minus, PlayCircle, Plus, 
 import { scaleIngredients } from "@/lib/recipes/scale";
 import { formatAmount, type UnitSystem } from "@/lib/recipes/units";
 import { formatServings, targetServings } from "@/lib/household";
+import TagEditor from "@/components/TagEditor";
 
 const BADGE = { web: { label: "Website", Icon: Globe }, youtube: { label: "YouTube", Icon: PlayCircle }, crew: { label: "Mise crew", Icon: ChefHat } } as const;
 
@@ -101,6 +102,7 @@ export default function RecipePage() {
         <h1 className="font-sign text-3xl leading-tight">{recipe.title}</h1>
         {recipe.sourceName && <p className="font-bold text-ink-soft">from {recipe.sourceName}</p>}
       </div>
+      <TagEditor id={recipe._id} tags={recipe.tags ?? []} />
 
       {recipe.unread ? (
         <ReadingPanel id={recipe._id} />
@@ -118,7 +120,7 @@ export default function RecipePage() {
       </div>
 
       <section className="flex flex-col gap-3 crate p-4">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-sign text-xl">Ingredients</h2>
           <div className="flex rounded-full border-2 border-ink p-0.5 text-sm font-black" role="radiogroup" aria-label="Units">
             {(["us", "metric"] as const).map((s) => (

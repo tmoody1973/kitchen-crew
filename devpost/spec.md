@@ -123,7 +123,7 @@ PRD ref: `prd.md > Budget Setup`.
 PRD ref: `prd.md > Recipes`.
 
 ### My Recipes and Recipe View (`app/recipes/`, `convex/recipes.ts`) *(added in build, slice 5)*
-Shelf of saved recipes (imported, or the crew's own dinners saved on "Use this plan") with this week's dinners on top; *slice 9:* a **Sync my playlist** button (`app/api/playlist` → `lib/recipes/playlist.ts`, 50 videos per page, private/deleted skipped → `recipes.addUnread`, which skips videos already saved by video id) adds playlist videos as **not read yet**; opening one reads it (`app/api/recipes/read`, a reading panel on the recipe view; the page fills in when the save lands), and a plan that uses one reads it first (progress bar: "Reading the recipe: 1 of 2"). The crew sees up to 150 saved titles; recipe view with photo, source badge, time, servings stepper, scaled ingredients, numbered steps, and the original link. Layout borrowed from Digero's recipe screens.
+Shelf of saved recipes (imported, or the crew's own dinners saved on "Use this plan") with this week's dinners on top; *slice 9:* a **Sync my playlist** button (`app/api/playlist` → `lib/recipes/playlist.ts`, 50 videos per page, private/deleted skipped → `recipes.addUnread`, which skips videos already saved by video id) adds playlist videos as **not read yet**; opening one reads it (`app/api/recipes/read`, a reading panel on the recipe view; the page fills in when the save lands), and a plan that uses one reads it first (progress bar: "Reading the recipe: 1 of 2"). The crew sees up to 150 saved titles with their tags; **tags** (slice 9): any recipe never tagged (new playlist videos, pasted links, the crew's dinners) is tagged when the shelf loads (`app/api/recipes/tag` → `lib/recipes/auto-tag.ts`: Claude Haiku, 50 recipes per call, picking only from the fixed list in `lib/recipes/tags.ts`, so chips stay tidy; 86 real titles took ~21 s); Tarik edits tags on the recipe view (`components/TagEditor.tsx`, free words allowed); a **search box** and **tag chips** (16 most used; every chosen chip must match) filter the shelf in the browser (`lib/recipes/filter.ts`); recipe view with photo, source badge, time, servings stepper, scaled ingredients, numbered steps, and the original link. Layout borrowed from Digero's recipe screens.
 PRD ref: `prd.md > Recipes`.
 
 ## Data Model
@@ -132,7 +132,7 @@ All in Convex, every record tagged with the signed-in user's ID (directly, or th
 - **weeks** — `userId`, `budget`, `planLevel` ("thrifty" | "low" | "moderate" | "custom"), `startDate`, `storeId` / `storeName` (last Kroger store picked), `otherStore` (shopping at a non-Kroger store). The "active week" is the latest one less than 7 days old; after 7 days, Budget Setup appears again.
 - **listItems** — `weekId`, `name`, `estimate` (price per package, or empty), `estimateSource` ("kroger" | "manual"), `productId` / `productName` / `size` / `imageUrl` (chosen Kroger product), `packs`, `paid`, `fromPlan` (added by "Use this plan"; replaced by the next plan unless paid).
 - **meals** — `weekId`, `day`, `name`, `estimatedCost`, `servings`, `recipeId`, `dayIndex` (0–6; missing = Idea), `ingredients`, `products` (slice 8: the board rebuilds the list from these). Written by "Use this plan", moved on the Week board.
-- **recipes** *(slice 5)* — `userId`, `title`, `sourceType` ("web" | "youtube" | "crew"), `sourceUrl`, `sourceName`, `imageUrl`, `servings`, `totalMinutes`, `ingredients` (raw, name, amount, unit, pantry, fixed, madeInRecipe), `steps`, `unread` (slice 9: a playlist video not read yet — no ingredients or steps, placeholder servings). The same link saved again updates the existing recipe and clears `unread`.
+- **recipes** *(slice 5)* — `userId`, `title`, `sourceType` ("web" | "youtube" | "crew"), `sourceUrl`, `sourceName`, `imageUrl`, `servings`, `totalMinutes`, `ingredients` (raw, name, amount, unit, pantry, fixed, madeInRecipe), `steps`, `tags` (slice 9; missing = never tagged), `unread` (slice 9: a playlist video not read yet — no ingredients or steps, placeholder servings). The same link saved again updates the existing recipe and clears `unread`.
 - **chats** *(slice 5)* — `userId`, `title`, `updatedAt`, `messagesJson` (the conversation including card data), `removedJson` (dinners removed per plan card).
 - **pantry** *(slice 4)* — `userId`, `name` (lowercase), `have`.
 - **household** *(slice 4)* — `userId`, `servings`, `leftovers`.
@@ -157,14 +157,14 @@ app/
   recipes/[id]/page.tsx      # Recipe view
   api/chat/route.ts          # Claude + tools (proposeMealPlan, importRecipe, suggestBudget)
   api/stores · api/price · api/products   # Kroger server routes
-  api/playlist · api/recipes/read          # playlist sync; read a not-yet-read recipe (slice 9)
+  api/playlist · api/recipes/read · api/recipes/tag   # playlist sync; read a not-yet-read recipe; auto-tag (slice 9)
 components/
   TallyHeader · ListRow · ProductPicker · HouseholdSettings · ExtrasSplit · RegularsSection · ChatMenu · ConvexClientProvider
   cards/  BudgetCard · BudgetFit · MealPlanCard · PlanResult · PricingProgress · PantryChips · RecipeCard
 lib/
   tally.ts · usda.ts · household.ts · quantities.ts · meal-plan.ts · pick-products.ts · staff-prompt.ts
   kroger.ts (server) · kroger-client.ts (browser)
-  recipes/  import · youtube · playlist · links · safe-url · scale · units · parseJsonLdRecipe · parseMicrodataRecipe · youtubeUrlParser · recipeTypes
+  recipes/  import · youtube · playlist · links · tags · auto-tag · filter · safe-url · scale · units · parseJsonLdRecipe · parseMicrodataRecipe · youtubeUrlParser · recipeTypes
   convex-token.ts            # sign-in pass for server routes calling Convex
   *.test.ts                  # 7 test files
 convex/
@@ -226,6 +226,7 @@ Docs: https://vercel.com/docs · Hobby plan, free. Same env vars set in project 
 - **Stores limited to Kroger-family stores near the ZIP** (Pick 'n Save, Metro Market) — other chains show "no price found".
 - **Substitutes instead of web search** *(build)*: when Kroger has no real match, Claude names an everyday swap and the app prices it; no third price source.
 - **Meal sizes trust Claude's amounts** *(build)*: code checks each dinner's stated servings, not whether its amounts truly match; recipes from links are scaled by real math.
+- **Search runs in the browser, not a Convex search index** *(build, slice 9)*: the shelf already loads every recipe (~90), so filtering them as you type is instant with no index to maintain; switch to a Convex search index if the shelf passes ~1,000 recipes. Vector (meaning-based) search stays Later; mood requests go through the crew, which sees titles and tags.
 - **Playlist recipes read on demand** *(build, slice 9)*: titles sync instantly; each video is read the first time it's opened or planned (reading all 86 up front would cost ~86 Claude calls and minutes of waiting for recipes that may never be cooked).
 
 ## Decisions and Open Issues
