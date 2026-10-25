@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import RegularsSection from "@/components/RegularsSection";
 
 // What's in your pantry, remembered across weeks. The crew reads this when it plans.
 export default function PantryPage() {
@@ -86,6 +87,7 @@ export default function PantryPage() {
           ))}
         </ul>
       )}
+      <RegularsSection />
     </div>
   );
 }

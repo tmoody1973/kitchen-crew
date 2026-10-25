@@ -1,50 +1,7 @@
-import { v, Infer } from "convex/values";
+import { v } from "convex/values";
 import { mutation, MutationCtx, query } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
-import { activeWeek } from "./weeks";
-
-const MAX_AMOUNT = 10_000;
-
-// A Kroger product as it comes back from /api/price or /api/products.
-export const product = v.object({
-  productId: v.string(),
-  name: v.string(),
-  size: v.optional(v.string()),
-  price: v.number(),
-  imageUrl: v.optional(v.string()),
-});
-
-// Only show product photos served by Kroger.
-const KROGER_IMAGE = /^https:\/\/www\.kroger\.com\/product\/images\//;
-
-function checkAmount(n: number | undefined, label: string) {
-  if (n !== undefined && (!Number.isFinite(n) || n < 0 || n > MAX_AMOUNT)) {
-    throw new Error(`${label} must be between $0 and $10,000`);
-  }
-}
-
-/** Row fields for a chosen Kroger product, or "no price found" when there isn't one. */
-export function productFields(p: Infer<typeof product> | undefined) {
-  if (!p) {
-    return {
-      estimate: undefined,
-      estimateSource: "manual" as const,
-      productId: undefined,
-      productName: undefined,
-      size: undefined,
-      imageUrl: undefined,
-    };
-  }
-  checkAmount(p.price, "Price");
-  return {
-    estimate: p.price,
-    estimateSource: "kroger" as const,
-    productId: p.productId.slice(0, 20),
-    productName: p.name.slice(0, 200),
-    size: p.size?.slice(0, 40),
-    imageUrl: p.imageUrl && KROGER_IMAGE.test(p.imageUrl) ? p.imageUrl : undefined,
-  };
-}
+import { activeWeek, checkAmount, product, productFields } from "./model";
 
 /** Loads an item only if it belongs to the signed-in user's current week. */
 async function ownItem(ctx: MutationCtx, id: Id<"listItems">) {
@@ -74,7 +31,7 @@ export const add = mutation({
     if (!trimmed || trimmed.length > 80) throw new Error("Item name must be 1–80 characters");
     const week = await activeWeek(ctx);
     if (!week) throw new Error("Set this week's budget first");
-    return await ctx.db.insert("listItems", { weekId: week._id, name: trimmed, packs: 1, ...productFields(product) });
+    return await ctx.db.insert("listItems", { weekId: week._id, name: trimmed, packs: 1, category: "extra", ...productFields(product) });
   },
 });
 
@@ -134,5 +91,14 @@ export const remove = mutation({
   handler: async (ctx, { id }) => {
     await ownItem(ctx, id);
     await ctx.db.delete(id);
+  },
+});
+
+/** Label a row as a dinner ingredient or an extra. */
+export const setCategory = mutation({
+  args: { id: v.id("listItems"), category: v.union(v.literal("dinner"), v.literal("extra")) },
+  handler: async (ctx, { id, category }) => {
+    await ownItem(ctx, id);
+    await ctx.db.patch(id, { category });
   },
 });

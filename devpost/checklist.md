@@ -59,7 +59,7 @@ Build mode: learn
   Learner check: Paste a recipe link you like and a YouTube cooking video. Check the recipe view (ingredients, steps, servings at 3), that both land on My Recipes, and ask the crew to plan 2 days using your saved recipes.
   Commit: `feat: recipe links, recipe view, and My Recipes shelf`
 
-- [ ] **6. Budget for the extras: Regulars and a Dinners/Extras split**
+- [x] **6. Budget for the extras: Regulars and a Dinners/Extras split**
   Becomes usable: A Regulars list of things bought most weeks (sparkling water ×2, bananas, chips, a 12-pack), each priced at the chosen store, added to the shopping list with one tap or automatically each new week. The weekly budget splits into Dinners and Extras (Tarik sets it, or the app suggests one from the Regulars total). The tally shows both ("Dinners $98 of $160 · Extras $41 of $62"), the crew plans dinners against the Dinners share, and list rows are labeled 🍽 dinner / 🛒 extra.
   Why now: Makes "under budget this week" honest by counting snacks, fruit, and drinks, which are real grocery spend; Tarik ranked it first among the added ideas.
   PRD ref: `prd.md > Running Tally`, `prd.md > Shopping List and Prices`, `prd.md > Budget Setup`
@@ -167,3 +167,6 @@ Activity mode: [not started]
 - Slice 5: replaced "metric with American in parentheses" by a **US | Metric toggle** on the recipe view (Tarik wanted to see either system; the green-beans recipe was US-native so nothing converted before).
 - Slice 8 becomes a **Kanban board** (Tarik's idea): day columns, dinner cards, an Ideas column, drag-and-drop with a phone-friendly Move-to menu.
 - Slice 5 learner check: Tarik confirmed it worked (recipe links, recipe view, saved chats, Add to this week).
+- Slice 6: built Regulars (Pantry page), Add regulars + auto-add for new weeks, Dinners/Extras split (Budget page) with suggestion, two-line tally, 🍽/🛒 row labels, crew plans against the Dinners share. Moved shared Convex helpers into `convex/model.ts` after a circular import (weeks ↔ regulars ↔ listItems) broke the Convex upload. Not verified: auto-add when a real new week starts (needs a week to end). Trips (one weekly list split by store) still awaiting Tarik's decision.
+- Slice 6: regulars stay connected to Kroger (Tarik asked): "Add regulars" refreshes each price at the current store by product ID; regulars get "Change brand" / "Find at Kroger".
+- Slice 6 learner check: Tarik confirmed ("looks good"). Trips (one weekly list split by store) not built — no decision; listed as a possible later enhancement.

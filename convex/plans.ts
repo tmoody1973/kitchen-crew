@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { activeWeek } from "./weeks";
-import { product, productFields } from "./listItems";
+import { activeWeek, product, productFields } from "./model";
 import { saveRecipe } from "./recipes";
 
 /** This week's saved dinners (from the last "Use this plan"). */
@@ -99,7 +98,14 @@ export const usePlan = mutation({
         }
         continue; // never a duplicate row
       }
-      const id = await ctx.db.insert("listItems", { weekId: week._id, name, packs, fromPlan: true, ...productFields(item.product) });
+      const id = await ctx.db.insert("listItems", {
+        weekId: week._id,
+        name,
+        packs,
+        fromPlan: true,
+        category: "dinner",
+        ...productFields(item.product),
+      });
       onList.set(name.toLowerCase(), (await ctx.db.get(id))!);
       added++;
     }

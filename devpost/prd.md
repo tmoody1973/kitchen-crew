@@ -69,6 +69,14 @@ Source: `scope.md > The Core Loop`.
   - [ ] Tapping a dinner opens its recipe view, with ingredients rescaled by a servings stepper and a **US | Metric** toggle (e.g. "397 g" ↔ "14 oz", "3¾ cups" ↔ "887 ml").
   - [ ] The crew's own dinners are saved as recipes, with short steps, when he uses a plan.
 
+### Regulars and Extras *(added in build, slice 6)*
+- As Tarik, I want snacks, fruit, and drinks counted so that "under budget" reflects everything I actually buy.
+  - [ ] A Regulars list (on the Pantry page) of things bought most weeks, each priced at the chosen store, with a pack count and a brand choice; prices refresh from Kroger each time they're added to a list.
+  - [ ] "Add regulars" puts them on the week's list in one tap (no duplicates); an option adds them automatically to each new week.
+  - [ ] The weekly budget splits into Dinners and Extras (on the Budget page), with a suggestion from the regulars' total.
+  - [ ] The tally shows both halves ("🍽 Dinners $98 of $160 · 🛒 Extras $41 of $62"); the crew and the Budget Fit card plan dinners against the Dinners share.
+  - [ ] Every list row is labeled 🍽 dinner or 🛒 extra (plan items are dinners; regulars and hand-added items are extras), tap to switch.
+
 ### My Pantry *(added in build, slice 4)*
 - As Tarik, I want the crew to know what's already in my kitchen so that plans don't make me buy what I have.
   - [ ] A Pantry list of staples he has or is out of, remembered across weeks; the crew reads it when planning.
@@ -122,7 +130,8 @@ Source: `scope.md > The Unique Kernel`.
 - Shopping list from the plan with Kroger estimated prices and actual-paid boxes.
 - Running tally (spent / budget / left / days left) with color-coded rows and an under-budget signal.
 - *Added in build:* store picker and brand choice; household sizing; My Pantry; recipe links, recipe view, and My Recipes; substitutes; saved chats; "Add to this week".
-- *Planned in build order:* **Regulars + Dinners/Extras budget** (slice 6: weekly regulars like sparkling water, fruit, snacks, beer priced and added to the list; budget split with a two-part tally; crew plans against the Dinners share), design pass (7), **week planning board, Kanban-style (day columns, dinner cards, an Ideas column, drag to reschedule), with a 1-week / 2-week view** (8), YouTube playlist sync with tags and search (9), barcode scanning (10), **Instacart: send the list to Instacart** (11, final; reopens the deferred Instacart integration at Tarik's request).
+- *Added in build (slice 6):* Regulars and a Dinners/Extras budget split.
+- *Planned in build order:* design pass (7), **week planning board, Kanban-style (day columns, dinner cards, an Ideas column, drag to reschedule), with a 1-week / 2-week view** (8), YouTube playlist sync with tags and search (9), barcode scanning (10), **Instacart: send the list to Instacart** (11, final; reopens the deferred Instacart integration at Tarik's request).
 
 ## Deferred From the POC
 - ~~**YouTube playlist import**~~ — *brought back in during the build as slice 6 at Tarik's request (official YouTube API).*
@@ -135,7 +144,7 @@ Source: `scope.md > The Unique Kernel`.
 - More savings comparisons (vs. delivery, vs. usual spending) and a savings running total.
 - Full Sunday-planning flow for the whole week.
 - Visibly separate staff roles (budget keeper, meal planner, price checker).
-- *From the build:* recipe folders/collections, ratings, and cook history; cook mode; true vector (meaning-based) search, which needs an embeddings provider; automatic scheduled playlist sync; price history across stores.
+- *From the build:* shopping **trips** (one weekly list split into tabs by store, e.g. Metro / Sendik's / Instacart, sharing one weekly tally); recipe folders/collections, ratings, and cook history; cook mode; true vector (meaning-based) search, which needs an embeddings provider; automatic scheduled playlist sync; price history across stores.
 
 ## Non-Goals
 - **Bank connection (Plaid)** — credentials and security work far beyond the PoC (cut in scope).

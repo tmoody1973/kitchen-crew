@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
-import { estimateTotal, formatMoney, rowStatus } from "@/lib/tally";
+import { categoryOf, estimateTotal, formatMoney, rowStatus } from "@/lib/tally";
 import ProductPicker from "./ProductPicker";
 
 /** "" → cleared box; anything else must be a non-negative number. */
@@ -27,6 +27,8 @@ export default function ListRow({ item, krogerStoreId }: { item: Doc<"listItems"
   const setPacks = useMutation(api.listItems.setPacks);
   const setProduct = useMutation(api.listItems.setProduct);
   const remove = useMutation(api.listItems.remove);
+  const setCategory = useMutation(api.listItems.setCategory);
+  const category = categoryOf(item);
   const [paidText, setPaidText] = useState(item.paid?.toString() ?? "");
   const [estimateText, setEstimateText] = useState("");
   const [picking, setPicking] = useState(false);
@@ -61,7 +63,18 @@ export default function ListRow({ item, krogerStoreId }: { item: Doc<"listItems"
           <img src={item.imageUrl} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-lg bg-white object-contain" />
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-lg font-black">{item.name}</p>
+          <p className="truncate text-lg font-black">
+            <button
+              type="button"
+              onClick={() => setCategory({ id: item._id, category: category === "dinner" ? "extra" : "dinner" }).catch(fail)}
+              className="mr-1 text-base"
+              aria-label={`${category === "dinner" ? "Dinner ingredient" : "Extra"}; tap to switch`}
+              title={category === "dinner" ? "Dinner ingredient (tap to make it an extra)" : "Extra (tap to make it a dinner ingredient)"}
+            >
+              {category === "dinner" ? "🍽" : "🛒"}
+            </button>
+            {item.name}
+          </p>
           {item.productName && (
             <p className="text-xs font-bold text-slate-500">
               {item.productName}

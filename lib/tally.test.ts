@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeTally, daysLeft, formatMoney, isWeekActive, rowStatus, estimateTotal } from "./tally";
+import { categoryOf, computeSplitTally, computeTally, daysLeft, formatMoney, isWeekActive, rowStatus, estimateTotal, suggestExtras } from "./tally";
 import { mapLimit, pickImage, pickPrice, rankByRelevance } from "./kroger";
 import { suggestedBudget } from "./usda";
 
@@ -132,5 +132,38 @@ describe("pacing Kroger calls", () => {
     });
     expect(out).toEqual([10, 20, 30, 40, 50, 60, 70]);
     expect(peak).toBe(3);
+  });
+});
+
+describe("dinners and extras", () => {
+  const items = [
+    { paid: 12.5, fromPlan: true }, // chicken (dinner)
+    { paid: 3.99, fromPlan: true }, // rice (dinner)
+    { paid: 5.49 }, // sparkling water (extra, hand-added)
+    { paid: 13.99, category: "extra" as const, fromPlan: true }, // beer moved to extras
+    { fromPlan: true }, // not bought yet
+  ];
+
+  it("splits spending between the Dinners and Extras shares", () => {
+    const t = computeSplitTally(222, 62, items, start, start);
+    expect(t.dinner).toEqual({ budget: 160, spent: 16.49, left: 143.51 });
+    expect(t.extra).toEqual({ budget: 62, spent: 19.48, left: 42.52 });
+    expect(t.total).toMatchObject({ spent: 35.97, left: 186.03, status: "under" });
+  });
+
+  it("labels rows: plan items are dinner, everything else extra, unless changed", () => {
+    expect(categoryOf({ fromPlan: true })).toBe("dinner");
+    expect(categoryOf({})).toBe("extra");
+    expect(categoryOf({ fromPlan: true, category: "extra" })).toBe("extra");
+  });
+
+  it("keeps the extras share inside the budget", () => {
+    expect(computeSplitTally(100, 150, [], start, start).dinner.budget).toBe(0);
+    expect(computeSplitTally(100, -5, [], start, start).extra.budget).toBe(0);
+  });
+
+  it("suggests an extras share from the regulars, rounded up to $5", () => {
+    expect(suggestExtras([{ estimate: 5.49, packs: 2 }, { estimate: 0.69, packs: 6 }, { estimate: 13.99 }, {}])).toBe(30); // 10.98 + 4.14 + 13.99 = 29.11 → $30
+    expect(suggestExtras([])).toBe(0);
   });
 });

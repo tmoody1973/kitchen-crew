@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { isWeekActive } from "@/lib/tally";
 import { DEFAULT_PLAN_LEVEL, PLAN_LABELS, suggestedBudget } from "@/lib/usda";
 import HouseholdSettings from "@/components/HouseholdSettings";
+import ExtrasSplit from "@/components/ExtrasSplit";
 
 const SUGGESTED = suggestedBudget(DEFAULT_PLAN_LEVEL);
 
@@ -18,6 +19,7 @@ export default function BudgetPage() {
   return (
     <div className="flex flex-col gap-4">
       <BudgetForm key={week?._id ?? "new"} current={active ? week.budget : undefined} />
+      <ExtrasSplit />
       <HouseholdSettings />
     </div>
   );

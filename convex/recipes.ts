@@ -1,7 +1,7 @@
 import { v, Infer } from "convex/values";
 import { mutation, MutationCtx, query } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
-import { requireUserId } from "./weeks";
+import { requireUserId } from "./model";
 
 export const recipeFields = v.object({
   title: v.string(),

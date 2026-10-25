@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { requireUserId } from "./weeks";
+import { requireUserId } from "./model";
 
 const MAX_JSON = 900_000; // Convex documents max out at 1 MB
 

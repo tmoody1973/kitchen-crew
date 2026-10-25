@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query, QueryCtx } from "./_generated/server";
-import { requireUserId } from "./weeks";
+import { requireUserId } from "./model";
 
 const clean = (name: string) => name.trim().toLowerCase().replace(/\s+/g, " ");
 

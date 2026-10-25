@@ -11,6 +11,7 @@ export default defineSchema({
     storeName: v.optional(v.string()),
     // Set while shopping at a non-Kroger store; prices still come from storeId (the last Kroger store).
     otherStore: v.optional(v.string()),
+    extrasBudget: v.optional(v.number()), // the Extras share of the budget (snacks, drinks, fruit…)
   }).index("by_user", ["userId"]),
 
   // How to size meals: servings per dinner (teen counts as 1.5) and whether to plan lunch leftovers.
@@ -18,6 +19,19 @@ export default defineSchema({
     userId: v.string(),
     servings: v.number(),
     leftovers: v.boolean(),
+    autoRegulars: v.optional(v.boolean()), // add regulars to each new week's list automatically
+  }).index("by_user", ["userId"]),
+
+  // Things bought most weeks (sparkling water, bananas, chips…), priced at the chosen store.
+  regulars: defineTable({
+    userId: v.string(),
+    name: v.string(),
+    packs: v.number(),
+    estimate: v.optional(v.number()),
+    productId: v.optional(v.string()),
+    productName: v.optional(v.string()),
+    size: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
   }).index("by_user", ["userId"]),
 
   // Planner conversations, saved like Claude chats so you can leave and come back.
@@ -88,5 +102,6 @@ export default defineSchema({
     packs: v.optional(v.number()), // packages to buy; missing = 1
     paid: v.optional(v.number()),
     fromPlan: v.optional(v.boolean()), // added by "Use this plan"; replaced when a new plan is used
+    category: v.optional(v.union(v.literal("dinner"), v.literal("extra"))), // missing → plan items dinner, others extra
   }).index("by_week", ["weekId"]),
 });

@@ -17,7 +17,7 @@ Keep replies short: a sentence or two, like a friendly text message.
 ${
     ctx.remaining === undefined
       ? "No weekly budget is set yet."
-      : `This week: $${ctx.remaining.toFixed(2)} left with ${ctx.daysLeft} days to go. ${
+      : `This week: $${ctx.remaining.toFixed(2)} left for dinners with ${ctx.daysLeft} days to go. ${
           ctx.storeName ? `Prices come from ${ctx.storeName}.` : "No Kroger store is picked yet."
         }`
   }${

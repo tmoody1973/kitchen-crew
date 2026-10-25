@@ -1,25 +1,8 @@
 import { v } from "convex/values";
-import { mutation, query, QueryCtx } from "./_generated/server";
-import { isWeekActive } from "../lib/tally";
+import { mutation, query } from "./_generated/server";
+import { activeWeek, addRegularsToWeek, requireUserId } from "./model";
 
 const planLevel = v.union(v.literal("thrifty"), v.literal("low"), v.literal("moderate"), v.literal("custom"));
-
-export async function requireUserId(ctx: QueryCtx): Promise<string> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new Error("Not signed in");
-  return identity.subject;
-}
-
-/** The signed-in user's week if it's still within its 7 days, else null. */
-export async function activeWeek(ctx: QueryCtx) {
-  const userId = await requireUserId(ctx);
-  const week = await ctx.db
-    .query("weeks")
-    .withIndex("by_user", (q) => q.eq("userId", userId))
-    .order("desc")
-    .first();
-  return week && isWeekActive(week.startDate, Date.now()) ? week : null;
-}
 
 /** The signed-in user's most recent week. The page decides if it's still active. */
 export const latest = query({
@@ -53,14 +36,20 @@ export const setBudget = mutation({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
       .first();
-    return await ctx.db.insert("weeks", {
+    const weekId = await ctx.db.insert("weeks", {
       userId,
       budget,
       planLevel,
       startDate: Date.now(),
       storeId: previous?.storeId,
       storeName: previous?.storeName,
+      // Keep last week's split, as long as it still fits the new budget.
+      extrasBudget: previous?.extrasBudget !== undefined ? Math.min(previous.extrasBudget, budget) : undefined,
     });
+    // New week: add regulars automatically if Tarik turned that on.
+    const household = await ctx.db.query("household").withIndex("by_user", (q) => q.eq("userId", userId)).first();
+    if (household?.autoRegulars) await addRegularsToWeek(ctx, userId, weekId);
+    return weekId;
   },
 });
 
@@ -106,5 +95,18 @@ export const otherStores = query({
       .query("otherStores")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
+  },
+});
+
+/** The Extras share of this week's budget (0 = no split). */
+export const setExtras = mutation({
+  args: { extrasBudget: v.number() },
+  handler: async (ctx, { extrasBudget }) => {
+    const week = await activeWeek(ctx);
+    if (!week) throw new Error("Set this week's budget first");
+    if (!Number.isFinite(extrasBudget) || extrasBudget < 0 || extrasBudget > week.budget) {
+      throw new Error("Extras must be between $0 and the weekly budget");
+    }
+    await ctx.db.patch(week._id, { extrasBudget });
   },
 });

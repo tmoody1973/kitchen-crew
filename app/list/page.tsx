@@ -27,6 +27,7 @@ export default function ListPage() {
       <TallyHeader />
       <StorePicker week={week} items={items} />
       <AddItem krogerStoreId={week.storeId} />
+      <AddRegulars krogerStoreId={week.storeId} />
       {items.length === 0 ? (
         <p className="rounded-2xl bg-white p-4 text-center font-bold text-slate-500">
           Your list is empty. Add an item above, or{" "}
@@ -209,5 +210,44 @@ function AddItem({ krogerStoreId }: { krogerStoreId?: string }) {
       </div>
       {error && <p className="text-sm font-bold text-carrot-dark">{error}</p>}
     </form>
+  );
+}
+
+// One tap: put this week's regulars on the list (skips anything already there).
+function AddRegulars({ krogerStoreId }: { krogerStoreId?: string }) {
+  const regulars = useQuery(api.regulars.mine);
+  const addToList = useMutation(api.regulars.addToList);
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  if (!regulars || regulars.length === 0) return null;
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          setNote(krogerStoreId ? "Checking today's prices…" : null);
+          // Fresh prices at the current store (same product by id; top match if it never had one).
+          const fresh = krogerStoreId
+            ? await fetchPrices(regulars.map((r) => ({ name: r.name, productId: r.productId })), krogerStoreId)
+            : [];
+          const prices = regulars.map((r, n) => {
+            const p = fresh[n];
+            return {
+              id: r._id,
+              product: p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, imageUrl: p.imageUrl } : undefined,
+            };
+          });
+          const added = await addToList({ prices }).catch(() => -1);
+          setBusy(false);
+          setNote(added < 0 ? "Couldn't add regulars." : added === 0 ? "Regulars are already on your list (prices refreshed)." : `Added ${added} regulars at today's prices.`);
+        }}
+        className="rounded-2xl border-2 border-leaf bg-white px-4 py-2 font-black text-leaf-dark disabled:opacity-60"
+      >
+        🛒 Add regulars ({regulars.length})
+      </button>
+      {note && <span className="text-sm font-bold text-slate-500">{note}</span>}
+    </div>
   );
 }

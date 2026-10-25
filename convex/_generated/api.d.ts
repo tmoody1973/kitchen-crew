@@ -11,9 +11,11 @@
 import type * as chats from "../chats.js";
 import type * as household from "../household.js";
 import type * as listItems from "../listItems.js";
+import type * as model from "../model.js";
 import type * as pantry from "../pantry.js";
 import type * as plans from "../plans.js";
 import type * as recipes from "../recipes.js";
+import type * as regulars from "../regulars.js";
 import type * as weeks from "../weeks.js";
 
 import type {
@@ -26,9 +28,11 @@ declare const fullApi: ApiFromModules<{
   chats: typeof chats;
   household: typeof household;
   listItems: typeof listItems;
+  model: typeof model;
   pantry: typeof pantry;
   plans: typeof plans;
   recipes: typeof recipes;
+  regulars: typeof regulars;
   weeks: typeof weeks;
 }>;
 

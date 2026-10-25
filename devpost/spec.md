@@ -103,6 +103,9 @@ PRD ref: `prd.md > Shopping List and Prices`, `prd.md > Running Tally`.
 Plain code: spent = sum of paid amounts this week (added in whole cents); left = budget − spent; days left = 7 − days since week start; status = under/over; row color = paid vs. estimate × packs. Shown as "$142 of $200 this week · $58 left · 4 days left" with an under/over message. Covered by `lib/tally.test.ts`.
 PRD ref: `prd.md > Running Tally`.
 
+### Regulars and Extras (`components/RegularsSection.tsx`, `components/ExtrasSplit.tsx`, `convex/regulars.ts`) *(added in build, slice 6)*
+Regulars live on the Pantry page, priced through the Kroger client, with "Change brand" / "Find at Kroger" (same top-5 picker as the List); "Add regulars" re-prices each one at the current store (same product by ID) before adding, refreshing the saved price; "Add regulars" on the List and an auto-add option (new weeks, via `weeks.setBudget`) copy them onto the list as extras. `weeks.extrasBudget` holds the Extras share (kept into the next week). `lib/tally.ts > computeSplitTally` splits spending by row category (`categoryOf`: plan items dinner, others extra, overridable), shown as a second tally line; the chat route passes the Dinners remaining to the crew and Budget Fit. `suggestExtras` suggests the share from the regulars' total.
+
 ### My Pantry (`app/pantry/page.tsx`, `convex/pantry.ts`) *(added in build, slice 4)*
 Staples marked have / out, remembered across weeks. The chat route passes them to the crew; the plan card's pantry chips flip an item to "need it", price it, and save the change.
 PRD ref: `prd.md > My Pantry`.
@@ -130,6 +133,8 @@ All in Convex, every record tagged with the signed-in user's ID (directly, or th
 - **pantry** *(slice 4)* — `userId`, `name` (lowercase), `have`.
 - **household** *(slice 4)* — `userId`, `servings`, `leftovers`.
 - **otherStores** *(slice 2)* — `userId`, `name`.
+- **regulars** *(slice 6)* — `userId`, `name`, `packs`, `estimate`, `productId` / `productName` / `size` / `imageUrl`. Weeks gain `extrasBudget`; list items gain `category` ("dinner" | "extra"); household gains `autoRegulars`.
+- Shared helpers (who's signed in, the active week, the product shape, adding regulars) live in `convex/model.ts`, so function files never import each other.
 
 Leaving and coming back: everything, including planner chats, is in Convex, so any device shows the same week after sign-in.
 
@@ -148,7 +153,7 @@ app/
   api/chat/route.ts          # Claude + tools (proposeMealPlan, importRecipe, suggestBudget)
   api/stores · api/price · api/products   # Kroger server routes
 components/
-  TallyHeader · ListRow · ProductPicker · HouseholdSettings · ChatMenu · ConvexClientProvider
+  TallyHeader · ListRow · ProductPicker · HouseholdSettings · ExtrasSplit · RegularsSection · ChatMenu · ConvexClientProvider
   cards/  BudgetCard · BudgetFit · MealPlanCard · PlanResult · PricingProgress · PantryChips · RecipeCard
 lib/
   tally.ts · usda.ts · household.ts · quantities.ts · meal-plan.ts · pick-products.ts · staff-prompt.ts
@@ -156,7 +161,7 @@ lib/
   recipes/  import · youtube · safe-url · scale · units · parseJsonLdRecipe · parseMicrodataRecipe · youtubeUrlParser · recipeTypes
   *.test.ts                  # 7 test files
 convex/
-  schema.ts · weeks.ts · listItems.ts · plans.ts · pantry.ts · household.ts · recipes.ts · chats.ts · auth.config.ts
+  schema.ts · model.ts (shared helpers) · weeks.ts · listItems.ts · plans.ts · pantry.ts · regulars.ts · household.ts · recipes.ts · chats.ts · auth.config.ts
 scripts/
   kroger-probe.mjs · plan-probe.mts · import-probe.mts   # real-service checks used during the build
 middleware.ts · next.config.ts · .env.example

@@ -17,7 +17,7 @@ import { importRecipe, ImportError } from "@/lib/recipes/import";
 import { scaleIngredients } from "@/lib/recipes/scale";
 import { pickProducts } from "@/lib/pick-products";
 import { staffPrompt } from "@/lib/staff-prompt";
-import { computeTally, isWeekActive } from "@/lib/tally";
+import { computeSplitTally, computeTally, isWeekActive } from "@/lib/tally";
 import { PLAN_LABELS, suggestedBudget } from "@/lib/usda";
 import { targetServings } from "@/lib/household";
 import { z } from "zod";
@@ -64,9 +64,14 @@ export async function POST(req: Request) {
   const servings = targetServings(household);
   // No active week is fine for budget help; meal plans need one.
   const activeWeek = week && isWeekActive(week.startDate, Date.now()) ? week : null;
-  const tally = activeWeek
+  const fullTally = activeWeek
     ? computeTally(activeWeek.budget, items.map((i) => i.paid), activeWeek.startDate, Date.now())
     : null;
+  // With a Dinners/Extras split, the crew and the Budget Fit card plan against what's left of the Dinners share.
+  const tally =
+    activeWeek && fullTally && activeWeek.extrasBudget
+      ? { ...fullTally, left: computeSplitTally(activeWeek.budget, activeWeek.extrasBudget, items, activeWeek.startDate, Date.now()).dinner.left }
+      : fullTally;
 
   const result = streamText({
     model: anthropic("claude-sonnet-5-5"),
