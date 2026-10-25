@@ -40,7 +40,7 @@ const started = Date.now();
 const candidates = [];
 for (const i of toBuy) candidates.push({ name: i.name, dish: "", amountText: i.amountText, options: await searchCandidates(i.name, storeId) });
 console.log(`searched ${toBuy.length} items one at a time in ${((Date.now() - started) / 1000).toFixed(1)} s`);
-const products = await pickProducts(candidates);
+const { products } = await pickProducts(candidates);
 const priced = pricePlan(plan, products, 200);
 
 for (const item of priced.items) {

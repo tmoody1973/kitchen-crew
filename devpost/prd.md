@@ -19,11 +19,17 @@ Source: `scope.md > The Core Loop`, `scope.md > What "Working" Looks Like`.
 6. **In the store.** Tarik types the actual price into each row as he shops. Rows color-code against the estimate; the tally at the top updates — e.g. "$142 of $200 this week · $58 left for 4 days."
 7. **Success.** The tally shows he's **under budget this week**.
 
+*Grew during the build (details below):* he picks which Pick 'n Save or Metro Market he's shopping at; pastes recipe website or YouTube links and the crew reads the real recipe; marks pantry staples he has or is out of; sizes dinners for his household (teen counted as 1½, optional lunch leftovers); and his planner chats are saved so he can leave and come back.
+
 ## Screens and Layout
 - **Budget setup** — first-use only: suggested weekly budget, a field to change it, optional "help me figure it out" questions.
 - **Planner chat** — conversation with the staff; replies come back as interactive cards (meal plan, budget fit) rather than plain paragraphs, per `scope.md > Inspiration & Identity` (generative UI). The plan is editable in place.
 - **Shopping list** — tally pinned at the top; list rows below (item · Kroger estimate · actual-paid box).
-- Movement: setup → planner → shopping list; the tally is visible wherever spending is shown. Exact navigation is left to `4-spec`/build.
+- **My Pantry** *(added in build, slice 4)* — staples he has or is out of, remembered across weeks.
+- **My Recipes** *(added in build, slice 5)* — this week's dinners plus every saved recipe; a **recipe view** with photo, source, time, ingredients scaled by a servings stepper (metric amounts shown with American units), and numbered steps.
+- **Household** *(added in build, slice 4)* — on the Budget page: servings per dinner and a leftovers toggle.
+- **Saved chats** *(added in build, slice 5)* — the planner reopens the most recent conversation; "+ New chat" and a Chats list, like Claude.
+- Movement: top navigation (Budget · Plan · List · Pantry · Recipes); the tally is visible wherever spending is shown.
 
 ## Look and Feel
 - **Vibe:** playful, Duolingo-like — friendly, encouraging, game-ish energy; bright and bold rather than a sober finance app.
@@ -39,6 +45,7 @@ Source: `scope.md > The POC Boundary` (USDA-seeded budget).
   - [ ] On first open, a suggested weekly amount for a family of three appears, labeled as based on USDA food-cost data.
   - [ ] Tarik can replace it with his own number, and the tally uses whichever he chose.
   - [ ] An optional path asks a few questions about what he likes to cook and returns an adjusted suggestion.
+  - [ ] **Household size:** he sets servings per dinner (default 3½: two adults plus a teen counted as 1½) and can turn on "plan leftovers for lunch" (dinners serve 5). *(Added in build, slice 4.)*
 
 ### Meal Planning Chat
 Source: `scope.md > The Core Loop`.
@@ -48,6 +55,24 @@ Source: `scope.md > The Core Loop`.
   - [ ] The plan shows each meal with an estimated cost and whether the total fits the remaining budget.
   - [ ] Answers appear as interactive cards, not just text.
   - [ ] Tarik can change a meal by editing the plan or by asking in chat; costs and budget fit update.
+  - [ ] Every dinner says how many it serves, sized to his household; dinners sized too small are sent back to the crew. *(Added in build, slice 4.)*
+  - [ ] While a plan is priced, a progress bar shows how far along it is. *(Added in build, slice 3.)*
+  - [ ] "Use this plan" turns the plan into shopping list rows; his own and already-paid items are kept. *(Slice 4.)*
+  - [ ] "Add to this week" adds a plan's dinners without replacing the current plan, so dinners from different chats can be combined; ingredients already on the list get more packs instead of duplicate rows. *(Added in build, slice 5.)*
+  - [ ] When the store has no real match for an ingredient, the crew suggests an everyday substitute and prices that, shown as a swap. *(Added in build, slice 5.)*
+  - [ ] His planner conversations are saved: leaving to open a recipe, reloading, or switching devices returns to where he left off; he can start a new chat or reopen an older one. *(Added in build, slice 5.)*
+
+### Recipes *(added in build, slice 5)*
+- As Tarik, I want to plan from real recipes I like so that the plan and shopping list match what I'll actually cook.
+  - [ ] Pasting a recipe website or YouTube link makes the crew read the real recipe (ingredients, steps, servings, time, photo) and save it to My Recipes.
+  - [ ] He can ask the crew to plan with a pasted or saved recipe; its ingredients are scaled to his servings by code (whole items round up; frying oil and pasta water don't scale; things made earlier in the recipe aren't bought).
+  - [ ] Tapping a dinner opens its recipe view, with ingredients rescaled by a servings stepper and a **US | Metric** toggle (e.g. "397 g" ↔ "14 oz", "3¾ cups" ↔ "887 ml").
+  - [ ] The crew's own dinners are saved as recipes, with short steps, when he uses a plan.
+
+### My Pantry *(added in build, slice 4)*
+- As Tarik, I want the crew to know what's already in my kitchen so that plans don't make me buy what I have.
+  - [ ] A Pantry list of staples he has or is out of, remembered across weeks; the crew reads it when planning.
+  - [ ] Pantry chips on the plan card let him mark a staple he's out of; it gets priced and added to the total.
 
 ### Shopping List and Prices
 Source: `scope.md > The POC Boundary` (Kroger prices).
@@ -73,7 +98,10 @@ Source: `scope.md > The Unique Kernel`.
 - **No Kroger price** — "no price found"; he can type an estimate.
 - **Plan over budget** — the plan card shows it doesn't fit; he edits or chats to adjust.
 - **Overspent** — paid > estimate: the row color-codes; if the week total passes the budget, the tally shows over budget (not just under).
-- **Persistence** — *confirmed by Tarik:* budget, plan, list, and entered prices are still there when he closes and reopens it during the week. Needed for "what did I spend this week?"
+- **Persistence** — *confirmed by Tarik:* budget, plan, list, and entered prices are still there when he closes and reopens it during the week. Needed for "what did I spend this week?" *Build:* planner chats are saved too (slice 5).
+- **No store picked** — the plan card asks him to pick a store on the List first. *(Build, slice 2–3.)*
+- **Kroger unreachable** — the chat says so and suggests trying again, instead of showing a $0 plan. *(Build, slice 3.)*
+- **Recipe link can't be read** — the crew says so and asks him to paste the ingredients. *(Build, slice 5.)*
 - **Week boundary** — *confirmed by Tarik:* a "week" is 7 days starting the day the budget is set; the tally resets after that.
 
 ## Product Decisions
@@ -82,27 +110,32 @@ Source: `scope.md > The Unique Kernel`.
 - Color-code paid vs. estimate — instant visual signal while shopping.
 - One staff voice, not visibly separate agents — keeps the chat simple; the "crew" framing stays in personality, not multiple speakers.
 - Typing, not voice, for now — simpler build; voice later.
-- Recipe inspiration via pasted names/links now; YouTube playlist (public) later.
+- Recipe inspiration via pasted names/links now; YouTube playlist (public) later. *Build: links are now actually read and saved (slice 5); the playlist was brought back in as slice 6 at Tarik's request.*
 - "No price found" + manual estimate now; web search fallback later — *drafted by Claude as later because it adds a third data source; Tarik can move it to now.*
 - Playful, Duolingo-like look, designed with `/impeccable`.
+- *Build decisions (Tarik):* store picker instead of one home store (he shops several stores); non-Kroger stores compared against Kroger; pick brand/size; My Pantry (full version); household sizing with a teen at 1½; recipe links with a recipe view and My Recipes shelf (reusing his Digero app's parsers); substitutes; saved chats like Claude; YouTube playlist sync with auto-tags and search (slice 6); barcode scanning (slice 7).
+- *Build decisions (Claude, accepted):* Kroger searches one at a time with a progress bar (after a burst got the connection briefly blocked); Claude Haiku picks the right product by meaning; whole-package pricing ("cost to buy"); read playlist recipes on demand rather than all at once.
 
 ## What We're Building
 - Budget setup with USDA-based suggestion, override, optional cooking questions.
 - Planner chat (one voice) that asks dish type and number of days, uses pasted recipes, returns an editable, costed plan as interactive cards.
 - Shopping list from the plan with Kroger estimated prices and actual-paid boxes.
 - Running tally (spent / budget / left / days left) with color-coded rows and an under-budget signal.
+- *Added in build:* store picker and brand choice; household sizing; My Pantry; recipe links, recipe view, and My Recipes; substitutes; saved chats; "Add to this week".
+- *Planned in build order:* **Regulars + Dinners/Extras budget** (slice 6: weekly regulars like sparkling water, fruit, snacks, beer priced and added to the list; budget split with a two-part tally; crew plans against the Dinners share), design pass (7), **week planning board, Kanban-style (day columns, dinner cards, an Ideas column, drag to reschedule), with a 1-week / 2-week view** (8), YouTube playlist sync with tags and search (9), barcode scanning (10), **Instacart: send the list to Instacart** (11, final; reopens the deferred Instacart integration at Tarik's request).
 
 ## Deferred From the POC
-- **YouTube playlist import** — second outside service (Google API); pasting recipes covers the demo.
+- ~~**YouTube playlist import**~~ — *brought back in during the build as slice 6 at Tarik's request (official YouTube API).*
 - **Web search for missing prices** — third data source; manual estimate covers it.
 - **Voice input** — nicer in the aisle, but an extra piece.
 - **Receipt photo logging** — second way to enter spending (from scope).
-- **Instacart integration** — access exists but coverage unchecked (from scope).
+- ~~**Instacart integration**~~ — *brought back in during the build as the final slice (11) at Tarik's request.*
 
 ## Possible Later Enhancements
 - More savings comparisons (vs. delivery, vs. usual spending) and a savings running total.
 - Full Sunday-planning flow for the whole week.
 - Visibly separate staff roles (budget keeper, meal planner, price checker).
+- *From the build:* recipe folders/collections, ratings, and cook history; cook mode; true vector (meaning-based) search, which needs an embeddings provider; automatic scheduled playlist sync; price history across stores.
 
 ## Non-Goals
 - **Bank connection (Plaid)** — credentials and security work far beyond the PoC (cut in scope).

@@ -49,7 +49,7 @@ Build mode: learn
   Learner check: Plan 3 days, remove one meal, ask the crew to swap another, then tap "Use this plan." Open the Shopping List, enter a few paid prices, and confirm the tally ends "under budget this week."
   Commit: `feat: adjustable plans that become your shopping list`
 
-- [ ] **5. Paste a recipe link, see the recipe, and keep it on your shelf**
+- [x] **5. Paste a recipe link, see the recipe, and keep it on your shelf**
   Becomes usable: Paste a recipe website or YouTube link in the planner; the crew reads the real recipe (ingredients, steps, servings, time, photo) and can put it in your plan, priced at your store. Tap a dinner to open a recipe view (photo, source badge, stats bar, ingredients rescaled with a servings stepper starting at 3, numbered steps, "Original recipe" link). Every imported or used recipe lands on a simple **My Recipes** shelf, and the crew can plan from it.
   Why now: Added by Tarik during slice 3. Built on the working plan → list journey (slice 4) so imported recipes flow straight into pricing; placed before barcode scanning at his choice.
   PRD ref: `prd.md > Meal Planning Chat` (pasted recipe names/links), `prd.md > Deferred From the POC` (YouTube, now reopened for single video links)
@@ -59,15 +59,15 @@ Build mode: learn
   Learner check: Paste a recipe link you like and a YouTube cooking video. Check the recipe view (ingredients, steps, servings at 3), that both land on My Recipes, and ask the crew to plan 2 days using your saved recipes.
   Commit: `feat: recipe links, recipe view, and My Recipes shelf`
 
-- [ ] **6. Scan a barcode in the aisle**
-  Becomes usable: On the Shopping List you tap Scan and point your phone at a barcode. A packaged item is added with its Kroger price at your store; a store-printed meat/deli/produce sticker fills in what you paid for that row.
-  Why now: An added request (Tarik, during slice 2) that speeds up the store moment. It comes after the core journey works, and phone-camera testing needs a secure (https) address, so it goes before the design pass that styles it.
-  PRD ref: `prd.md > Shopping List and Prices`, `prd.md > Running Tally`
-  Spec ref: `spec.md > Shopping List Screen`, `spec.md > Kroger Client (lib/kroger.ts)`, `spec.md > Kroger Public API`
-  Build: `barcode-detector` library (ZXing; covers iPhone Safari, which lacks built-in barcode reading) with the phone camera; a tested helper turning a printed UPC/EAN into a Kroger productId (drop the check digit, pad to 13) and reading the price from store-printed stickers (UPC starting with 2); scan → look up by productId at the chosen store → add row, or fill paid on a matching row; manual barcode entry fallback; local https for phone testing.
-  Verify (mechanical): Tests for UPC → productId (Heinz 013000006408 → 0001300000640) and sticker price decoding pass; a scripted lookup of 3 real barcodes returns the right products; `npm run build` succeeds.
-  Learner check: On your phone (secure address), scan 2 packaged items from your pantry and check the names and prices; scan a meat or deli sticker and check the paid amount it fills in.
-  Commit: `feat: barcode scanning in the aisle`
+- [ ] **6. Budget for the extras: Regulars and a Dinners/Extras split**
+  Becomes usable: A Regulars list of things bought most weeks (sparkling water ×2, bananas, chips, a 12-pack), each priced at the chosen store, added to the shopping list with one tap or automatically each new week. The weekly budget splits into Dinners and Extras (Tarik sets it, or the app suggests one from the Regulars total). The tally shows both ("Dinners $98 of $160 · Extras $41 of $62"), the crew plans dinners against the Dinners share, and list rows are labeled 🍽 dinner / 🛒 extra.
+  Why now: Makes "under budget this week" honest by counting snacks, fruit, and drinks, which are real grocery spend; Tarik ranked it first among the added ideas.
+  PRD ref: `prd.md > Running Tally`, `prd.md > Shopping List and Prices`, `prd.md > Budget Setup`
+  Spec ref: `spec.md > Tally Header and Budget Math (lib/tally.ts)`, `spec.md > Shopping List Screen`, `spec.md > Data Model`, `spec.md > Chat Route and the Staff's Tools (app/api/chat/route.ts)`
+  Build: `regulars` table (name, packs, product) priced via the Kroger client; a Regulars screen; "Add regulars" on the List plus an auto-add option for new weeks; `category` ("dinner" | "extra") on list items (plan items = dinner, regulars and manual adds = extra, changeable per row); `extrasBudget` on the week with a suggested split; tally math per category (tested); the chat route passes the Dinners remaining to the crew and the Budget Fit card.
+  Verify (mechanical): Tests for the split tally (dinner and extra spent/left, overall under/over); `npx convex run` adds regulars to a week's list once (no duplicates) and auto-adds on a new week; `npm run build` succeeds.
+  Learner check: Add 4 regulars, set the split, tap Add regulars, pay for one dinner item and one extra, and check both halves of the tally; plan a meal and check the Budget Fit uses the Dinners share.
+  Commit: `feat: regulars and a dinners/extras budget split`
 
 - [ ] **7. Make it feel like Kitchen Crew: playful design and phone-ready list**
   Becomes usable: All screens get the playful, Duolingo-like look, with a one-handed phone layout for the Shopping List (big tap targets, number keypad, tally always visible) and friendly empty and error states.
@@ -78,6 +78,47 @@ Build mode: learn
   Verify (mechanical): `npm run build` succeeds; tests pass; `/impeccable` verification pass at phone and desktop widths with screenshots reviewed and defects fixed.
   Learner check: Open the app on your phone's browser (same Wi-Fi, laptop's local address) or a narrow window. Walk the store moment: does it feel playful, and can you enter prices one-handed?
   Commit: `feat: playful design and phone-ready shopping list`
+
+- [ ] **8. Plan the week on a Kanban board**
+  Becomes usable: A **Kanban-style board** (Tarik's request): days are columns, dinners are cards, plus an **Ideas** column for unscheduled dinners from chats or My Recipes; drag cards between days (or use a "Move to…" menu on phones); a **1 week / 2 weeks** toggle; with two weeks, each week keeps its own budget and tally ("This week $142 of $222 · Next week $38 of $222"); plans from any chat are added to open days or chosen days; dinners can be moved between days or removed; the shopping list is rebuilt from every dinner on the calendar (paid and hand-added items always stay); the tally covers the whole calendar.
+  Why now: Requested by Tarik after saved chats made multiple plans possible; "Add to this week" (slice 5) covers combining plans until this lands.
+  PRD ref: `prd.md > Meal Planning Chat`, `prd.md > Possible Later Enhancements` (week calendar)
+  Spec ref: `spec.md > Data Model`, `spec.md > Cards (components/cards/)`, `spec.md > Shopping List Screen`
+  Build: meals store a day index (or "ideas") and their own scaled ingredients and chosen products; a board screen with drag-and-drop (dnd-kit) and a Move-to menu (layout reference: Digero's meal-planner calendar); only scheduled dinners count toward the list and tally; "Add to calendar" from plan cards; list regeneration from calendar meals, preserving paid and manual rows.
+  Verify (mechanical): Tests for rebuilding the list from calendar meals (add, move, remove; paid rows kept); `npm run build` succeeds.
+  Learner check: Add dinners from two different chats to different days, move one, remove one, and check the shopping list and tally follow.
+  Commit: `feat: week calendar for dinners`
+
+- [ ] **9. Sync your YouTube recipe playlist into My Recipes, tagged and searchable**
+  Becomes usable: Tap "Sync my playlist" on My Recipes and all videos from Tarik's "recipes" playlist (85 at the time of writing) appear on the shelf with thumbnails and a "not read yet" tag; syncing again adds new videos only. A video's recipe is read the first time it's opened or planned. The crew can plan from the playlist ("plan 3 days from my YouTube playlist").
+  Why now: Added by Tarik after slice 5; it builds directly on slice 5's YouTube import and recipe shelf. Reopens the PRD's deferred playlist import at his request.
+  PRD ref: `prd.md > Deferred From the POC` (YouTube playlist import, now reopened), `prd.md > Meal Planning Chat`
+  Spec ref: `spec.md > Planner Chat`, `spec.md > Chat Route and the Staff's Tools (app/api/chat/route.ts)`, `spec.md > Data Model`
+  Build: YouTube Data API playlistItems (50 per page) → recipes saved as "not read yet" (title, thumbnail, video link, channel). Reading order per video: (1) a recipe link in the description (skip sponsor/shop links; accept only pages with real recipe data) read by the website parser; (2) if the site blocks plain fetching or has no recipe data, TinyFish renders the page and Claude extracts the recipe (`TINYFISH_API_KEY`); (3) otherwise description + transcript via Claude (slice 5 path). Read on open (recipe view) and when the crew plans with an unread recipe (progress bar). Playlist titles passed to the crew for planning.
+  Verify (mechanical): Sync returns all playlist videos and a second sync adds none; tests for description-link filtering; real reads of 3 playlist videos covering link-to-site, description-only, and TinyFish fallback; `npm run build` succeeds.
+  Learner check: Tap Sync, check the shelf fills with your playlist; open 2 videos and check their recipes; ask the crew to plan 2 days from your playlist.
+  Also: **auto-tags** (cuisine, main protein, meal type, time, traits like spicy/one-pan/vegetarian) assigned by Claude as recipes arrive (whole playlist tagged in one call at sync); Tarik can add/remove his own tags; a **search box** over titles, ingredients, and tags (Convex text search) plus **tag filter chips** on My Recipes; the crew answers mood-based requests ("something cozy") from the shelf. Vector search and folders stay Later.
+  Commit: `feat: YouTube playlist synced into My Recipes, tagged and searchable`
+
+- [ ] **10. Scan a barcode in the aisle**
+  Becomes usable: On the Shopping List you tap Scan and point your phone at a barcode. A packaged item is added with its Kroger price at your store; a store-printed meat/deli/produce sticker fills in what you paid for that row.
+  Why now: An added request (Tarik, during slice 2) that speeds up the store moment. It comes after the core journey works, and phone-camera testing needs a secure (https) address, so it goes before the design pass that styles it.
+  PRD ref: `prd.md > Shopping List and Prices`, `prd.md > Running Tally`
+  Spec ref: `spec.md > Shopping List Screen`, `spec.md > Kroger Client (lib/kroger.ts)`, `spec.md > Kroger Public API`
+  Build: `barcode-detector` library (ZXing; covers iPhone Safari, which lacks built-in barcode reading) with the phone camera; a tested helper turning a printed UPC/EAN into a Kroger productId (drop the check digit, pad to 13) and reading the price from store-printed stickers (UPC starting with 2); scan → look up by productId at the chosen store → add row, or fill paid on a matching row; manual barcode entry fallback; local https for phone testing.
+  Verify (mechanical): Tests for UPC → productId (Heinz 013000006408 → 0001300000640) and sticker price decoding pass; a scripted lookup of 3 real barcodes returns the right products; `npm run build` succeeds.
+  Learner check: On your phone (secure address), scan 2 packaged items from your pantry and check the names and prices; scan a meat or deli sticker and check the paid amount it fills in.
+  Commit: `feat: barcode scanning in the aisle`
+
+- [ ] **11. Send your list to Instacart**
+  Becomes usable: A "Send to Instacart" button on the Shopping List (and on a recipe) opens Instacart with the items pre-filled, so Tarik can pick a store and check out for delivery; the tally still tracks what he spends when he types the Instacart prices into the paid boxes.
+  Why now: Tarik orders groceries from Instacart often; he asked for it as the final slice, after everything else is built. Reopens scope's "Later: Instacart integration" at his request.
+  PRD ref: `prd.md > Deferred From the POC` (Instacart, now reopened), `prd.md > Shopping List and Prices`
+  Spec ref: `spec.md > Shopping List Screen`, `spec.md > External Services and Dependencies`
+  Build: Instacart Developer Platform (`INSTACART_API_KEY`, already in `.env.local`); reference Tarik's Digero implementation (`digero/convex/actions/sendToInstacart.ts`, `sendRecipeToInstacart.ts`, `convex/lib/instacartUtils.ts`); verify current API docs before building; a server route that turns list items (name, amount/packs) into an Instacart shopping-list link.
+  Verify (mechanical): A scripted request with 3 real list items returns a working Instacart link; `npm run build` succeeds.
+  Learner check: Tap Send to Instacart from a real list, check the items arrive in Instacart correctly, and (optionally) place an order.
+  Commit: `feat: send shopping list to Instacart`
 
 ## Hands-on Checkpoints
 
@@ -114,3 +155,15 @@ Activity mode: [not started]
 - Slice 4: quantity fixes from Tarik's slice 3 run (Haiku suggests packs when units don't convert, so 3 carrots → 1 bag; "1/2 gal" parsed as half a gallon; plain store names in the crew prompt); 30-minute memo of Kroger searches so swaps only look up new ingredients; removed meals are sent to the crew so swaps respect them. **My Pantry** added at Tarik's request (full version: Pantry tab + pantry chips on the plan card + crew reads it). Manual "Add an item" box kept (Tarik agreed).
 - Slice 4: **household meal size** added at Tarik's request: every planned meal carries `servings`, shown as "serves 3½" on the card; a Household setting on the Budget page (default 3½ = 2 adults + a teen counted as 1½; "plan leftovers for lunch" adds 1½ → 5). Plans with dinners sized below the target are sent back to the crew. Known limit: the check confirms the stated servings, not that Claude's amounts truly match (leftovers test: serves 5 but 2 lb chicken vs ~2.5 lb expected); slice 5's recipe scaling does real math for imported recipes.
 - Slice 4 learner check: Tarik confirmed a 3-day plan with "serves 3½", pantry chips, remove buttons, real prices ($58.83), fits budget. Chip tap, remove/swap, Use this plan, and paid entry were approved without a screenshot of each.
+- Slice 5: built from Digero's parsers (JSON-LD, microdata, YouTube URL parser) and transcript fetcher, with Claude replacing Gemini. YouTube transcripts come from the public video page (the official API needs Google sign-in for captions); title/description/thumbnail from the official API. Imported recipes keep original servings; scaling is code (whole items round up, pinches don't scale). Dinners from My Recipes are planned by recipe id and filled in by code. The crew's own dinners get short steps and are saved as recipes on "Use this plan". **Bug found and fixed:** the product picker matched Claude's answers by ingredient name, so reworded names silently became "no price found" (also affected slices 3–4); it now matches by item number (real RecipeTin curry: $0 → 11/16 items priced, $25.41). Link fetching refuses private/local addresses.
+- Added slice 6, **YouTube playlist sync** (Tarik's request; playlist "recipes", 85 videos). Read on demand rather than all at once (~13 s and a few cents per video). TinyFish approved as the fallback for sites that resist plain fetching (4 of 4 playlist recipe sites tested worked without it). Barcode becomes slice 7, design slice 8.
+- Slice 6 scope adds auto-tags, quick search, tag filter chips, and "ask the crew" from the shelf (Tarik's request). True vector search needs an embeddings provider (Anthropic has none), so it stays Later. Slice 5 also gained metric → American display ("397 g (14 oz)", "583 g (2½ cups)", "to taste") from Tarik's screenshot.
+- Slice 5 (from Tarik's green-beans check): recipe ingredients now carry `fixed` (frying oil, pasta water: not scaled) and `madeInRecipe` ("garlic oil (from above)": not bought); stricter pantry definition (salt, pepper, water, plain oil, common dried spices only). **Substitutes** added at Tarik's request: when nothing at Kroger is the ingredient, Claude suggests an everyday swap and the app prices it (zha cai → kimchi, mushroom bouillon → vegetable bouillon), shown as "swap:" on the card. The 2.5× amounts he saw came from his Household "leftovers" setting (5 servings) on a 2-serving recipe, which is correct math. Known rough edges: oil used to make an in-recipe component may still scale; Claude's pack judgment can undercount (20 cloves → 1 bulb).
+- Slice 5: **saved chats** (Tarik chose option A): conversations save to Convex after each reply, including dinners removed on plan cards; Plan reopens the most recent chat; "+ New chat" and a Chats list. Not verified end to end: the ~900 KB chat size limit (the command line can't send a payload that large). Full doc pass: `prd.md` and `spec.md` now describe everything added in the build (marked "added in build, slice N"), with the real file structure and data model.
+- Slice 5: **"Add to this week"** (Tarik chose option A): a second button that adds a plan's dinners without replacing the current plan; matching unpaid rows get more packs, paid rows are left alone, no duplicates. A week calendar was requested and is planned as its own slice; a Regulars + extras budget (snacks, fruit, drinks) was proposed, awaiting Tarik's prioritization.
+- Re-ordered remaining slices at Tarik's go-ahead ("do what you recommend"): 6 Regulars + Dinners/Extras budget (new), 7 design pass, 8 week calendar (new), 9 playlist sync with tags and search, 10 barcode scanning. Submission deadline: Tarik said not to worry about it for now.
+- Added slice 11, **Instacart integration** (Tarik's request, final slice): reuses Digero's Instacart code and the existing `INSTACART_API_KEY`.
+- Slice 5: recipe view shows kitchen fractions ("3¾ cups", "⅔ tsp") and labels for ingredients that don't scale (🔒) or are made in an earlier step (not bought). Slice 8 calendar gains a 1-week / 2-week toggle (Tarik's request), each week with its own budget.
+- Slice 5: replaced "metric with American in parentheses" by a **US | Metric toggle** on the recipe view (Tarik wanted to see either system; the green-beans recipe was US-native so nothing converted before).
+- Slice 8 becomes a **Kanban board** (Tarik's idea): day columns, dinner cards, an Ideas column, drag-and-drop with a phone-friendly Move-to menu.
+- Slice 5 learner check: Tarik confirmed it worked (recipe links, recipe view, saved chats, Add to this week).

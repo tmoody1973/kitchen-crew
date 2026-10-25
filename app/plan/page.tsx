@@ -2,19 +2,67 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useChat } from "@ai-sdk/react";
+import type { UIMessage } from "ai";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import TallyHeader from "@/components/TallyHeader";
+import ChatMenu from "@/components/ChatMenu";
 import PlanResult from "@/components/cards/PlanResult";
 import BudgetCard, { type BudgetSuggestion } from "@/components/cards/BudgetCard";
+import RecipeCard, { type RecipeImport } from "@/components/cards/RecipeCard";
 import PricingProgress from "@/components/cards/PricingProgress";
 import type { PlanToolOutput } from "@/lib/meal-plan";
 
-// The planner: chat with the crew; Claude's proposeMealPlan tool results become cards.
+type Removed = Record<string, number[]>; // plan card (tool call id) → removed dinner indexes
+
+// Which chat to show: ?chat=<id>, a fresh one (?new=1 or ?ask=budget), or your most recent.
 export default function PlanPage() {
-  const { messages, sendMessage, status, error, regenerate } = useChat();
+  const [params, setParams] = useState<URLSearchParams | null>(null);
+  useEffect(() => setParams(new URLSearchParams(window.location.search)), []);
+  const chats = useQuery(api.chats.list);
+
+  // Decide once when the page opens, so a chat saving for the first time doesn't swap the view mid-conversation.
+  const [chatId, setChatId] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (chatId !== undefined || !params || chats === undefined) return;
+    const wantsNew = params.has("new") || params.get("ask") === "budget";
+    setChatId(params.get("chat") ?? (wantsNew ? null : (chats[0]?._id ?? null)));
+  }, [chatId, params, chats]);
+  const chat = useQuery(api.chats.get, chatId ? { id: chatId } : "skip");
+
+  if (!params || chatId === undefined || (chatId && chat === undefined)) return null;
+
+  const saved = chatId && chat ? chat : null;
+  return (
+    <ChatView
+      key={saved?._id ?? "new"}
+      chatId={saved?._id}
+      initialMessages={saved ? (JSON.parse(saved.messagesJson) as UIMessage[]) : []}
+      initialRemoved={saved ? (JSON.parse(saved.removedJson) as Removed) : {}}
+      askBudget={params.get("ask") === "budget"}
+    />
+  );
+}
+
+function ChatView({
+  chatId,
+  initialMessages,
+  initialRemoved,
+  askBudget,
+}: {
+  chatId?: string;
+  initialMessages: UIMessage[];
+  initialRemoved: Removed;
+  askBudget: boolean;
+}) {
+  const router = useRouter();
+  const saveChat = useMutation(api.chats.save);
+  const { messages, sendMessage, status, error, regenerate } = useChat({ id: chatId, messages: initialMessages });
   const [input, setInput] = useState("");
-  // Dinners removed on each plan card (by tool call), so the crew knows when asked to swap something.
-  const [removedByPlan, setRemovedByPlan] = useState<Record<string, string[]>>({});
+  const [removedByPlan, setRemovedByPlan] = useState<Removed>(initialRemoved);
+  const savedId = useRef(chatId);
   const askedBudget = useRef(false);
   const bottom = useRef<HTMLDivElement>(null);
   const busy = status === "submitted" || status === "streaming";
@@ -25,19 +73,38 @@ export default function PlanPage() {
 
   // "Let the crew help" on Budget Setup opens /plan?ask=budget and starts the budget conversation.
   useEffect(() => {
-    if (askedBudget.current || messages.length > 0) return;
-    if (new URLSearchParams(window.location.search).get("ask") === "budget") {
-      askedBudget.current = true;
-      sendMessage({ text: "Can you help me figure out a weekly grocery budget for my family?" });
-    }
-  }, [messages.length, sendMessage]);
+    if (!askBudget || askedBudget.current || messages.length > 0) return;
+    askedBudget.current = true;
+    sendMessage({ text: "Can you help me figure out a weekly grocery budget for my family?" });
+  }, [askBudget, messages.length, sendMessage]);
+
+  // Save after each crew reply (and when dinners are removed), so you can leave and come back.
+  useEffect(() => {
+    if (status !== "ready" || messages.length === 0) return;
+    const firstText = messages[0].parts.find((p) => p.type === "text");
+    const title = firstText && "text" in firstText ? firstText.text : "New chat";
+    saveChat({
+      id: savedId.current,
+      title,
+      messagesJson: JSON.stringify(messages),
+      removedJson: JSON.stringify(removedByPlan),
+    })
+      .then((id) => {
+        if (savedId.current !== id) {
+          savedId.current = id;
+          router.replace(`/plan?chat=${id}`); // a reload or the back button returns to this chat
+        }
+      })
+      .catch((err) => console.error("Couldn't save the chat:", err));
+  }, [status, messages, removedByPlan, saveChat, router]);
 
   function latestPlanRemovals(): string[] {
-    const planCalls = messages.flatMap((m) =>
-      m.parts.flatMap((p) => (p.type === "tool-proposeMealPlan" ? [p.toolCallId] : [])),
-    );
-    const latest = planCalls[planCalls.length - 1];
-    return latest ? (removedByPlan[latest] ?? []) : [];
+    const planParts = messages.flatMap((m) => m.parts.filter((p) => p.type === "tool-proposeMealPlan"));
+    const latest = planParts[planParts.length - 1];
+    if (!latest || latest.type !== "tool-proposeMealPlan" || latest.state !== "output-available") return [];
+    const out = latest.output as PlanToolOutput;
+    if (out.progress || out.needsStore) return [];
+    return (removedByPlan[latest.toolCallId] ?? []).map((i) => `${out.plan.meals[i]?.day}: ${out.plan.meals[i]?.name}`);
   }
 
   function send(e: FormEvent) {
@@ -50,11 +117,12 @@ export default function PlanPage() {
   return (
     <div className="flex flex-col gap-4 pb-28">
       <TallyHeader />
+      <ChatMenu currentId={savedId.current} />
 
       {messages.length === 0 && (
         <div className="rounded-2xl bg-white p-4 font-bold text-slate-600">
-          👋 Hey! I&apos;m your kitchen crew. Ask me <em>&ldquo;What should we cook?&rdquo;</em> and I&apos;ll plan a few
-          dinners priced at your store.
+          👋 Hey! I&apos;m your kitchen crew. Ask me <em>&ldquo;What should we cook?&rdquo;</em>, paste a recipe link, or
+          ask me to plan from your saved recipes.
         </div>
       )}
 
@@ -104,8 +172,18 @@ export default function PlanPage() {
                   key={i}
                   priced={out}
                   storeName={out.storeName}
-                  onMealsRemoved={(names) => setRemovedByPlan((prev) => ({ ...prev, [part.toolCallId]: names }))}
+                  initialRemoved={removedByPlan[part.toolCallId]}
+                  onRemovedChange={(indexes) => setRemovedByPlan((prev) => ({ ...prev, [part.toolCallId]: indexes }))}
                 />
+              );
+            }
+            if (part.type === "tool-importRecipe") {
+              if (part.state === "output-available") return <RecipeCard key={i} data={part.output as RecipeImport} />;
+              if (part.state === "output-error") return null;
+              return (
+                <p key={i} className="animate-pulse rounded-2xl bg-white px-4 py-2 font-bold text-slate-500">
+                  📖 Reading the recipe…
+                </p>
               );
             }
             if (part.type === "tool-suggestBudget") {

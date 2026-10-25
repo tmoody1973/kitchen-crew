@@ -20,6 +20,15 @@ export default defineSchema({
     leftovers: v.boolean(),
   }).index("by_user", ["userId"]),
 
+  // Planner conversations, saved like Claude chats so you can leave and come back.
+  chats: defineTable({
+    userId: v.string(),
+    title: v.string(),
+    updatedAt: v.number(),
+    messagesJson: v.string(), // the AI SDK messages, including plan cards' tool results
+    removedJson: v.string(), // dinners removed on each plan card, by tool call id
+  }).index("by_user_updated", ["userId", "updatedAt"]),
+
   // What's in Tarik's pantry, remembered across weeks. have=false means "out, need to buy".
   pantry: defineTable({
     userId: v.string(),
@@ -39,7 +48,32 @@ export default defineSchema({
     name: v.string(),
     estimatedCost: v.number(),
     servings: v.optional(v.number()),
+    recipeId: v.optional(v.id("recipes")),
   }).index("by_week", ["weekId"]),
+
+  // My Recipes: imported from a link, or the crew's own dinners saved when a plan is used.
+  recipes: defineTable({
+    userId: v.string(),
+    title: v.string(),
+    sourceType: v.union(v.literal("web"), v.literal("youtube"), v.literal("crew")),
+    sourceUrl: v.optional(v.string()),
+    sourceName: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+    servings: v.number(),
+    totalMinutes: v.optional(v.number()),
+    ingredients: v.array(
+      v.object({
+        raw: v.string(),
+        name: v.string(),
+        amount: v.number(),
+        unit: v.string(),
+        pantry: v.boolean(),
+        fixed: v.optional(v.boolean()), // frying oil, pasta water: doesn't scale with servings
+        madeInRecipe: v.optional(v.boolean()), // "garlic oil (from above)": made in an earlier step, not bought
+      }),
+    ),
+    steps: v.array(v.string()),
+  }).index("by_user", ["userId"]),
 
   listItems: defineTable({
     weekId: v.id("weeks"),

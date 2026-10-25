@@ -10,22 +10,38 @@ export const ingredientSchema = z.object({
   pantry: z.boolean().describe("true for staples most kitchens already have: salt, pepper, oil, common spices"),
 });
 
-export const planSchema = z.object({
+const mealFields = {
+  day: z.string().min(1).max(20).describe("e.g. 'Monday' or 'Day 1'"),
+  name: z.string().min(1).max(80),
+  servings: z.number().min(1).max(12).describe("How many servings the amounts make"),
+  recipeId: z.string().max(40).optional().describe("Id of a saved recipe (from My Recipes) this dinner uses"),
+  steps: z.array(z.string().max(300)).max(12).optional().describe("Short cooking steps for your own dinners"),
+};
+
+/** What Claude sends: a saved recipe by id (code fills its ingredients) or its own ingredient list. */
+export const planToolSchema = z.object({
   meals: z
-    .array(
-      z.object({
-        day: z.string().min(1).max(20).describe("e.g. 'Monday' or 'Day 1'"),
-        name: z.string().min(1).max(80),
-        servings: z.number().min(1).max(12).describe("How many servings the amounts below make"),
-        ingredients: z.array(ingredientSchema).min(1).max(20),
-      }),
-    )
+    .array(z.object({ ...mealFields, ingredients: z.array(ingredientSchema).max(20).optional() }))
     .min(1)
     .max(14),
 });
 
+/** A plan with every meal's ingredients filled in, ready to price. */
+export const planSchema = z.object({
+  meals: z.array(z.object({ ...mealFields, ingredients: z.array(ingredientSchema).min(1).max(30) })).min(1).max(14),
+});
+
+export type PlanToolInput = z.infer<typeof planToolSchema>;
 export type PlanInput = z.infer<typeof planSchema>;
-export type Product = { productId: string; name: string; size?: string; price: number; imageUrl?: string; suggestedPacks?: number };
+export type Product = {
+  productId: string;
+  name: string;
+  size?: string;
+  price: number;
+  imageUrl?: string;
+  suggestedPacks?: number;
+  substitute?: string; // set when this is a swap ("kimchi" for zha cai)
+};
 
 /** Business rules the schema can't express. Returns a message for Claude to fix, or null if fine. */
 export function validatePlan(plan: PlanInput, targetServings?: number): string | null {
@@ -82,7 +98,7 @@ export function mergeIngredients(plan: PlanInput): Omit<ShoppingItem, "product" 
 
 export type PricedPlan = {
   plan: PlanInput; // the meals as Claude wrote them, so the card can re-price after a meal is removed
-  meals: { day: string; name: string; servings: number; cost: number; ingredients: string[] }[];
+  meals: { day: string; name: string; servings: number; cost: number; ingredients: string[]; recipeId?: string }[];
   items: ShoppingItem[];
   total: number;
   remaining: number;
@@ -119,6 +135,7 @@ export function pricePlan(plan: PlanInput, products: Map<string, Product | null>
       day: meal.day,
       name: meal.name,
       servings: meal.servings,
+      recipeId: meal.recipeId,
       cost: round2(cost),
       ingredients: meal.ingredients.map((i) => i.name),
     };
@@ -164,3 +181,44 @@ export type PlanToolOutput =
   | PlanProgress // in-progress update while pricing; the last update is the plan itself
   | { progress?: false; needsStore: true }
   | ({ progress?: false; needsStore: false; storeName?: string } & PricedPlan);
+
+type SavedRecipe = {
+  title: string;
+  servings: number;
+  ingredients: { name: string; amount: number; unit: string; pantry: boolean; fixed?: boolean; madeInRecipe?: boolean }[];
+};
+
+/**
+ * Fills in dinners that use a saved recipe: its ingredients scaled to the dinner's servings by code.
+ * Pantry flags follow Tarik's pantry list. Returns a message for Claude if a dinner can't be resolved.
+ */
+export function resolvePlan(
+  input: PlanToolInput,
+  recipes: ReadonlyMap<string, SavedRecipe>,
+  pantry: { have: ReadonlySet<string>; out: ReadonlySet<string> },
+  scale: (ings: SavedRecipe["ingredients"], from: number, to: number) => SavedRecipe["ingredients"],
+): { plan: PlanInput } | { error: string } {
+  const meals: PlanInput["meals"] = [];
+  for (const meal of input.meals) {
+    let ingredients = meal.ingredients ?? [];
+    if (meal.recipeId) {
+      const recipe = recipes.get(meal.recipeId);
+      if (!recipe) return { error: `Recipe ${meal.recipeId} isn't in My Recipes. Use an id from the saved list.` };
+      // Things made earlier in the recipe aren't bought; frying oil etc. don't scale (scale() respects `fixed`).
+      const toShop = recipe.ingredients.filter((i) => !i.madeInRecipe);
+      ingredients = scale(toShop, recipe.servings, meal.servings).map(({ name, amount, unit, pantry }) => ({
+        name,
+        amount,
+        unit,
+        pantry,
+      }));
+    }
+    if (ingredients.length === 0) return { error: `${meal.name} needs ingredients or a recipeId.` };
+    ingredients = ingredients.map((i) => {
+      const k = key(i.name);
+      return pantry.out.has(k) ? { ...i, pantry: false } : pantry.have.has(k) ? { ...i, pantry: true } : i;
+    });
+    meals.push({ ...meal, ingredients });
+  }
+  return { plan: { meals } };
+}

@@ -33,7 +33,15 @@ export default function MealPlanCard({
           <li key={i} className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-wide text-leaf-dark">{meal.day}</p>
-              <p className="font-black">{meal.name}</p>
+              <p className="font-black">
+                {meal.recipeId ? (
+                  <a href={`/recipes/${meal.recipeId}`} className="underline decoration-leaf decoration-2 underline-offset-2">
+                    {meal.name}
+                  </a>
+                ) : (
+                  meal.name
+                )}
+              </p>
               <p className="text-xs font-bold text-slate-500">serves {formatServings(meal.servings)}</p>
             </div>
             <span className="ml-auto shrink-0 font-black">~{formatMoney(meal.cost)}</span>
@@ -72,6 +80,9 @@ export default function MealPlanCard({
                 <p className="font-bold">
                   {item.name} <span className="text-slate-500">· needs {item.amountText}</span>
                 </p>
+                {item.product?.substitute && (
+                  <p className="text-xs font-bold text-carrot-dark">🔁 swap: {item.product.substitute} (no match at this store)</p>
+                )}
                 <p className="text-xs text-slate-500">
                   {item.product
                     ? `${item.product.name}${item.product.size ? ` · ${item.product.size}` : ""} · ${item.packs} × ${formatMoney(item.product.price)}`

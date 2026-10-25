@@ -8,10 +8,12 @@
  * @module
  */
 
+import type * as chats from "../chats.js";
 import type * as household from "../household.js";
 import type * as listItems from "../listItems.js";
 import type * as pantry from "../pantry.js";
 import type * as plans from "../plans.js";
+import type * as recipes from "../recipes.js";
 import type * as weeks from "../weeks.js";
 
 import type {
@@ -21,10 +23,12 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  chats: typeof chats;
   household: typeof household;
   listItems: typeof listItems;
   pantry: typeof pantry;
   plans: typeof plans;
+  recipes: typeof recipes;
   weeks: typeof weeks;
 }>;
 

@@ -8,7 +8,11 @@ export default function PricingProgress({ done, total, current, storeName }: Omi
   return (
     <div className="flex w-full flex-col gap-2 rounded-2xl bg-white p-4" role="status" aria-live="polite">
       <p className="font-black">
-        {picking ? "🧑‍🍳 Picking the best matches…" : `🛒 Pricing at ${storeName ?? "your store"}: ${done + 1} of ${total}`}
+        {picking
+          ? current
+            ? `🔁 Finding ${current}…`
+            : "🧑‍🍳 Picking the best matches…"
+          : `🛒 Pricing at ${storeName ?? "your store"}: ${done + 1} of ${total}`}
       </p>
       <div
         className="h-4 overflow-hidden rounded-full bg-slate-100"

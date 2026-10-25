@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adjustPlan, mergeIngredients, planSchema, pricePlan, removeMeals, validatePlan, PlanInput, Product } from "./meal-plan";
+import { adjustPlan, mergeIngredients, resolvePlan, planSchema, pricePlan, removeMeals, validatePlan, PlanInput, Product } from "./meal-plan";
 
 const thighs: Product = { productId: "1", name: "Heritage Farm Chicken Thighs", size: "1 lb", price: 3.99 };
 const fishSauce: Product = { productId: "2", name: "Dynasty Fish Sauce", size: "6.7 fl oz", price: 3.49 };
@@ -130,5 +130,54 @@ describe("pantry staples you're out of", () => {
     const priced = pricePlan(plan, products, 200);
     const salt: Product = { productId: "9", name: "Morton Salt", size: "26 oz", price: 1.29, suggestedPacks: 1 };
     expect(adjustPlan(priced, new Set([1]), new Map([["salt", salt]])).total).toBe(12.76); // 11.47 + 1.29
+  });
+});
+
+describe("dinners from My Recipes", () => {
+  const curry = {
+    title: "Thai Green Curry",
+    servings: 4,
+    ingredients: [
+      { name: "chicken thighs", amount: 2, unit: "lb", pantry: false },
+      { name: "canned coconut milk", amount: 1, unit: "ct", pantry: false },
+      { name: "fish sauce", amount: 2, unit: "tbsp", pantry: false },
+      { name: "vegetable oil", amount: 1, unit: "tbsp", pantry: true },
+    ],
+  };
+  const scale = (ings: typeof curry.ingredients, from: number, to: number) =>
+    ings.map((i) => ({ ...i, amount: Math.round(i.amount * (to / from) * 100) / 100 }));
+  const pantry = { have: new Set(["fish sauce"]), out: new Set(["vegetable oil"]) };
+
+  it("fills in the recipe's ingredients, scaled by code, with pantry flags from My Pantry", () => {
+    const r = resolvePlan(
+      { meals: [{ day: "Mon", name: "Green curry", servings: 3.5, recipeId: "abc" }] },
+      new Map([["abc", curry]]),
+      pantry,
+      scale,
+    );
+    if ("error" in r) throw new Error(r.error);
+    const ings = r.plan.meals[0].ingredients;
+    expect(ings.find((i) => i.name === "chicken thighs")?.amount).toBe(1.75); // 2 lb for 4 → 1.75 lb for 3½
+    expect(ings.find((i) => i.name === "fish sauce")?.pantry).toBe(true); // have it
+    expect(ings.find((i) => i.name === "vegetable oil")?.pantry).toBe(false); // out of it → buy
+  });
+
+  it("doesn't buy things made earlier in the recipe", () => {
+    const beans = {
+      title: "Garlic green beans",
+      servings: 2,
+      ingredients: [
+        { name: "green beans", amount: 12, unit: "oz", pantry: false },
+        { name: "garlic oil", amount: 1, unit: "tbsp", pantry: false, madeInRecipe: true },
+      ],
+    };
+    const r = resolvePlan({ meals: [{ day: "Mon", name: "Beans", servings: 5, recipeId: "b" }] }, new Map([["b", beans]]), pantry, scale);
+    if ("error" in r) throw new Error(r.error);
+    expect(r.plan.meals[0].ingredients.map((i) => i.name)).toEqual(["green beans"]);
+  });
+
+  it("sends back an unknown recipe id or a dinner with nothing in it", () => {
+    expect(resolvePlan({ meals: [{ day: "Mon", name: "X", servings: 3.5, recipeId: "nope" }] }, new Map(), pantry, scale)).toMatchObject({ error: expect.stringMatching(/isn't in My Recipes/) });
+    expect(resolvePlan({ meals: [{ day: "Mon", name: "Tacos", servings: 3.5 }] }, new Map(), pantry, scale)).toMatchObject({ error: expect.stringMatching(/needs ingredients/) });
   });
 });

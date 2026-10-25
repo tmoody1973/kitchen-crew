@@ -14,17 +14,19 @@ import PantryChips from "./PantryChips";
 export default function PlanResult({
   priced,
   storeName,
-  onMealsRemoved,
+  initialRemoved = [],
+  onRemovedChange,
 }: {
   priced: PricedPlan;
   storeName?: string;
-  onMealsRemoved: (names: string[]) => void;
+  initialRemoved?: number[]; // restored from a saved chat
+  onRemovedChange: (indexes: number[]) => void;
 }) {
   const usePlan = useMutation(api.plans.usePlan);
   const setHave = useMutation(api.pantry.setHave);
   const week = useQuery(api.weeks.latest);
   const router = useRouter();
-  const [removed, setRemoved] = useState<ReadonlySet<number>>(new Set());
+  const [removed, setRemoved] = useState<ReadonlySet<number>>(new Set(initialRemoved));
   // Staples marked "need it" on this card → the Kroger product found for each.
   const [needed, setNeeded] = useState<ReadonlyMap<string, Product | null>>(new Map());
   const [loading, setLoading] = useState<ReadonlySet<string>>(new Set());
@@ -65,15 +67,31 @@ export default function PlanResult({
   function remove(shownIndex: number) {
     const next = new Set(removed).add(visible[shownIndex]);
     setRemoved(next);
-    onMealsRemoved([...next].map((i) => `${priced.plan.meals[i].day}: ${priced.plan.meals[i].name}`));
+    onRemovedChange([...next]);
   }
 
-  async function use() {
+  async function use(mode: "replace" | "add") {
     setSaving(true);
     setError(null);
     try {
       await usePlan({
-        meals: current.meals.map((m) => ({ day: m.day, name: m.name, estimatedCost: m.cost, servings: m.servings })),
+        mode,
+        meals: current.meals.map((m, n) => {
+          const source = current.plan.meals[n];
+          return {
+            day: m.day,
+            name: m.name,
+            estimatedCost: m.cost,
+            servings: m.servings,
+            recipeId: m.recipeId,
+            crewRecipe: m.recipeId
+              ? undefined
+              : {
+                  ingredients: source.ingredients.map(({ name, amount, unit, pantry }) => ({ name, amount, unit, pantry })),
+                  steps: source.steps ?? [],
+                },
+          };
+        }),
         items: current.items
           .filter((i) => !i.pantry)
           .map((i) => ({
@@ -108,14 +126,27 @@ export default function PlanResult({
         }
       />
       <BudgetFit total={current.total} remaining={current.remaining} fits={current.fits} overBy={current.overBy} />
-      <button
-        type="button"
-        onClick={use}
-        disabled={saving}
-        className="rounded-2xl border-b-4 border-leaf-dark bg-leaf py-3 text-lg font-black text-white active:translate-y-0.5 active:border-b-2 disabled:opacity-60"
-      >
-        {saving ? "Making your list…" : "Use this plan → shopping list"}
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => use("replace")}
+          disabled={saving}
+          className="flex-1 rounded-2xl border-b-4 border-leaf-dark bg-leaf py-3 font-black text-white active:translate-y-0.5 active:border-b-2 disabled:opacity-60"
+        >
+          {saving ? "Making your list…" : "Use this plan"}
+        </button>
+        <button
+          type="button"
+          onClick={() => use("add")}
+          disabled={saving}
+          className="flex-1 rounded-2xl border-2 border-b-4 border-leaf bg-white py-3 font-black text-leaf-dark active:translate-y-0.5 disabled:opacity-60"
+        >
+          + Add to this week
+        </button>
+      </div>
+      <p className="text-center text-xs font-bold text-slate-500">
+        &ldquo;Use this plan&rdquo; replaces your current plan · &ldquo;Add&rdquo; keeps it and adds these dinners
+      </p>
       {error && <p className="font-bold text-carrot-dark">{error}</p>}
     </div>
   );

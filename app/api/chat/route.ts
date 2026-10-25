@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { fetchQuery } from "convex/nextjs";
+import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { anthropic } from "@ai-sdk/anthropic";
 import {
   convertToModelMessages,
@@ -11,8 +11,10 @@ import {
   UIMessage,
 } from "ai";
 import { api } from "@/convex/_generated/api";
-import { searchCandidates, Product } from "@/lib/kroger";
-import { mergeIngredients, planSchema, pricePlan, validatePlan, PlanToolOutput } from "@/lib/meal-plan";
+import { rankByRelevance, searchCandidates, Product } from "@/lib/kroger";
+import { mergeIngredients, planToolSchema, pricePlan, resolvePlan, validatePlan, PlanToolOutput } from "@/lib/meal-plan";
+import { importRecipe, ImportError } from "@/lib/recipes/import";
+import { scaleIngredients } from "@/lib/recipes/scale";
 import { pickProducts } from "@/lib/pick-products";
 import { staffPrompt } from "@/lib/staff-prompt";
 import { computeTally, isWeekActive } from "@/lib/tally";
@@ -46,12 +48,19 @@ export async function POST(req: Request) {
 
   // What's left this week, from Convex, so Claude and the Budget Fit card see real numbers.
   const token = (await convexToken()) ?? undefined;
-  const [week, items, pantry, household] = await Promise.all([
+  const [week, items, pantry, household, savedRecipes] = await Promise.all([
     fetchQuery(api.weeks.latest, {}, { token }),
     fetchQuery(api.listItems.mine, {}, { token }),
     fetchQuery(api.pantry.mine, {}, { token }),
     fetchQuery(api.household.mine, {}, { token }),
+    fetchQuery(api.recipes.mine, {}, { token }),
   ]);
+  // Recipes imported during this chat join the saved list, so the crew can plan with them right away.
+  const recipesById = new Map(savedRecipes.map((r) => [r._id as string, r]));
+  const pantrySets = {
+    have: new Set(pantry.filter((p) => p.have).map((p) => p.name)),
+    out: new Set(pantry.filter((p) => !p.have).map((p) => p.name)),
+  };
   const servings = targetServings(household);
   // No active week is fine for budget help; meal plans need one.
   const activeWeek = week && isWeekActive(week.startDate, Date.now()) ? week : null;
@@ -70,16 +79,21 @@ export async function POST(req: Request) {
       pantryOut: pantry.filter((p) => !p.have).map((p) => p.name),
       servings,
       leftovers: household.leftovers,
+      savedRecipes: savedRecipes.slice(0, 30).map((r) => ({ id: r._id, title: r.title })),
     }),
     messages: await convertToModelMessages(messages),
-    stopWhen: isStepCount(4), // plan → (retry once) → closing line
+    stopWhen: isStepCount(5), // import → plan → (retry once) → closing line
     tools: {
       proposeMealPlan: tool({
         description:
           "Show Tarik a costed meal plan card. Call only after you know the kind of dishes and the number of days.",
-        inputSchema: planSchema,
+        inputSchema: planToolSchema,
         // A generator: each `yield` before the last is a progress update for the chat's progress bar.
-        execute: async function* (plan): AsyncGenerator<PlanToolOutput> {
+        execute: async function* (input): AsyncGenerator<PlanToolOutput> {
+          // Dinners from My Recipes get their ingredients filled in and scaled by code.
+          const resolved = resolvePlan(input, recipesById, pantrySets, scaleIngredients);
+          if ("error" in resolved) throw new Error(`Plan rejected: ${resolved.error}`);
+          const plan = resolved.plan;
           const problem = validatePlan(plan, servings);
           if (problem) throw new Error(`Plan rejected: ${problem}`);
           if (!activeWeek || !tally) throw new Error("No budget set this week. Ask Tarik to set one on the Budget page first.");
@@ -113,9 +127,44 @@ export async function POST(req: Request) {
             throw new Error("Couldn't reach Kroger for prices. Tell Tarik to try again in a minute; don't retry now.");
           }
           yield { progress: true, done: total, total, current: undefined, storeName };
-          const products = await pickProducts(candidates);
+          const { products, substitutes } = await pickProducts(candidates);
+
+          // Swaps for things Kroger doesn't carry: one more search each, still one at a time.
+          for (const [name, swap] of substitutes) {
+            yield { progress: true, done: total, total, current: `a swap for ${name}`, storeName };
+            const found = await searchCandidates(swap, storeId).catch(() => [] as Product[]);
+            const best = rankByRelevance(swap, found)[0];
+            if (best) products.set(name, { ...best, substitute: swap, suggestedPacks: 1 });
+          }
 
           yield { needsStore: false, storeName, ...pricePlan(plan, products, tally.left) };
+        },
+      }),
+      importRecipe: tool({
+        description:
+          "Read a recipe from a website or YouTube link Tarik pasted, save it to My Recipes, and show a Recipe Card.",
+        inputSchema: z.object({ url: z.string().max(2000) }),
+        execute: async ({ url }) => {
+          try {
+            const recipe = await importRecipe(url);
+            const id = await fetchMutation(api.recipes.save, { recipe }, { token });
+            recipesById.set(id, { ...recipe, _id: id, _creationTime: Date.now(), userId });
+            return {
+              ok: true as const,
+              recipeId: id as string,
+              title: recipe.title,
+              sourceName: recipe.sourceName,
+              sourceType: recipe.sourceType,
+              imageUrl: recipe.imageUrl,
+              servings: recipe.servings,
+              totalMinutes: recipe.totalMinutes,
+              ingredientCount: recipe.ingredients.length,
+              stepCount: recipe.steps.length,
+            };
+          } catch (err) {
+            if (!(err instanceof ImportError)) console.error("Recipe import failed:", err);
+            return { ok: false as const, error: err instanceof ImportError ? err.message : "I couldn't read that recipe." };
+          }
         },
       }),
       suggestBudget: tool({
