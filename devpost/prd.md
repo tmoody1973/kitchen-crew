@@ -58,6 +58,7 @@ Source: `scope.md > The POC Boundary` (Kroger prices).
   - [ ] He can pick a different brand/size from Kroger's top matches, and set how many packages he's buying. *(Added in build, slice 2.)*
   - [ ] He can add a non-Kroger store (Sendik's, Whole Foods); while there, each row compares what he paid to the Kroger price. *(Added in build, slice 2.)*
   - [ ] Plan ingredients carry amounts, priced as the whole packages he'd buy. *(Added in build; delivered in slices 3–4.)*
+  - [ ] **My Pantry:** a remembered list of staples he has or is out of; the crew reads it when planning, and pantry chips on the plan card let him mark anything he's out of so it's priced and added. *(Added in build, slice 4, at Tarik's request.)*
 
 ### Running Tally
 Source: `scope.md > The Unique Kernel`.

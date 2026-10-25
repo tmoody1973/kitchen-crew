@@ -15,10 +15,12 @@ describe("recipe amounts → packages", () => {
     expect(packagesNeeded(toBase(2, "Pounds"), "16 oz")).toEqual({ packs: 2, exact: true });
   });
 
-  it("buys one package per counted item when the package isn't sold by count", () => {
-    expect(packagesNeeded(toBase(2, "ct"), "13.5 fl oz")).toEqual({ packs: 2, exact: true }); // 2 cans
+  it("uses the picker's judgment when units don't convert", () => {
+    expect(packagesNeeded(toBase(2, "ct"), "13.5 fl oz", 2)).toEqual({ packs: 2, exact: true }); // 2 cans
+    expect(packagesNeeded(toBase(3, "ct"), "2 lb", 1)).toEqual({ packs: 1, exact: true }); // 3 carrots → 1 bag
+    expect(packagesNeeded(toBase(3, "ct"), "2 lb")).toEqual({ packs: 1, exact: false }); // no judgment → check amount
+    expect(packagesNeeded(toBase(3, "ct"), "6 ct", 5)).toEqual({ packs: 1, exact: true }); // same units: math wins
     expect(packagesNeeded(toBase(1, "ct"), "1 each")).toEqual({ packs: 1, exact: true });
-    expect(packagesNeeded(toBase(3, "ct"), "6 ct")).toEqual({ packs: 1, exact: true }); // 3 eggs from a 6-pack
   });
 
   it("falls back to 1 package when units don't convert", () => {
@@ -32,6 +34,9 @@ describe("recipe amounts → packages", () => {
     expect(parseSize("12 fl oz")?.dim).toBe("volume");
     expect(parseSize("24 ct")).toEqual({ dim: "count", base: 24 });
     expect(parseSize("each")).toBeNull();
+    expect(parseSize("1/2 gal")?.base).toBeCloseTo(1892.7, 0); // half a gallon, not 2
+    expect(packagesNeeded(toBase(3, "cup"), "1/2 gal")).toEqual({ packs: 1, exact: true });
+    expect(packagesNeeded(toBase(10, "cup"), "1/2 gal")).toEqual({ packs: 2, exact: true });
   });
 
   it("adds amounts across meals before rounding", () => {

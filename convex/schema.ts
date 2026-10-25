@@ -13,6 +13,20 @@ export default defineSchema({
     otherStore: v.optional(v.string()),
   }).index("by_user", ["userId"]),
 
+  // How to size meals: servings per dinner (teen counts as 1.5) and whether to plan lunch leftovers.
+  household: defineTable({
+    userId: v.string(),
+    servings: v.number(),
+    leftovers: v.boolean(),
+  }).index("by_user", ["userId"]),
+
+  // What's in Tarik's pantry, remembered across weeks. have=false means "out, need to buy".
+  pantry: defineTable({
+    userId: v.string(),
+    name: v.string(), // lowercase, trimmed
+    have: v.boolean(),
+  }).index("by_user", ["userId"]),
+
   // Non-Kroger stores Tarik has added (Sendik's, Whole Foods…), kept across weeks.
   otherStores: defineTable({
     userId: v.string(),
@@ -24,6 +38,7 @@ export default defineSchema({
     day: v.string(),
     name: v.string(),
     estimatedCost: v.number(),
+    servings: v.optional(v.number()),
   }).index("by_week", ["weekId"]),
 
   listItems: defineTable({
@@ -38,5 +53,6 @@ export default defineSchema({
     imageUrl: v.optional(v.string()),
     packs: v.optional(v.number()), // packages to buy; missing = 1
     paid: v.optional(v.number()),
+    fromPlan: v.optional(v.boolean()), // added by "Use this plan"; replaced when a new plan is used
   }).index("by_week", ["weekId"]),
 });

@@ -16,6 +16,9 @@ import { mergeIngredients, planSchema, pricePlan, validatePlan, PlanToolOutput }
 import { pickProducts } from "@/lib/pick-products";
 import { staffPrompt } from "@/lib/staff-prompt";
 import { computeTally, isWeekActive } from "@/lib/tally";
+import { PLAN_LABELS, suggestedBudget } from "@/lib/usda";
+import { targetServings } from "@/lib/household";
+import { z } from "zod";
 
 export const maxDuration = 60;
 
@@ -29,25 +32,45 @@ export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) return Response.json({ error: "Not signed in" }, { status: 401 });
 
-  const { messages } = (await req.json().catch(() => ({}))) as { messages?: UIMessage[] };
+  const { messages, removedMeals } = (await req.json().catch(() => ({}))) as {
+    messages?: UIMessage[];
+    removedMeals?: unknown;
+  };
   if (!Array.isArray(messages) || messages.length === 0 || messages.length > 60) {
     return Response.json({ error: "Send 1–60 messages" }, { status: 400 });
   }
+  // Dinners Tarik removed on the latest plan card, so a later "swap Thursday" works from his edited plan.
+  const removed = Array.isArray(removedMeals)
+    ? removedMeals.filter((m): m is string => typeof m === "string").map((m) => m.slice(0, 100)).slice(0, 14)
+    : [];
 
   // What's left this week, from Convex, so Claude and the Budget Fit card see real numbers.
   const token = (await convexToken()) ?? undefined;
-  const [week, items] = await Promise.all([
+  const [week, items, pantry, household] = await Promise.all([
     fetchQuery(api.weeks.latest, {}, { token }),
     fetchQuery(api.listItems.mine, {}, { token }),
+    fetchQuery(api.pantry.mine, {}, { token }),
+    fetchQuery(api.household.mine, {}, { token }),
   ]);
-  if (!week || !isWeekActive(week.startDate, Date.now())) {
-    return Response.json({ error: "Set this week's budget first" }, { status: 409 });
-  }
-  const tally = computeTally(week.budget, items.map((i) => i.paid), week.startDate, Date.now());
+  const servings = targetServings(household);
+  // No active week is fine for budget help; meal plans need one.
+  const activeWeek = week && isWeekActive(week.startDate, Date.now()) ? week : null;
+  const tally = activeWeek
+    ? computeTally(activeWeek.budget, items.map((i) => i.paid), activeWeek.startDate, Date.now())
+    : null;
 
   const result = streamText({
     model: anthropic("claude-sonnet-5-5"),
-    instructions: staffPrompt({ remaining: tally.left, daysLeft: tally.daysLeft, storeName: week.storeName }),
+    instructions: staffPrompt({
+      remaining: tally?.left,
+      daysLeft: tally?.daysLeft,
+      storeName: activeWeek?.storeName,
+      removedMeals: removed,
+      pantryHave: pantry.filter((p) => p.have).map((p) => p.name),
+      pantryOut: pantry.filter((p) => !p.have).map((p) => p.name),
+      servings,
+      leftovers: household.leftovers,
+    }),
     messages: await convertToModelMessages(messages),
     stopWhen: isStepCount(4), // plan → (retry once) → closing line
     tools: {
@@ -57,12 +80,15 @@ export async function POST(req: Request) {
         inputSchema: planSchema,
         // A generator: each `yield` before the last is a progress update for the chat's progress bar.
         execute: async function* (plan): AsyncGenerator<PlanToolOutput> {
-          const problem = validatePlan(plan);
+          const problem = validatePlan(plan, servings);
           if (problem) throw new Error(`Plan rejected: ${problem}`);
-          if (!week.storeId) {
+          if (!activeWeek || !tally) throw new Error("No budget set this week. Ask Tarik to set one on the Budget page first.");
+          if (!activeWeek.storeId) {
             yield { needsStore: true };
             return;
           }
+          const week = activeWeek;
+          const storeId = activeWeek.storeId;
 
           // For each ingredient to buy: Kroger's top matches, then Claude picks the right one by meaning.
           const toBuy = mergeIngredients(plan).filter((i) => !i.pantry);
@@ -75,7 +101,7 @@ export async function POST(req: Request) {
           // One Kroger search at a time (gentle on their firewall), reporting progress after each.
           for (const [n, item] of toBuy.entries()) {
             yield { progress: true, done: n, total, current: item.name, storeName };
-            const options: Product[] = await searchCandidates(item.name, week.storeId).catch((err) => {
+            const options: Product[] = await searchCandidates(item.name, storeId).catch((err) => {
               failures++;
               console.error(`Kroger search failed for "${item.name}":`, err);
               return [];
@@ -91,6 +117,23 @@ export async function POST(req: Request) {
 
           yield { needsStore: false, storeName, ...pricePlan(plan, products, tally.left) };
         },
+      }),
+      suggestBudget: tool({
+        description:
+          "Show Tarik a Budget Card with a suggested weekly grocery budget for his household, based on USDA food-cost data.",
+        inputSchema: z.object({
+          level: z.enum(["thrifty", "low", "moderate"]).describe("The USDA plan level that fits how he cooks and shops"),
+          reason: z.string().max(200).describe("One short, friendly sentence on why this level fits him"),
+        }),
+        execute: async ({ level, reason }) => ({
+          recommended: level,
+          reason,
+          levels: (["thrifty", "low", "moderate"] as const).map((l) => ({
+            level: l,
+            label: PLAN_LABELS[l],
+            amount: suggestedBudget(l),
+          })),
+        }),
       }),
     },
   });

@@ -3,9 +3,20 @@
 import { useState } from "react";
 import type { PricedPlan } from "@/lib/meal-plan";
 import { formatMoney } from "@/lib/tally";
+import { formatServings } from "@/lib/household";
 
 // Claude chose the meals; code priced them. This card just draws the data.
-export default function MealPlanCard({ plan, storeName }: { plan: PricedPlan; storeName?: string }) {
+export default function MealPlanCard({
+  plan,
+  storeName,
+  onRemove,
+  pantrySlot,
+}: {
+  plan: PricedPlan;
+  storeName?: string;
+  onRemove?: (mealIndex: number) => void; // index into plan.meals as shown
+  pantrySlot?: React.ReactNode; // pantry chips, drawn by the parent
+}) {
   const [showItems, setShowItems] = useState(false);
   const toBuy = plan.items.filter((i) => !i.pantry);
   const pantry = plan.items.filter((i) => i.pantry);
@@ -23,8 +34,19 @@ export default function MealPlanCard({ plan, storeName }: { plan: PricedPlan; st
             <div className="min-w-0">
               <p className="text-xs font-black uppercase tracking-wide text-leaf-dark">{meal.day}</p>
               <p className="font-black">{meal.name}</p>
+              <p className="text-xs font-bold text-slate-500">serves {formatServings(meal.servings)}</p>
             </div>
-            <span className="shrink-0 font-black">~{formatMoney(meal.cost)}</span>
+            <span className="ml-auto shrink-0 font-black">~{formatMoney(meal.cost)}</span>
+            {onRemove && plan.meals.length > 1 && (
+              <button
+                type="button"
+                onClick={() => onRemove(i)}
+                className="h-9 w-9 shrink-0 rounded-full font-black text-slate-400 hover:bg-slate-200"
+                aria-label={`Remove ${meal.name}`}
+              >
+                ✕
+              </button>
+            )}
           </li>
         ))}
       </ul>
@@ -60,13 +82,15 @@ export default function MealPlanCard({ plan, storeName }: { plan: PricedPlan; st
               <span className="shrink-0 font-black">{item.product ? formatMoney(item.cost) : "—"}</span>
             </li>
           ))}
-          {pantry.length > 0 && (
+          {!pantrySlot && pantry.length > 0 && (
             <li className="text-xs font-bold text-slate-500">
               Probably in your pantry (not counted): {pantry.map((p) => p.name).join(", ")}
             </li>
           )}
         </ul>
       )}
+
+      {pantrySlot}
     </div>
   );
 }

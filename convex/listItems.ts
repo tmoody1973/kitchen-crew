@@ -6,7 +6,7 @@ import { activeWeek } from "./weeks";
 const MAX_AMOUNT = 10_000;
 
 // A Kroger product as it comes back from /api/price or /api/products.
-const product = v.object({
+export const product = v.object({
   productId: v.string(),
   name: v.string(),
   size: v.optional(v.string()),
@@ -24,7 +24,7 @@ function checkAmount(n: number | undefined, label: string) {
 }
 
 /** Row fields for a chosen Kroger product, or "no price found" when there isn't one. */
-function productFields(p: Infer<typeof product> | undefined) {
+export function productFields(p: Infer<typeof product> | undefined) {
   if (!p) {
     return {
       estimate: undefined,

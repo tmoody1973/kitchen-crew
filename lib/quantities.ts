@@ -48,26 +48,31 @@ export function toBase(amount: number, unit: string): Amount | null {
   return u && amount > 0 ? { dim: u.dim, base: amount * u.base } : null;
 }
 
-/** Kroger sizes like "1 lb", "6.7 fl oz", "24 ct", "2 liter", "3 lb bag", "12 ct / 1.5 oz". First amount wins. */
+/** Kroger sizes like "1 lb", "6.7 fl oz", "24 ct", "1/2 gal", "3 lb bag", "12 ct / 1.5 oz". First amount wins. */
 export function parseSize(size: string | undefined): Amount | null {
   if (!size) return null;
-  const m = size.toLowerCase().match(/(\d+(?:\.\d+)?)\s*(fl\.? ?oz|[a-z]+)/);
-  return m ? toBase(Number(m[1]), m[2]) : null;
+  const m = size.toLowerCase().match(/(\d+(?:\.\d+)?)(?:\s*\/\s*(\d+))?\s*(fl\.? ?oz|[a-z]+)/);
+  if (!m) return null;
+  const amount = m[2] ? Number(m[1]) / Number(m[2]) : Number(m[1]); // "1/2 gal" → 0.5
+  return toBase(amount, m[3]);
 }
 
 export type Packs = { packs: number; exact: boolean };
 
 /**
  * Packages needed for a recipe amount: round up, since you can't buy 1.5 packs.
- * When units don't convert ("3 cloves" vs a "1 ct" bulb) fall back to 1 package, marked inexact.
+ * When units don't convert (3 carrots vs a 2 lb bag), use the product picker's suggested count;
+ * with no suggestion, fall back to 1 package marked inexact ("check amount").
  */
-export function packagesNeeded(need: Amount | null, size: string | undefined): Packs {
+export function packagesNeeded(need: Amount | null, size: string | undefined, suggested?: number): Packs {
   const pkg = parseSize(size);
-  // "2 ct canned coconut milk" means 2 cans, whatever size a can is.
-  if (need?.dim === "count" && pkg?.dim !== "count") return { packs: Math.max(1, Math.ceil(need.base - 1e-6)), exact: true };
-  if (!need || !pkg || need.dim !== pkg.dim) return { packs: 1, exact: false };
-  // Tiny tolerance so 1.0000001 packs (unit-conversion rounding) stays 1.
-  return { packs: Math.max(1, Math.ceil(need.base / pkg.base - 1e-6)), exact: true };
+  if (need && pkg && need.dim === pkg.dim) {
+    // Same kind of unit: exact math.
+    return { packs: Math.max(1, Math.ceil(need.base / pkg.base - 1e-6)), exact: true };
+  }
+  // Units don't convert (3 carrots vs a 2 lb bag, 2 cans vs 13.5 fl oz): use the picker's judgment if given.
+  if (suggested && suggested >= 1) return { packs: Math.min(50, Math.round(suggested)), exact: true };
+  return { packs: 1, exact: false };
 }
 
 /** Adds amounts of the same thing; mismatched or unknown units → null (price as 1 package). */

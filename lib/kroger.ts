@@ -154,8 +154,24 @@ export function rankByRelevance<T extends { name: string }>(term: string, produc
   return scored.filter(({ s }) => s === best).map(({ p }) => p);
 }
 
+// ponytail: 30-minute in-memory memo of searches, so a swapped dinner only looks up its new ingredients.
+const SEARCH_TTL_MS = 30 * 60 * 1000;
+const searchMemo = new Map<string, { at: number; result: Promise<Product[]> }>();
+
 /** Kroger's top priced matches in its own order, for Claude to choose from by meaning. */
-export async function searchCandidates(term: string, locationId: string, limit = 10): Promise<Product[]> {
+export function searchCandidates(term: string, locationId: string, limit = 10): Promise<Product[]> {
+  const key = `${locationId}|${term.trim().toLowerCase()}|${limit}`;
+  const hit = searchMemo.get(key);
+  if (hit && Date.now() - hit.at < SEARCH_TTL_MS) return hit.result;
+  const result = fetchCandidates(term, locationId, limit).catch((err) => {
+    searchMemo.delete(key); // don't remember failures
+    throw err;
+  });
+  searchMemo.set(key, { at: Date.now(), result });
+  return result;
+}
+
+async function fetchCandidates(term: string, locationId: string, limit: number): Promise<Product[]> {
   const { data } = await krogerGet<{ data: KrogerProduct[] }>(
     `/products?filter.term=${encodeURIComponent(term)}&filter.locationId=${locationId}&filter.limit=20`,
   );

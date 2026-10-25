@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mergeIngredients, planSchema, pricePlan, validatePlan, PlanInput, Product } from "./meal-plan";
+import { adjustPlan, mergeIngredients, planSchema, pricePlan, removeMeals, validatePlan, PlanInput, Product } from "./meal-plan";
 
 const thighs: Product = { productId: "1", name: "Heritage Farm Chicken Thighs", size: "1 lb", price: 3.99 };
 const fishSauce: Product = { productId: "2", name: "Dynasty Fish Sauce", size: "6.7 fl oz", price: 3.49 };
@@ -10,6 +10,7 @@ const plan: PlanInput = {
     {
       day: "Monday",
       name: "Thai basil chicken",
+      servings: 3.5,
       ingredients: [
         { name: "chicken thighs", amount: 1.5, unit: "lb", pantry: false },
         { name: "fish sauce", amount: 2, unit: "tbsp", pantry: false },
@@ -19,6 +20,7 @@ const plan: PlanInput = {
     {
       day: "Tuesday",
       name: "Chicken fried rice",
+      servings: 3.5,
       ingredients: [
         { name: "Chicken thighs", amount: 1, unit: "lb", pantry: false },
         { name: "jasmine rice", amount: 2, unit: "cup", pantry: false },
@@ -69,16 +71,64 @@ describe("pricing a meal plan", () => {
 describe("malformed plans are sent back to Claude", () => {
   it("rejects plans the schema can't accept", () => {
     expect(planSchema.safeParse({ meals: [] }).success).toBe(false);
-    expect(planSchema.safeParse({ meals: [{ day: "Mon", name: "Tacos", ingredients: [] }] }).success).toBe(false);
-    expect(planSchema.safeParse({ meals: [{ day: "Mon", name: "Tacos" }] }).success).toBe(false);
+    expect(planSchema.safeParse({ meals: [{ day: "Mon", name: "Tacos", servings: 3, ingredients: [] }] }).success).toBe(false);
+    expect(planSchema.safeParse({ meals: [{ day: "Mon", name: "Tacos", servings: 3 }] }).success).toBe(false);
     expect(planSchema.safeParse(plan).success).toBe(true);
   });
 
   it("rejects plans that break the rules", () => {
     const eightDays = { meals: Array.from({ length: 8 }, (_, d) => ({ ...plan.meals[0], day: `Day ${d + 1}` })) };
     expect(validatePlan(eightDays)).toMatch(/at most 7 days/);
-    const onlyPantry = { meals: [{ day: "Mon", name: "Salt", ingredients: [plan.meals[0].ingredients[2]] }] };
+    const onlyPantry = { meals: [{ day: "Mon", name: "Salt", servings: 3.5, ingredients: [plan.meals[0].ingredients[2]] }] };
     expect(validatePlan(onlyPantry)).toMatch(/at least one ingredient/);
     expect(validatePlan(plan)).toBeNull();
+  });
+
+  it("sends back dinners sized too small for the household", () => {
+    expect(validatePlan(plan, 3.5)).toBeNull();
+    expect(validatePlan(plan, 4)).toBeNull(); // half a serving of slack
+    const forTwo = { meals: [{ ...plan.meals[0], servings: 2 }] };
+    expect(validatePlan(forTwo, 3.5)).toMatch(/Size every dinner for 3.5 servings.*Thai basil chicken serves 2/);
+    expect(validatePlan(plan, 5)).toMatch(/Size every dinner for 5 servings/); // leftovers on
+  });
+});
+
+describe("household meal size", () => {
+  it("counts the teen as 1.5 and adds lunch leftovers when asked", async () => {
+    const { targetServings, formatServings } = await import("./household");
+    expect(targetServings()).toBe(3.5);
+    expect(targetServings({ servings: 3.5, leftovers: true })).toBe(5);
+    expect(formatServings(3.5)).toBe("3½");
+    expect(formatServings(5)).toBe("5");
+  });
+});
+
+describe("removing a meal from the card", () => {
+  it("re-prices without that meal and drops items only it used", () => {
+    const priced = pricePlan(plan, products, 200);
+    const withoutTuesday = removeMeals(priced, new Set([1]));
+    expect(withoutTuesday.meals.map((m) => m.name)).toEqual(["Thai basil chicken"]);
+    // 1.5 lb of thighs now → 2 packs; rice and garlic are gone.
+    expect(withoutTuesday.items.map((i) => i.name)).toEqual(["chicken thighs", "fish sauce", "salt"]);
+    expect(withoutTuesday.total).toBe(11.47); // 2 × $3.99 + $3.49
+    expect(withoutTuesday.fits).toBe(true);
+  });
+});
+
+describe("pantry staples you're out of", () => {
+  it("get priced and counted once you mark them as needed", () => {
+    const priced = pricePlan(plan, products, 200);
+    expect(priced.items.find((i) => i.name === "salt")).toMatchObject({ pantry: true, cost: 0 });
+
+    const salt: Product = { productId: "9", name: "Morton Salt", size: "26 oz", price: 1.29, suggestedPacks: 1 };
+    const adjusted = adjustPlan(priced, new Set(), new Map([["salt", salt]]));
+    expect(adjusted.items.find((i) => i.name === "salt")).toMatchObject({ pantry: false, packs: 1, cost: 1.29 });
+    expect(adjusted.total).toBe(21.25); // 19.96 + 1.29
+  });
+
+  it("works together with removing a meal", () => {
+    const priced = pricePlan(plan, products, 200);
+    const salt: Product = { productId: "9", name: "Morton Salt", size: "26 oz", price: 1.29, suggestedPacks: 1 };
+    expect(adjustPlan(priced, new Set([1]), new Map([["salt", salt]])).total).toBe(12.76); // 11.47 + 1.29
   });
 });

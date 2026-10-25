@@ -16,6 +16,7 @@ export const planSchema = z.object({
       z.object({
         day: z.string().min(1).max(20).describe("e.g. 'Monday' or 'Day 1'"),
         name: z.string().min(1).max(80),
+        servings: z.number().min(1).max(12).describe("How many servings the amounts below make"),
         ingredients: z.array(ingredientSchema).min(1).max(20),
       }),
     )
@@ -24,19 +25,26 @@ export const planSchema = z.object({
 });
 
 export type PlanInput = z.infer<typeof planSchema>;
-export type Product = { productId: string; name: string; size?: string; price: number; imageUrl?: string };
+export type Product = { productId: string; name: string; size?: string; price: number; imageUrl?: string; suggestedPacks?: number };
 
 /** Business rules the schema can't express. Returns a message for Claude to fix, or null if fine. */
-export function validatePlan(plan: PlanInput): string | null {
+export function validatePlan(plan: PlanInput, targetServings?: number): string | null {
   const days = new Set(plan.meals.map((m) => m.day.toLowerCase()));
   if (days.size > 7) return "Plan at most 7 days.";
   if (plan.meals.some((m) => m.ingredients.every((i) => i.pantry))) {
     return "Every meal needs at least one ingredient to buy (not just pantry staples).";
   }
+  // Half a serving of slack; anything smaller means the family goes hungry.
+  const small = targetServings ? plan.meals.filter((m) => m.servings < targetServings - 0.5) : [];
+  if (small.length > 0) {
+    return `Size every dinner for ${targetServings} servings and scale its amounts to match (too small: ${small
+      .map((m) => `${m.name} serves ${m.servings}`)
+      .join(", ")}).`;
+  }
   return null;
 }
 
-const key = (name: string) => name.trim().toLowerCase();
+export const key = (name: string) => name.trim().toLowerCase();
 
 export type ShoppingItem = {
   name: string;
@@ -73,7 +81,8 @@ export function mergeIngredients(plan: PlanInput): Omit<ShoppingItem, "product" 
 }
 
 export type PricedPlan = {
-  meals: { day: string; name: string; cost: number; ingredients: string[] }[];
+  plan: PlanInput; // the meals as Claude wrote them, so the card can re-price after a meal is removed
+  meals: { day: string; name: string; servings: number; cost: number; ingredients: string[] }[];
   items: ShoppingItem[];
   total: number;
   remaining: number;
@@ -90,7 +99,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 export function pricePlan(plan: PlanInput, products: Map<string, Product | null>, remaining: number): PricedPlan {
   const items: ShoppingItem[] = mergeIngredients(plan).map((item) => {
     const product = products.get(key(item.name)) ?? null;
-    const { packs, exact } = packagesNeeded(item.need, product?.size);
+    const { packs, exact } = packagesNeeded(item.need, product?.size, product?.suggestedPacks);
     const cost = item.pantry || !product ? 0 : (estimateTotal(product.price, packs) ?? 0);
     return { ...item, product, packs, exact, cost };
   });
@@ -106,11 +115,47 @@ export function pricePlan(plan: PlanInput, products: Map<string, Product | null>
       const share = item.need && mine && item.need.dim === mine.dim ? mine.base / item.need.base : 1 / usersOf(ing.name);
       return sum + item.cost * share;
     }, 0);
-    return { day: meal.day, name: meal.name, cost: round2(cost), ingredients: meal.ingredients.map((i) => i.name) };
+    return {
+      day: meal.day,
+      name: meal.name,
+      servings: meal.servings,
+      cost: round2(cost),
+      ingredients: meal.ingredients.map((i) => i.name),
+    };
   });
 
   const total = round2(items.reduce((sum, i) => sum + i.cost, 0));
-  return { meals, items, total, remaining, fits: total <= remaining, overBy: round2(Math.max(0, total - remaining)) };
+  return { plan, meals, items, total, remaining, fits: total <= remaining, overBy: round2(Math.max(0, total - remaining)) };
+}
+
+/** The products already chosen for a priced plan, keyed by item name, for re-pricing without new lookups. */
+export function chosenProducts(priced: PricedPlan): Map<string, Product | null> {
+  return new Map(priced.items.map((i) => [key(i.name), i.product]));
+}
+
+/**
+ * Re-prices a plan after edits on the card, without new Kroger or Claude calls:
+ * - removed: meal indexes taken off the card
+ * - needed: pantry staples Tarik is out of, with the product found for each (null = no price found)
+ */
+export function adjustPlan(
+  priced: PricedPlan,
+  removed: ReadonlySet<number>,
+  needed: ReadonlyMap<string, Product | null> = new Map(),
+): PricedPlan {
+  const meals = priced.plan.meals
+    .filter((_, i) => !removed.has(i))
+    .map((m) => ({
+      ...m,
+      ingredients: m.ingredients.map((ing) => (needed.has(key(ing.name)) ? { ...ing, pantry: false } : ing)),
+    }));
+  const products = new Map([...chosenProducts(priced), ...needed]);
+  return pricePlan({ meals }, products, priced.remaining);
+}
+
+/** Drops meals by index and re-prices with the same products. */
+export function removeMeals(priced: PricedPlan, removed: ReadonlySet<number>): PricedPlan {
+  return adjustPlan(priced, removed);
 }
 
 /** What the proposeMealPlan tool returns to the chat screen. */

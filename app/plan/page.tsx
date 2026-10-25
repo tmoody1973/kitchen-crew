@@ -4,8 +4,8 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import TallyHeader from "@/components/TallyHeader";
-import MealPlanCard from "@/components/cards/MealPlanCard";
-import BudgetFit from "@/components/cards/BudgetFit";
+import PlanResult from "@/components/cards/PlanResult";
+import BudgetCard, { type BudgetSuggestion } from "@/components/cards/BudgetCard";
 import PricingProgress from "@/components/cards/PricingProgress";
 import type { PlanToolOutput } from "@/lib/meal-plan";
 
@@ -13,6 +13,9 @@ import type { PlanToolOutput } from "@/lib/meal-plan";
 export default function PlanPage() {
   const { messages, sendMessage, status, error, regenerate } = useChat();
   const [input, setInput] = useState("");
+  // Dinners removed on each plan card (by tool call), so the crew knows when asked to swap something.
+  const [removedByPlan, setRemovedByPlan] = useState<Record<string, string[]>>({});
+  const askedBudget = useRef(false);
   const bottom = useRef<HTMLDivElement>(null);
   const busy = status === "submitted" || status === "streaming";
 
@@ -20,10 +23,27 @@ export default function PlanPage() {
     bottom.current?.scrollIntoView({ behavior: "smooth" }); // braces: newer browsers return a Promise here
   }, [messages, status]);
 
+  // "Let the crew help" on Budget Setup opens /plan?ask=budget and starts the budget conversation.
+  useEffect(() => {
+    if (askedBudget.current || messages.length > 0) return;
+    if (new URLSearchParams(window.location.search).get("ask") === "budget") {
+      askedBudget.current = true;
+      sendMessage({ text: "Can you help me figure out a weekly grocery budget for my family?" });
+    }
+  }, [messages.length, sendMessage]);
+
+  function latestPlanRemovals(): string[] {
+    const planCalls = messages.flatMap((m) =>
+      m.parts.flatMap((p) => (p.type === "tool-proposeMealPlan" ? [p.toolCallId] : [])),
+    );
+    const latest = planCalls[planCalls.length - 1];
+    return latest ? (removedByPlan[latest] ?? []) : [];
+  }
+
   function send(e: FormEvent) {
     e.preventDefault();
     if (!input.trim() || busy) return;
-    sendMessage({ text: input.trim() });
+    sendMessage({ text: input.trim() }, { body: { removedMeals: latestPlanRemovals() } });
     setInput("");
   }
 
@@ -80,10 +100,23 @@ export default function PlanPage() {
                 );
               }
               return (
-                <div key={i} className="flex w-full flex-col gap-2">
-                  <MealPlanCard plan={out} storeName={out.storeName} />
-                  <BudgetFit total={out.total} remaining={out.remaining} fits={out.fits} overBy={out.overBy} />
-                </div>
+                <PlanResult
+                  key={i}
+                  priced={out}
+                  storeName={out.storeName}
+                  onMealsRemoved={(names) => setRemovedByPlan((prev) => ({ ...prev, [part.toolCallId]: names }))}
+                />
+              );
+            }
+            if (part.type === "tool-suggestBudget") {
+              if (part.state === "output-available") {
+                return <BudgetCard key={i} suggestion={part.output as BudgetSuggestion} />;
+              }
+              if (part.state === "output-error") return null;
+              return (
+                <p key={i} className="animate-pulse rounded-2xl bg-white px-4 py-2 font-bold text-slate-500">
+                  🧮 Crunching USDA numbers…
+                </p>
               );
             }
             return null;

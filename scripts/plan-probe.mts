@@ -10,6 +10,7 @@ const plan: PlanInput = {
     {
       day: "Monday",
       name: "Thai green curry with chicken",
+      servings: 3.5,
       ingredients: [
         { name: "boneless skinless chicken thighs", amount: 1.5, unit: "lb", pantry: false },
         { name: "canned coconut milk", amount: 13.5, unit: "fl oz", pantry: false },
@@ -22,6 +23,7 @@ const plan: PlanInput = {
     {
       day: "Tuesday",
       name: "Chicken fried rice",
+      servings: 3.5,
       ingredients: [
         { name: "boneless skinless chicken thighs", amount: 1, unit: "lb", pantry: false },
         { name: "eggs", amount: 3, unit: "ct", pantry: false },

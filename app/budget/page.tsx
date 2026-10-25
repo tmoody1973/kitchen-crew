@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { isWeekActive } from "@/lib/tally";
 import { DEFAULT_PLAN_LEVEL, PLAN_LABELS, suggestedBudget } from "@/lib/usda";
+import HouseholdSettings from "@/components/HouseholdSettings";
 
 const SUGGESTED = suggestedBudget(DEFAULT_PLAN_LEVEL);
 
@@ -14,7 +15,12 @@ export default function BudgetPage() {
   if (week === undefined) return null;
   const active = week !== null && isWeekActive(week.startDate, Date.now());
   // key resets the form when the saved budget changes
-  return <BudgetForm key={week?._id ?? "new"} current={active ? week.budget : undefined} />;
+  return (
+    <div className="flex flex-col gap-4">
+      <BudgetForm key={week?._id ?? "new"} current={active ? week.budget : undefined} />
+      <HouseholdSettings />
+    </div>
+  );
 }
 
 function BudgetForm({ current }: { current?: number }) {
@@ -62,6 +68,9 @@ function BudgetForm({ current }: { current?: number }) {
           />
         </span>
       </label>
+      <a href="/plan?ask=budget" className="text-center font-bold text-leaf-dark underline">
+        Not sure? Let the crew help you figure it out →
+      </a>
       {error && <p className="font-bold text-carrot-dark">{error}</p>}
       <button
         disabled={saving}

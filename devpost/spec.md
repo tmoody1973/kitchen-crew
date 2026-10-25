@@ -101,6 +101,8 @@ All in Convex, every record tagged with the signed-in user's ID.
 - **weeks** — `userId`, `budget` (number), `planLevel` ("thrifty" | "low" | "moderate" | "custom"), `startDate`, `storeId` / `storeName` (the store being shopped; optional). Created at budget setup. The "active week" is the latest one less than 7 days old; after 7 days, Budget Setup appears again (`prd.md > States and Boundaries > Week boundary`).
 - **meals** — `weekId`, `day`, `name`, `estimatedCost`. Written when Tarik taps "Use this plan". Replaced if he uses a new plan.
 - **listItems** — `weekId`, `name`, `estimate` (price per package, or empty), `estimateSource` ("kroger" | "manual"), `productId` / `productName` / `size` (chosen Kroger product), `packs` (packages to buy), `paid` (number or empty). Slice 3–4 add `amount` / `unit` from recipes.
+- **pantry** — `userId`, `name` (lowercase), `have` (boolean). What Tarik has or is out of; read by the crew and the plan card's pantry chips. *(Added in build, slice 4.)*
+- **meals** also back "Use this plan"; **listItems** gain `fromPlan` so a new plan replaces only the previous plan's unpaid rows.
 - **otherStores** — `userId`, `name`. Non-Kroger stores Tarik has added; the week's `otherStore` says he's shopping at one. Created from the plan's ingredients, merging identical names across meals into one row; `paid` updated in the store.
 
 Leaving and coming back: everything is in Convex, so any device shows the same week after sign-in. The chat conversation itself is **not** saved; only the plan it produced is (see Simplified).
