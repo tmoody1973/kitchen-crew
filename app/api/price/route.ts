@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { nearbyStores, productsById, searchProducts, Product } from "@/lib/kroger";
+import { KROGER_CONCURRENCY, mapLimit, nearbyStores, productsById, searchProducts, Product } from "@/lib/kroger";
 
 type Item = { name: string; productId?: string };
 
@@ -35,8 +35,7 @@ export async function POST(req: Request) {
       console.error("Kroger product lookup failed:", err);
       return new Map<string, Product>();
     });
-    const results = await Promise.all(
-      items.map(async (item): Promise<Product | null> => {
+    const results = await mapLimit(items, KROGER_CONCURRENCY, async (item): Promise<Product | null> => {
         const same = item.productId ? chosen.get(item.productId) : undefined;
         if (same) return same;
         try {
@@ -45,8 +44,7 @@ export async function POST(req: Request) {
           console.error(`Kroger price lookup failed for "${item.name}":`, err);
           return null;
         }
-      }),
-    );
+    });
     return Response.json({ results });
   } catch (err) {
     console.error("Kroger store check failed:", err);

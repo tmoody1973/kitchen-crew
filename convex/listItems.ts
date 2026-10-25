@@ -127,3 +127,12 @@ export const applyPrices = mutation({
     }
   },
 });
+
+/** Takes an item off this week's list (and out of the tally). */
+export const remove = mutation({
+  args: { id: v.id("listItems") },
+  handler: async (ctx, { id }) => {
+    await ownItem(ctx, id);
+    await ctx.db.delete(id);
+  },
+});

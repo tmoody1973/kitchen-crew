@@ -29,7 +29,7 @@ Build mode: learn
   Learner check: Add "chicken thighs" and "eggs." Check that the prices look like what your store charges. Type a paid amount above one estimate and below the other: one row green, one orange, tally updated with no reload.
   Commit: `feat: Kroger-priced shopping list with live tally`
 
-- [ ] **3. Ask the crew what to cook and get a costed meal plan card**
+- [x] **3. Ask the crew what to cook and get a costed meal plan card**
   Becomes usable: In the Planner chat you ask "what should we cook?" The crew asks what kind of dishes (you can paste recipe names or links), then how many days, and answers with a Meal Plan card (meals, Kroger-priced costs) and a Budget Fit card ("fits" / "over by $X").
   Why now: The generated-UI half of the kernel; it builds directly on the Kroger client and tally math that slice 2 proved.
   PRD ref: `prd.md > Meal Planning Chat`, `prd.md > The Core Journey` (steps 2–3), `prd.md > Screens and Layout`
@@ -49,7 +49,17 @@ Build mode: learn
   Learner check: Plan 3 days, remove one meal, ask the crew to swap another, then tap "Use this plan." Open the Shopping List, enter a few paid prices, and confirm the tally ends "under budget this week."
   Commit: `feat: adjustable plans that become your shopping list`
 
-- [ ] **5. Scan a barcode in the aisle**
+- [ ] **5. Paste a recipe link, see the recipe, and keep it on your shelf**
+  Becomes usable: Paste a recipe website or YouTube link in the planner; the crew reads the real recipe (ingredients, steps, servings, time, photo) and can put it in your plan, priced at your store. Tap a dinner to open a recipe view (photo, source badge, stats bar, ingredients rescaled with a servings stepper starting at 3, numbered steps, "Original recipe" link). Every imported or used recipe lands on a simple **My Recipes** shelf, and the crew can plan from it.
+  Why now: Added by Tarik during slice 3. Built on the working plan → list journey (slice 4) so imported recipes flow straight into pricing; placed before barcode scanning at his choice.
+  PRD ref: `prd.md > Meal Planning Chat` (pasted recipe names/links), `prd.md > Deferred From the POC` (YouTube, now reopened for single video links)
+  Spec ref: `spec.md > Planner Chat`, `spec.md > Chat Route and the Staff's Tools (app/api/chat/route.ts)`, `spec.md > Cards (components/cards/)`, `spec.md > Data Model`
+  Build: Reuse Tarik's Digero parsers (`/Users/tarikmoody/Documents/Projects/digero`): `convex/lib/parseJsonLdRecipe.ts`, `parseMicrodataRecipe.ts`, `youtubeUrlParser.ts`, the transcript fetch in `actions/youtube/fetchCaptions.ts`, and the transcript-first extraction approach from `extractRecipeFromYouTube.ts` (ported from Gemini to Claude); official YouTube Data API for title/description/thumbnail (`YOUTUBE_API_KEY`). An `importRecipe` tool in the chat; a `recipes` table (title, source, image, servings, times, ingredients, steps); meals link to recipes; recipe view and My Recipes tab with layout borrowed from Digero's recipe detail and list screens, rebuilt in Tailwind; the crew can plan from saved recipes.
+  Verify (mechanical): Parser tests on saved HTML from 2 recipe sites and a YouTube link → ID cases; a scripted import of the RecipeTin Eats green curry returns 21 ingredients and 11 steps; a YouTube import returns ingredients from the transcript; servings rescale test (4 → 3); `npm run build` succeeds.
+  Learner check: Paste a recipe link you like and a YouTube cooking video. Check the recipe view (ingredients, steps, servings at 3), that both land on My Recipes, and ask the crew to plan 2 days using your saved recipes.
+  Commit: `feat: recipe links, recipe view, and My Recipes shelf`
+
+- [ ] **6. Scan a barcode in the aisle**
   Becomes usable: On the Shopping List you tap Scan and point your phone at a barcode. A packaged item is added with its Kroger price at your store; a store-printed meat/deli/produce sticker fills in what you paid for that row.
   Why now: An added request (Tarik, during slice 2) that speeds up the store moment. It comes after the core journey works, and phone-camera testing needs a secure (https) address, so it goes before the design pass that styles it.
   PRD ref: `prd.md > Shopping List and Prices`, `prd.md > Running Tally`
@@ -59,7 +69,7 @@ Build mode: learn
   Learner check: On your phone (secure address), scan 2 packaged items from your pantry and check the names and prices; scan a meat or deli sticker and check the paid amount it fills in.
   Commit: `feat: barcode scanning in the aisle`
 
-- [ ] **6. Make it feel like Kitchen Crew: playful design and phone-ready list**
+- [ ] **7. Make it feel like Kitchen Crew: playful design and phone-ready list**
   Becomes usable: All screens get the playful, Duolingo-like look, with a one-handed phone layout for the Shopping List (big tap targets, number keypad, tally always visible) and friendly empty and error states.
   Why now: Design is applied once the screens exist and their behavior is settled, so `/impeccable` styles the real thing instead of guesses.
   PRD ref: `prd.md > Look and Feel`, `prd.md > States and Boundaries`
@@ -98,3 +108,6 @@ Activity mode: [not started]
 - Slice 2: smarter product search, layer 1. Fetch Kroger's top 20, keep only the best tier (exact phrase, else all words, else all), plurals tolerated ("fish sauce" now shows 2 real fish sauces instead of tartar sauce). Layer 2, Claude choosing by meaning from the candidates (e.g., canned vs carton coconut milk), added to slice 3. Product photos added to rows and the brand picker. Verification builds now use `.next-verify` so they never break a running dev server (a build during `npm run dev` had stripped the styling).
 - Added slice 5, **barcode scanning** (Tarik's request), after slice 4; design becomes slice 6. Research: Kroger looks up products by barcode (verified with 3 real UPCs); iPhone Safari lacks built-in barcode reading, so it needs the `barcode-detector` library; phone camera needs https; store-printed meat/deli stickers encode the price, not the product.
 - Early hands-on checkpoint (after slice 2): Tarik tried the list (store picker, prices, brand change, packs) and his feedback shaped the build: store picker, non-Kroger stores, brand/size choice, product photos, smarter search, recipe quantities (slices 3–4), and barcode scanning (new slice 5).
+- Slice 3: product picking by meaning uses **Claude Haiku 5.5** (one small call per plan, choosing from Kroger's top 10 per ingredient); the conversation stays on Sonnet 5.5. Verified with `scripts/plan-probe.mts` (real Kroger + Claude: canned coconut milk chosen over the carton; total equals the sum of items). Quantity rule added: a counted amount ("2 ct canned coconut milk") buys that many packages when the package is sized by weight/volume. Meal costs on the card are each meal's share; the shopping total is whole packages (cost to buy). Malformed-plan path: the tool rejects bad plans with a message Claude fixes (schema + `validatePlan`, unit-tested); the chat shows "Let's try that plan again…" for a failed call.
+- Added slice 5, **recipe links + recipe view + My Recipes shelf** (Tarik's request), reusing parsers and UX from his Digero app; official YouTube Data API approved (key can be copied from Digero). Full recipe organizer (folders, tags, ratings, cook history, cook mode, playlists) stays Later. Barcode becomes slice 6, design slice 7.
+- Slice 3: a 28-item plan made 28 simultaneous Kroger token requests; Kroger's firewall (Akamai) blocked the connection for ~10 min and every item showed $0. Fixed: one shared token request, searches one at a time (`KROGER_CONCURRENCY = 1`, ~1 s per item), an error instead of a silent $0 plan, and a live **progress bar** (tool streams progress updates). Tarik's check: 5-day comfort-food plan, 27 items, $91.99, fits budget. Quantity issues found in that run (produce counts buying whole bags/bunches, "1/2 gal" read as 2 gal, overly specific search terms) carried into slice 4.

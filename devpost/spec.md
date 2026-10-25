@@ -31,7 +31,7 @@ PRD ref: `prd.md > The Core Journey`.
 ## Stack
 - **Next.js (App Router), TypeScript** — the app and its server routes. Recommended by Claude, accepted by Tarik; Vercel is built for it. Docs: https://nextjs.org/docs
 - **Vercel AI SDK + Anthropic provider** — sends chat to Claude, streams replies, and handles Claude's tool calls that become cards. Docs: https://ai-sdk.dev/docs · https://ai-sdk.dev/providers/ai-sdk-providers/anthropic
-- **Claude (Sonnet 5.5, `claude-sonnet-5-5`)** — the staff's brain. Tarik chose Claude; Sonnet picked for balance of quality and cost per chat. Docs: https://docs.claude.com
+- **Claude (Sonnet 5.5, `claude-sonnet-5-5`)** — the staff's brain; **Haiku 5.5** (`claude-haiku-5-5`) picks the right Kroger product per ingredient (added in build, slice 3). Tarik chose Claude; Sonnet picked for balance of quality and cost per chat. Docs: https://docs.claude.com
 - **Convex** — database and live updates. Tarik's choice (uses it all the time); replaced the local-storage recommendation because it shares data between phone and laptop. Docs: https://docs.convex.dev
 - **Clerk** — sign-in. Tarik's choice over Vercel's deployment-protection toggle; tradeoff: a sign-in step before any feature, in exchange for data that's properly his. Docs: https://clerk.com/docs · Convex + Clerk: https://docs.convex.dev/auth/clerk
 - **Tailwind CSS** — styling, so `/impeccable` can apply the visual design. Docs: https://tailwindcss.com/docs

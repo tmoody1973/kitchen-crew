@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeTally, daysLeft, formatMoney, isWeekActive, rowStatus, estimateTotal } from "./tally";
-import { pickImage, pickPrice, rankByRelevance } from "./kroger";
+import { mapLimit, pickImage, pickPrice, rankByRelevance } from "./kroger";
 import { suggestedBudget } from "./usda";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -116,5 +116,21 @@ describe("smarter Kroger search", () => {
     ]);
     expect(names(rankByRelevance("scallions", [{ name: "Green Onions" }, { name: "Leeks" }]))).toEqual(["Green Onions", "Leeks"]);
     expect(names(rankByRelevance("tomatoes", [{ name: "Ketchup" }, { name: "Roma Tomato" }]))[0]).toBe("Roma Tomato");
+  });
+});
+
+describe("pacing Kroger calls", () => {
+  it("runs at most N at a time and keeps the order", async () => {
+    let running = 0;
+    let peak = 0;
+    const out = await mapLimit([1, 2, 3, 4, 5, 6, 7], 3, async (n) => {
+      running++;
+      peak = Math.max(peak, running);
+      await new Promise((r) => setTimeout(r, 5));
+      running--;
+      return n * 10;
+    });
+    expect(out).toEqual([10, 20, 30, 40, 50, 60, 70]);
+    expect(peak).toBe(3);
   });
 });

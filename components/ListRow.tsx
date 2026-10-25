@@ -26,6 +26,7 @@ export default function ListRow({ item, krogerStoreId }: { item: Doc<"listItems"
   const setEstimate = useMutation(api.listItems.setEstimate);
   const setPacks = useMutation(api.listItems.setPacks);
   const setProduct = useMutation(api.listItems.setProduct);
+  const remove = useMutation(api.listItems.remove);
   const [paidText, setPaidText] = useState(item.paid?.toString() ?? "");
   const [estimateText, setEstimateText] = useState("");
   const [picking, setPicking] = useState(false);
@@ -135,6 +136,14 @@ export default function ListRow({ item, krogerStoreId }: { item: Doc<"listItems"
             {item.productId ? "Change brand" : "Find at Kroger"}
           </button>
         )}
+        <button
+          type="button"
+          onClick={() => remove({ id: item._id }).catch(fail)}
+          className="ml-auto rounded-full px-3 py-2 text-slate-500 hover:bg-slate-100"
+          aria-label={`Remove ${item.name}`}
+        >
+          ✕ Remove
+        </button>
       </div>
 
       {picking && krogerStoreId && (
