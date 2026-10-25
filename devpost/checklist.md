@@ -119,6 +119,8 @@ Build mode: learn
   Learner check: On your phone (secure address), scan 2 packaged items from your pantry and check the names and prices; scan a meat or deli sticker and check the paid amount it fills in.
   Commit: `feat: barcode scanning in the aisle`
 
+  Progress (built and verified by Claude): 7 barcode tests (UPC-A, EAN-13 with a leading 0, foreign EAN, UPC-E, store sticker, misreads rejected, typed spaces); real lookups of 4 barcodes at Pick 'n Save return the right products and prices (Heinz, Cheerios, Coke 2 L, Coke can via UPC-E); end-to-end camera test in Chrome with a fake camera showing a sticker barcode: decoded in ~50 ms and the sheet asked "Sticker price $19.95. Which item is it?" (closed without writing); `next build` passes with the reader loaded only on Scan. Tarik's phone check moved to 6-ship (his call): the camera needs https, which the Vercel deploy provides; box stays unticked until then.
+
 - [ ] **11. Send your list to Instacart**
   Becomes usable: A "Send to Instacart" button on the Shopping List (and on a recipe) opens Instacart with the items pre-filled, so Tarik can pick a store and check out for delivery; the tally still tracks what he spends when he types the Instacart prices into the paid boxes.
   Why now: Tarik orders groceries from Instacart often; he asked for it as the final slice, after everything else is built. Reopens scope's "Later: Instacart integration" at his request.

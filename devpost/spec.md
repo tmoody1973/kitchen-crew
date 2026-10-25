@@ -97,7 +97,7 @@ Server-only. Gets an access token (one shared request even when many searches st
 PRD ref: `prd.md > Shopping List and Prices`.
 
 ### Shopping List Screen
-`app/list/page.tsx`. Store picker at the top ("Shopping at"): Pick 'n Save and Metro Market stores near the ZIP plus non-Kroger stores Tarik added; the choice is saved on the week and carried into the next; switching Kroger stores re-prices Kroger rows by product ID (estimates he typed are kept). Each row (`components/ListRow.tsx`): item, product photo and name, Kroger estimate × packs (or "no price found" with an editable estimate), − / + pack count, "Change brand" (`components/ProductPicker.tsx`), remove, and a paid box with the number keypad. Rows turn green or orange with a sentence saying which. A manual "Add an item" box stays (Tarik's choice). *Added after slice 9 (Tarik's request):* with 2+ dinners scheduled, an **All items | By dinner** toggle (remembered per device) regroups the same rows by dinner (`lib/list-groups.ts`, matched against each dinner's stored ingredients by name; no new data): "Shared by 2+ dinners" first (shown once, with a "for …" line naming the dinners, so a merged 3-pack never looks bought twice), then each dinner in day order, then "Everything else" (extras, regulars, hand-added).
+`app/list/page.tsx`. Store picker at the top ("Shopping at"): Pick 'n Save and Metro Market stores near the ZIP plus non-Kroger stores Tarik added; the choice is saved on the week and carried into the next; switching Kroger stores re-prices Kroger rows by product ID (estimates he typed are kept). Each row (`components/ListRow.tsx`): item, product photo and name, Kroger estimate × packs (or "no price found" with an editable estimate), − / + pack count, "Change brand" (`components/ProductPicker.tsx`), remove, and a paid box with the number keypad. Rows turn green or orange with a sentence saying which. A manual "Add an item" box stays (Tarik's choice). *Added after slice 9 (Tarik's request):* with 2+ dinners scheduled, an **All items | By dinner** toggle (remembered per device) regroups the same rows by dinner (`lib/list-groups.ts`, matched against each dinner's stored ingredients by name; no new data): "Shared by 2+ dinners" first (shown once, with a "for …" line naming the dinners, so a merged 3-pack never looks bought twice), then each dinner in day order, then "Everything else" (extras, regulars, hand-added). *Slice 10:* a **Scan** button (`components/BarcodeScanner.tsx`) opens a full-screen camera sheet (rear camera; `barcode-detector` ponyfill = ZXing in WebAssembly, loaded only when scanning, so iPhone Safari works; formats UPC-A/E, EAN-13/8; checked every 300 ms; the phone buzzes on a read). `lib/barcode.ts` checks the GS1 check digit (misreads rejected), expands short UPC-E, accepts a UPC read as a 13-digit EAN, and returns either a Kroger productId (drop the check digit, pad to 13) or a store-sticker price (`2 IIIII A PPPP C`, price in cents, max $99.99). A product is looked up at the chosen store (`app/api/barcode` → `productsById`) and added to the viewed week's list, or reported "already on your list"; a sticker asks "which item is it?" and fills that row's paid amount (the sticker's item number is the store's own scale code, so it can't be matched automatically). A "type the numbers" box covers cameras that can't read a code, or pages opened without https.
 PRD ref: `prd.md > Shopping List and Prices`, `prd.md > Running Tally`.
 
 ### Tally Header and Budget Math (`lib/tally.ts`)
@@ -157,12 +157,13 @@ app/
   recipes/[id]/page.tsx      # Recipe view
   api/chat/route.ts          # Claude + tools (proposeMealPlan, importRecipe, suggestBudget)
   api/stores · api/price · api/products   # Kroger server routes
+  api/barcode                # scanned product → Kroger price at the chosen store (slice 10)
   api/playlist · api/recipes/read · api/recipes/tag   # playlist sync; read a not-yet-read recipe; auto-tag (slice 9)
 components/
   TallyHeader · ListRow · ProductPicker · HouseholdSettings · ExtrasSplit · RegularsSection · ChatMenu · ConvexClientProvider
   cards/  BudgetCard · BudgetFit · MealPlanCard · PlanResult · PricingProgress · PantryChips · RecipeCard
 lib/
-  tally.ts · usda.ts · household.ts · quantities.ts · meal-plan.ts · list-groups.ts · pick-products.ts · staff-prompt.ts
+  tally.ts · usda.ts · household.ts · quantities.ts · meal-plan.ts · list-groups.ts · barcode.ts · pick-products.ts · staff-prompt.ts
   kroger.ts (server) · kroger-client.ts (browser)
   recipes/  import · youtube · playlist · links · tags · auto-tag · filter · safe-url · scale · units · parseJsonLdRecipe · parseMicrodataRecipe · youtubeUrlParser · recipeTypes
   convex-token.ts            # sign-in pass for server routes calling Convex
@@ -184,6 +185,7 @@ Docs: https://developer.kroger.com/documentation/public/getting-started/quick-st
 - Store lookup: `GET https://api.kroger.com/v1/locations?filter.zipCode.near={KROGER_ZIP}&filter.limit=1` → `data[0].locationId`.
 - Price search: `GET https://api.kroger.com/v1/products?filter.term={ingredient}&filter.locationId={id}&filter.limit=1` → `data[0].items[0].price.regular` / `.promo` (prices appear only when a `locationId` is given).
 - Rate limits: a daily call cap on the free tier (expected thousands/day; confirm). Cost: free.
+- Barcode → product *(verified in build, slice 10)*: `productId` = the UPC/EAN without its check digit, left-padded to 13 (`GET /products?filter.productId=…&filter.locationId=…`). Real lookups at Pick 'n Save 11th & Garfield: Heinz ketchup 013000006408 → 20 oz $4.49; Cheerios 016000275287 → 18 oz $5; Coca-Cola 2 L 049000050103 → $2.50; Coca-Cola can (UPC-E 04963406) → $4.99.
 
 ### YouTube Data API v3 *(added in build, slice 5)*
 Docs: https://developers.google.com/youtube/v3 · key `YOUTUBE_API_KEY` (free quota: 10,000 units/day; a video lookup costs 1 unit, a playlist page 1). Used for video title, description, and thumbnail, and in slice 9 for playlist items (`YOUTUBE_PLAYLIST_ID`). Transcripts aren't available through the API without Google sign-in, so they're read from the public video page (may break if YouTube changes it; import then falls back to the description).

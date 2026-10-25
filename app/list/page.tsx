@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import TallyHeader from "@/components/TallyHeader";
 import ListRow from "@/components/ListRow";
+import BarcodeScanner from "@/components/BarcodeScanner";
 import { isWeekActive } from "@/lib/tally";
 import { groupByDinner } from "@/lib/list-groups";
 import { dayLabel } from "@/lib/weeks";
@@ -65,7 +66,10 @@ export default function ListPage() {
       <TallyHeader offset={offset} />
       {offset === 0 && <StorePicker week={week} items={items} />}
       <AddItem krogerStoreId={viewing.storeId} offset={offset} />
-      {offset === 0 && <AddRegulars krogerStoreId={week.storeId} />}
+      <div className="flex flex-wrap gap-2">
+        <BarcodeScanner items={items} storeId={viewing.storeId} offset={offset} />
+        {offset === 0 && <AddRegulars krogerStoreId={week.storeId} />}
+      </div>
       {items.length === 0 ? (
         <p className="rounded-2xl border-2 border-dashed border-line p-5 text-center font-bold text-ink-soft">
           {offset === 1 ? "Nothing for next week yet. Put dinners on next week's board, or add items here." : "Your list is empty. Add an item above, or "}
