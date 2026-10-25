@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ArrowRight, ChefHat, Globe, PlayCircle, X } from "lucide-react";
+import { ArrowRight, ChefHat, Globe, PlayCircle, RefreshCw, X } from "lucide-react";
 import { formatServings } from "@/lib/household";
 import { dayLabel } from "@/lib/weeks";
 
@@ -15,6 +16,38 @@ function SourceBadge({ type }: { type: keyof typeof ICON }) {
     <span className="absolute bottom-1 left-1 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-chalk">
       <Icon size={12} strokeWidth={2.75} aria-hidden />
     </span>
+  );
+}
+
+/** "Sync my playlist": new videos from the YouTube recipe playlist join the shelf, not read yet. */
+function SyncPlaylist() {
+  const [state, setState] = useState<{ busy: boolean; note?: string; error?: boolean }>({ busy: false });
+  async function sync() {
+    setState({ busy: true });
+    try {
+      const res = await fetch("/api/playlist", { method: "POST" });
+      const data = (await res.json().catch(() => ({}))) as { added?: number; total?: number; error?: string };
+      if (!res.ok) return setState({ busy: false, error: true, note: data.error ?? "Sync didn't work. Try again?" });
+      setState({
+        busy: false,
+        note: data.added
+          ? `Added ${data.added} video${data.added === 1 ? "" : "s"}. Each recipe is read the first time you open it.`
+          : `Up to date: all ${data.total} playlist videos are here.`,
+      });
+    } catch {
+      setState({ busy: false, error: true, note: "No connection. Try again?" });
+    }
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <button type="button" onClick={sync} disabled={state.busy} className="btn-crate">
+        <RefreshCw size={16} strokeWidth={3} aria-hidden className={state.busy ? "animate-spin" : ""} />
+        {state.busy ? "Syncing…" : "Sync my playlist"}
+      </button>
+      {state.note && (
+        <p role="status" className={`text-sm font-bold ${state.error ? "text-tomato-dark" : "text-ink-soft"}`}>{state.note}</p>
+      )}
+    </div>
   );
 }
 
@@ -57,6 +90,7 @@ export default function RecipesPage() {
           {recipes.length} saved. Paste a recipe link in <Link href="/plan" className="font-extrabold text-ink underline">the planner</Link> to add one,
           or ask the crew to plan from your saved recipes.
         </p>
+        <SyncPlaylist />
       </header>
 
       {recipes.length > 0 && <ul className="crate px-3">
@@ -73,8 +107,12 @@ export default function RecipesPage() {
               <div className="min-w-0">
                 <p className="line-clamp-2 font-black leading-snug">{r.title}</p>
                 <p className="text-sm font-bold text-ink-soft">
-                  {r.totalMinutes ? `${r.totalMinutes} min · ` : ""}serves {formatServings(r.servings)}
-                  {r.sourceName ? ` · ${r.sourceName}` : ""}
+                  {r.unread ? (
+                    <span className="tag mr-1 text-xs">not read yet</span>
+                  ) : (
+                    <>{r.totalMinutes ? `${r.totalMinutes} min · ` : ""}serves {formatServings(r.servings)}</>
+                  )}
+                  {r.sourceName ? `${r.unread ? "" : " · "}${r.sourceName}` : ""}
                 </p>
               </div>
             </Link>

@@ -176,7 +176,7 @@ export function removeMeals(priced: PricedPlan, removed: ReadonlySet<number>): P
 }
 
 /** What the proposeMealPlan tool returns to the chat screen. */
-export type PlanProgress = { progress: true; done: number; total: number; current?: string; storeName?: string };
+export type PlanProgress = { progress: true; done: number; total: number; current?: string; storeName?: string; reading?: string };
 export type PlanToolOutput =
   | PlanProgress // in-progress update while pricing; the last update is the plan itself
   | { progress?: false; needsStore: true }

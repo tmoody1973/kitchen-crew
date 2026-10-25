@@ -100,6 +100,8 @@ Build mode: learn
   Also: **auto-tags** (cuisine, main protein, meal type, time, traits like spicy/one-pan/vegetarian) assigned by Claude as recipes arrive (whole playlist tagged in one call at sync); Tarik can add/remove his own tags; a **search box** over titles, ingredients, and tags (Convex text search) plus **tag filter chips** on My Recipes; the crew answers mood-based requests ("something cozy") from the shelf. Vector search and folders stay Later.
   Commit: `feat: YouTube playlist synced into My Recipes, tagged and searchable`
 
+  Progress (9a, playlist + reading, built and verified by Claude): sync of the real playlist (86 videos) added 86 then 0 on a second run (test user, cleaned up); reading a synced video fills the same entry and clears "not read yet"; 8 link-filter tests from real descriptions; real reads covering a recipe-site link (Din Tai Fung green beans), description/transcript (Pasta al Limone), a blocked site falling back to the transcript (Tan Tan Ramen: site and TinyFish both blocked), and TinyFish rendering pages without recipe data (Basque cheesecake, Singapore noodles; confirmed in TinyFish's usage log); `next build` passes (built in a throwaway copy). Next: 9b auto-tags, search, tag chips.
+
 - [ ] **10. Scan a barcode in the aisle**
   Becomes usable: On the Shopping List you tap Scan and point your phone at a barcode. A packaged item is added with its Kroger price at your store; a store-printed meat/deli/produce sticker fills in what you paid for that row.
   Why now: An added request (Tarik, during slice 2) that speeds up the store moment. It comes after the core journey works, and phone-camera testing needs a secure (https) address, so it goes before the design pass that styles it.

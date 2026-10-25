@@ -100,6 +100,7 @@ export default defineSchema({
       }),
     ),
     steps: v.array(v.string()),
+    unread: v.optional(v.boolean()), // a playlist video whose recipe hasn't been read yet (no ingredients or steps)
   }).index("by_user", ["userId"]),
 
   listItems: defineTable({

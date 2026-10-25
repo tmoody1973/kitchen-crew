@@ -21,14 +21,9 @@ import { computeSplitTally, computeTally, isWeekActive } from "@/lib/tally";
 import { PLAN_LABELS, suggestedBudget } from "@/lib/usda";
 import { targetServings } from "@/lib/household";
 import { z } from "zod";
+import { convexToken } from "@/lib/convex-token";
 
-export const maxDuration = 60;
-
-/** A sign-in pass Convex accepts, the same way the browser gets one. */
-async function convexToken(): Promise<string | null> {
-  const { getToken, sessionClaims } = await auth();
-  return sessionClaims?.aud === "convex" ? getToken() : getToken({ template: "convex" });
-}
+export const maxDuration = 300; // a plan may read a few playlist videos before pricing
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -84,7 +79,7 @@ export async function POST(req: Request) {
       pantryOut: pantry.filter((p) => !p.have).map((p) => p.name),
       servings,
       leftovers: household.leftovers,
-      savedRecipes: savedRecipes.slice(0, 30).map((r) => ({ id: r._id, title: r.title })),
+      savedRecipes: savedRecipes.slice(0, 150).map((r) => ({ id: r._id, title: r.title })),
     }),
     messages: await convertToModelMessages(messages),
     stopWhen: isStepCount(5), // import → plan → (retry once) → closing line
@@ -95,6 +90,20 @@ export async function POST(req: Request) {
         inputSchema: planToolSchema,
         // A generator: each `yield` before the last is a progress update for the chat's progress bar.
         execute: async function* (input): AsyncGenerator<PlanToolOutput> {
+          // Playlist videos are read the first time a plan uses them.
+          const unread = [...new Set(input.meals.flatMap((m) => (m.recipeId && recipesById.get(m.recipeId)?.unread ? [m.recipeId] : [])))];
+          for (const [n, id] of unread.entries()) {
+            const saved = recipesById.get(id)!;
+            yield { progress: true, done: n, total: unread.length, reading: saved.title };
+            try {
+              const recipe = await importRecipe(saved.sourceUrl!);
+              await fetchMutation(api.recipes.save, { recipe: { ...recipe, imageUrl: recipe.imageUrl ?? saved.imageUrl } }, { token });
+              recipesById.set(id, { ...saved, ...recipe, unread: undefined });
+            } catch (err) {
+              if (!(err instanceof ImportError)) console.error("Reading playlist recipe failed:", err);
+              throw new Error(`Plan rejected: couldn't read the recipe for "${saved.title}". Pick a different dinner for that day.`);
+            }
+          }
           // Dinners from My Recipes get their ingredients filled in and scaled by code.
           const resolved = resolvePlan(input, recipesById, pantrySets, scaleIngredients);
           if ("error" in resolved) throw new Error(`Plan rejected: ${resolved.error}`);

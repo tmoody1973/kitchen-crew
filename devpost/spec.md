@@ -119,11 +119,11 @@ Servings per dinner (default 3½: teen counted as 1½) and a leftovers toggle (+
 PRD ref: `prd.md > Budget Setup`.
 
 ### Recipe Import (`lib/recipes/`) *(added in build, slice 5)*
-`import.ts` checks the link is safe (`safe-url.ts`: no local or private addresses). Websites: page fetched, recipe read from built-in data (`parseJsonLdRecipe.ts`, `parseMicrodataRecipe.ts` from Digero; sectioned steps fixed). YouTube (`youtube.ts`): title/description/thumbnail from the official Data API, spoken transcript from the public video page (Digero's approach), Claude Sonnet extracts the recipe transcript-first. Claude Haiku turns ingredient lines into name/amount/unit with flags for pantry, `fixed` (frying oil), and `madeInRecipe`. `scale.ts` scales by math (whole items round up; pinches and fixed amounts don't scale); `units.ts` formats amounts in the chosen system — a **US | Metric** toggle on the recipe view, remembered per device (US converts grams to oz/lb and watery liquids to cups; metric converts cups/tbsp/oz/lb to ml/g; counts unchanged; volumes of solids convert to ml, not grams, since that needs the food's density) — with kitchen fractions ("3¾ cups"); the recipe view labels ingredients that don't scale or are made in an earlier step.
+`import.ts` checks the link is safe (`safe-url.ts`: no local or private addresses). Websites: page fetched, recipe read from built-in data (`parseJsonLdRecipe.ts`, `parseMicrodataRecipe.ts` from Digero; sectioned steps fixed). YouTube (`youtube.ts`): title/description/thumbnail from the official Data API, spoken transcript from the public video page (Digero's approach), Claude Sonnet extracts the recipe transcript-first. *Slice 9:* a video is first checked for a written-recipe link in its description (`links.ts`: addresses or nearby text saying "recipe"; shop, gear, social, sponsor, blog-home and category links skipped — tuned on the 86 real playlist descriptions, 49 of which link a recipe); up to 2 links are read with the website reader, and only if none works does it fall back to transcript + description. The website reader falls back to **TinyFish** (renders the page like a browser) + Claude Sonnet when a site blocks plain fetching or has no built-in recipe data. Claude Haiku turns ingredient lines into name/amount/unit with flags for pantry, `fixed` (frying oil), and `madeInRecipe`. `scale.ts` scales by math (whole items round up; pinches and fixed amounts don't scale); `units.ts` formats amounts in the chosen system — a **US | Metric** toggle on the recipe view, remembered per device (US converts grams to oz/lb and watery liquids to cups; metric converts cups/tbsp/oz/lb to ml/g; counts unchanged; volumes of solids convert to ml, not grams, since that needs the food's density) — with kitchen fractions ("3¾ cups"); the recipe view labels ingredients that don't scale or are made in an earlier step.
 PRD ref: `prd.md > Recipes`.
 
 ### My Recipes and Recipe View (`app/recipes/`, `convex/recipes.ts`) *(added in build, slice 5)*
-Shelf of saved recipes (imported, or the crew's own dinners saved on "Use this plan") with this week's dinners on top; recipe view with photo, source badge, time, servings stepper, scaled ingredients, numbered steps, and the original link. Layout borrowed from Digero's recipe screens.
+Shelf of saved recipes (imported, or the crew's own dinners saved on "Use this plan") with this week's dinners on top; *slice 9:* a **Sync my playlist** button (`app/api/playlist` → `lib/recipes/playlist.ts`, 50 videos per page, private/deleted skipped → `recipes.addUnread`, which skips videos already saved by video id) adds playlist videos as **not read yet**; opening one reads it (`app/api/recipes/read`, a reading panel on the recipe view; the page fills in when the save lands), and a plan that uses one reads it first (progress bar: "Reading the recipe: 1 of 2"). The crew sees up to 150 saved titles; recipe view with photo, source badge, time, servings stepper, scaled ingredients, numbered steps, and the original link. Layout borrowed from Digero's recipe screens.
 PRD ref: `prd.md > Recipes`.
 
 ## Data Model
@@ -132,7 +132,7 @@ All in Convex, every record tagged with the signed-in user's ID (directly, or th
 - **weeks** — `userId`, `budget`, `planLevel` ("thrifty" | "low" | "moderate" | "custom"), `startDate`, `storeId` / `storeName` (last Kroger store picked), `otherStore` (shopping at a non-Kroger store). The "active week" is the latest one less than 7 days old; after 7 days, Budget Setup appears again.
 - **listItems** — `weekId`, `name`, `estimate` (price per package, or empty), `estimateSource` ("kroger" | "manual"), `productId` / `productName` / `size` / `imageUrl` (chosen Kroger product), `packs`, `paid`, `fromPlan` (added by "Use this plan"; replaced by the next plan unless paid).
 - **meals** — `weekId`, `day`, `name`, `estimatedCost`, `servings`, `recipeId`, `dayIndex` (0–6; missing = Idea), `ingredients`, `products` (slice 8: the board rebuilds the list from these). Written by "Use this plan", moved on the Week board.
-- **recipes** *(slice 5)* — `userId`, `title`, `sourceType` ("web" | "youtube" | "crew"), `sourceUrl`, `sourceName`, `imageUrl`, `servings`, `totalMinutes`, `ingredients` (raw, name, amount, unit, pantry, fixed, madeInRecipe), `steps`. The same link saved again updates the existing recipe.
+- **recipes** *(slice 5)* — `userId`, `title`, `sourceType` ("web" | "youtube" | "crew"), `sourceUrl`, `sourceName`, `imageUrl`, `servings`, `totalMinutes`, `ingredients` (raw, name, amount, unit, pantry, fixed, madeInRecipe), `steps`, `unread` (slice 9: a playlist video not read yet — no ingredients or steps, placeholder servings). The same link saved again updates the existing recipe and clears `unread`.
 - **chats** *(slice 5)* — `userId`, `title`, `updatedAt`, `messagesJson` (the conversation including card data), `removedJson` (dinners removed per plan card).
 - **pantry** *(slice 4)* — `userId`, `name` (lowercase), `have`.
 - **household** *(slice 4)* — `userId`, `servings`, `leftovers`.
@@ -157,13 +157,15 @@ app/
   recipes/[id]/page.tsx      # Recipe view
   api/chat/route.ts          # Claude + tools (proposeMealPlan, importRecipe, suggestBudget)
   api/stores · api/price · api/products   # Kroger server routes
+  api/playlist · api/recipes/read          # playlist sync; read a not-yet-read recipe (slice 9)
 components/
   TallyHeader · ListRow · ProductPicker · HouseholdSettings · ExtrasSplit · RegularsSection · ChatMenu · ConvexClientProvider
   cards/  BudgetCard · BudgetFit · MealPlanCard · PlanResult · PricingProgress · PantryChips · RecipeCard
 lib/
   tally.ts · usda.ts · household.ts · quantities.ts · meal-plan.ts · pick-products.ts · staff-prompt.ts
   kroger.ts (server) · kroger-client.ts (browser)
-  recipes/  import · youtube · safe-url · scale · units · parseJsonLdRecipe · parseMicrodataRecipe · youtubeUrlParser · recipeTypes
+  recipes/  import · youtube · playlist · links · safe-url · scale · units · parseJsonLdRecipe · parseMicrodataRecipe · youtubeUrlParser · recipeTypes
+  convex-token.ts            # sign-in pass for server routes calling Convex
   *.test.ts                  # 7 test files
 convex/
   schema.ts · model.ts (shared helpers) · weeks.ts · listItems.ts · plans.ts · pantry.ts · regulars.ts · household.ts · recipes.ts · chats.ts · auth.config.ts
@@ -184,10 +186,10 @@ Docs: https://developer.kroger.com/documentation/public/getting-started/quick-st
 - Rate limits: a daily call cap on the free tier (expected thousands/day; confirm). Cost: free.
 
 ### YouTube Data API v3 *(added in build, slice 5)*
-Docs: https://developers.google.com/youtube/v3 · key `YOUTUBE_API_KEY` (free quota: 10,000 units/day; a video lookup costs 1 unit, a playlist page 1). Used for video title, description, and thumbnail, and in slice 6 for playlist items. Transcripts aren't available through the API without Google sign-in, so they're read from the public video page (may break if YouTube changes it; import then falls back to the description).
+Docs: https://developers.google.com/youtube/v3 · key `YOUTUBE_API_KEY` (free quota: 10,000 units/day; a video lookup costs 1 unit, a playlist page 1). Used for video title, description, and thumbnail, and in slice 9 for playlist items (`YOUTUBE_PLAYLIST_ID`). Transcripts aren't available through the API without Google sign-in, so they're read from the public video page (may break if YouTube changes it; import then falls back to the description).
 
-### TinyFish *(planned, slice 6)*
-Fallback only: renders recipe sites that block plain fetching or lack built-in recipe data. Key `TINYFISH_API_KEY`. 4 of 4 playlist recipe sites tested worked without it.
+### TinyFish *(added in build, slice 9)*
+Docs: https://docs.tinyfish.ai/fetch-api · `POST https://api.fetch.tinyfish.ai` with `X-API-Key: TINYFISH_API_KEY`, body `{ urls, format: "markdown" }` → rendered page text. Fallback only: recipe sites that block plain fetching or lack built-in recipe data. Probe of all 49 playlist recipe links: most parse with a plain fetch; TinyFish read the ones without recipe data (Joshua Weissman, School of Wok — confirmed in TinyFish's usage log), but The Woks of Life blocks it too (`bot_blocked`), so those videos fall back to the transcript.
 
 ### Claude via Anthropic API
 Docs: https://docs.claude.com · AI SDK: https://ai-sdk.dev/providers/ai-sdk-providers/anthropic
@@ -224,7 +226,7 @@ Docs: https://vercel.com/docs · Hobby plan, free. Same env vars set in project 
 - **Stores limited to Kroger-family stores near the ZIP** (Pick 'n Save, Metro Market) — other chains show "no price found".
 - **Substitutes instead of web search** *(build)*: when Kroger has no real match, Claude names an everyday swap and the app prices it; no third price source.
 - **Meal sizes trust Claude's amounts** *(build)*: code checks each dinner's stated servings, not whether its amounts truly match; recipes from links are scaled by real math.
-- **Playlist recipes read on demand** *(planned, slice 6)*: titles sync instantly; each video is read the first time it's opened or planned.
+- **Playlist recipes read on demand** *(build, slice 9)*: titles sync instantly; each video is read the first time it's opened or planned (reading all 86 up front would cost ~86 Claude calls and minutes of waiting for recipes that may never be cooked).
 
 ## Decisions and Open Issues
 

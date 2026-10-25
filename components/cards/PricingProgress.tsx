@@ -1,8 +1,23 @@
-import { ChefHat, Repeat2, ShoppingCart } from "lucide-react";
+import { BookOpen, ChefHat, Repeat2, ShoppingCart } from "lucide-react";
 import type { PlanProgress } from "@/lib/meal-plan";
 
 // "Pricing at Metro Market: 12 of 28 · chicken thighs" with a chalk bar that fills as each item is looked up.
-export default function PricingProgress({ done, total, current, storeName }: Omit<PlanProgress, "progress">) {
+export default function PricingProgress({ done, total, current, storeName, reading }: Omit<PlanProgress, "progress">) {
+  // Before pricing: reading playlist videos the plan uses for the first time.
+  if (reading) {
+    return (
+      <div className="board flex w-full flex-col gap-2 p-4" role="status" aria-live="polite">
+        <p className="flex items-center gap-2 font-extrabold">
+          <BookOpen size={18} strokeWidth={2.5} className="text-tag" aria-hidden />
+          Reading the recipe: {done + 1} of {total}
+        </p>
+        <div className="h-3.5 overflow-hidden rounded-full bg-slate-cell" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(((done + 0.5) / total) * 100)}>
+          <div className="h-full rounded-full bg-tag transition-[width] duration-300 ease-out" style={{ width: `${Math.round(((done + 0.5) / total) * 100)}%` }} />
+        </div>
+        <p className="text-sm font-bold text-chalk-dim">{reading}</p>
+      </div>
+    );
+  }
   const picking = total > 0 && done >= total;
   // Searches fill the bar to 90%; the last 10% is Claude picking the best matches.
   const pct = total === 0 ? 5 : Math.round((done / total) * 90) + (picking ? 5 : 0);

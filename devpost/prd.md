@@ -66,6 +66,7 @@ Source: `scope.md > The Core Loop`.
 ### Recipes *(added in build, slice 5)*
 - As Tarik, I want to plan from real recipes I like so that the plan and shopping list match what I'll actually cook.
   - [ ] Pasting a recipe website or YouTube link makes the crew read the real recipe (ingredients, steps, servings, time, photo) and save it to My Recipes.
+  - [ ] *(Slice 9)* "Sync my playlist" adds every video from Tarik's YouTube recipe playlist to My Recipes (syncing again adds only new ones); each recipe is read the first time it's opened or planned — from the written recipe the channel links when there is one, otherwise from the video.
   - [ ] He can ask the crew to plan with a pasted or saved recipe; its ingredients are scaled to his servings by code (whole items round up; frying oil and pasta water don't scale; things made earlier in the recipe aren't bought).
   - [ ] Tapping a dinner opens its recipe view, with ingredients rescaled by a servings stepper and a **US | Metric** toggle (e.g. "397 g" ↔ "14 oz", "3¾ cups" ↔ "887 ml").
   - [ ] The crew's own dinners are saved as recipes, with short steps, when he uses a plan.
@@ -129,10 +130,10 @@ Source: `scope.md > The Unique Kernel`.
 - Color-code paid vs. estimate — instant visual signal while shopping.
 - One staff voice, not visibly separate agents — keeps the chat simple; the "crew" framing stays in personality, not multiple speakers.
 - Typing, not voice, for now — simpler build; voice later.
-- Recipe inspiration via pasted names/links now; YouTube playlist (public) later. *Build: links are now actually read and saved (slice 5); the playlist was brought back in as slice 6 at Tarik's request.*
+- Recipe inspiration via pasted names/links now; YouTube playlist (public) later. *Build: links are now actually read and saved (slice 5); the playlist was brought back in as slice 9 at Tarik's request.*
 - "No price found" + manual estimate now; web search fallback later — *drafted by Claude as later because it adds a third data source; Tarik can move it to now.*
 - Playful, Duolingo-like look, designed with `/impeccable`.
-- *Build decisions (Tarik):* store picker instead of one home store (he shops several stores); non-Kroger stores compared against Kroger; pick brand/size; My Pantry (full version); household sizing with a teen at 1½; recipe links with a recipe view and My Recipes shelf (reusing his Digero app's parsers); substitutes; saved chats like Claude; YouTube playlist sync with auto-tags and search (slice 6); barcode scanning (slice 7).
+- *Build decisions (Tarik):* store picker instead of one home store (he shops several stores); non-Kroger stores compared against Kroger; pick brand/size; My Pantry (full version); household sizing with a teen at 1½; recipe links with a recipe view and My Recipes shelf (reusing his Digero app's parsers); substitutes; saved chats like Claude; YouTube playlist sync with auto-tags and search (slice 9); barcode scanning (slice 10).
 - *Build decisions (Claude, accepted):* Kroger searches one at a time with a progress bar (after a burst got the connection briefly blocked); Claude Haiku picks the right product by meaning; whole-package pricing ("cost to buy"); read playlist recipes on demand rather than all at once.
 
 ## What We're Building
@@ -147,7 +148,7 @@ Source: `scope.md > The Unique Kernel`.
 - *Planned in build order:* YouTube playlist sync with tags and search (9), barcode scanning (10), **Instacart: send the list to Instacart** (11, final; reopens the deferred Instacart integration at Tarik's request).
 
 ## Deferred From the POC
-- ~~**YouTube playlist import**~~ — *brought back in during the build as slice 6 at Tarik's request (official YouTube API).*
+- ~~**YouTube playlist import**~~ — *brought back in during the build as slice 9 at Tarik's request (official YouTube API).*
 - **Web search for missing prices** — third data source; manual estimate covers it.
 - **Voice input** — nicer in the aisle, but an extra piece.
 - **Receipt photo logging** — second way to enter spending (from scope).

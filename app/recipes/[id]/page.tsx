@@ -5,12 +5,50 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ArrowUpRight, ChefHat, Globe, Lock, Minus, PlayCircle, Plus, Users } from "lucide-react";
+import { ArrowUpRight, BookOpen, ChefHat, Globe, Lock, Minus, PlayCircle, Plus, Users } from "lucide-react";
 import { scaleIngredients } from "@/lib/recipes/scale";
 import { formatAmount, type UnitSystem } from "@/lib/recipes/units";
 import { formatServings, targetServings } from "@/lib/household";
 
 const BADGE = { web: { label: "Website", Icon: Globe }, youtube: { label: "YouTube", Icon: PlayCircle }, crew: { label: "Mise crew", Icon: ChefHat } } as const;
+
+// Recipes being read right now, so a remount (or React's dev double-run) doesn't start a second read.
+const reading = new Set<string>();
+
+/** A playlist video opened for the first time: read its recipe; the page fills in when the save lands. */
+function ReadingPanel({ id }: { id: string }) {
+  const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (reading.has(id)) return;
+    reading.add(id);
+    setError(null);
+    fetch("/api/recipes/read", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
+      .then(async (res) => {
+        if (!res.ok) setError(((await res.json().catch(() => ({}))) as { error?: string }).error ?? "I couldn't read that recipe.");
+      })
+      .catch(() => setError("No connection. Try again?"))
+      .finally(() => reading.delete(id));
+  }, [id, attempt]);
+
+  if (error) {
+    return (
+      <div className="crate flex flex-col items-start gap-3 p-4">
+        <p className="font-bold text-tomato-dark">{error}</p>
+        <button type="button" onClick={() => setAttempt((n) => n + 1)} className="btn-press">Try again</button>
+      </div>
+    );
+  }
+  return (
+    <div className="board flex flex-col gap-2 p-4" role="status" aria-live="polite">
+      <p className="flex items-center gap-2 font-extrabold">
+        <BookOpen size={18} strokeWidth={2.5} className="text-tag" aria-hidden /> Reading the recipe…
+      </p>
+      <div className="h-3.5 animate-pulse rounded-full bg-tag/70" />
+      <p className="text-sm font-bold text-chalk-dim">Checking the description for the written recipe, then the video itself. Usually 10–20 seconds.</p>
+    </div>
+  );
+}
 
 // One recipe: photo, source, stats, ingredients scaled to your servings, and steps. Layout borrowed from Digero.
 export default function RecipePage() {
@@ -64,6 +102,10 @@ export default function RecipePage() {
         {recipe.sourceName && <p className="font-bold text-ink-soft">from {recipe.sourceName}</p>}
       </div>
 
+      {recipe.unread ? (
+        <ReadingPanel id={recipe._id} />
+      ) : (
+      <>
       <div className="grid grid-cols-2 gap-2 crate p-4 text-center font-bold">
         <div>
           <p className="text-xs uppercase text-ink-soft">Time</p>
@@ -124,6 +166,8 @@ export default function RecipePage() {
             ))}
           </ol>
         </section>
+      )}
+      </>
       )}
 
       {recipe.sourceUrl && (

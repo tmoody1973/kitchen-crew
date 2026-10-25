@@ -2,6 +2,7 @@ import { v, Infer } from "convex/values";
 import { mutation, MutationCtx, query } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { requireUserId } from "./model";
+import { extractVideoId } from "../lib/recipes/youtubeUrlParser";
 
 export const recipeFields = v.object({
   title: v.string(),
@@ -57,7 +58,7 @@ export async function saveRecipe(ctx: MutationCtx, userId: string, recipe: Infer
       await ctx.db.query("recipes").withIndex("by_user", (q) => q.eq("userId", userId)).collect()
     ).find((x) => x.sourceUrl === r.sourceUrl);
     if (existing) {
-      await ctx.db.patch(existing._id, r);
+      await ctx.db.patch(existing._id, { ...r, unread: undefined });
       return existing._id;
     }
   }
@@ -67,6 +68,38 @@ export async function saveRecipe(ctx: MutationCtx, userId: string, recipe: Infer
 export const save = mutation({
   args: { recipe: recipeFields },
   handler: async (ctx, { recipe }) => saveRecipe(ctx, await requireUserId(ctx), recipe),
+});
+
+/** Playlist videos join My Recipes as "not read yet"; videos already saved (by video id) are skipped. Returns how many were added. */
+export const addUnread = mutation({
+  args: {
+    videos: v.array(v.object({ videoId: v.string(), title: v.string(), channel: v.string(), thumbnail: v.optional(v.string()) })),
+  },
+  handler: async (ctx, { videos }) => {
+    if (videos.length > 500) throw new Error("At most 500 videos per sync");
+    const userId = await requireUserId(ctx);
+    const saved = await ctx.db.query("recipes").withIndex("by_user", (q) => q.eq("userId", userId)).collect();
+    const known = new Set(saved.flatMap((r) => (r.sourceUrl ? [extractVideoId(r.sourceUrl)] : [])));
+    let added = 0;
+    for (const video of videos) {
+      if (!/^[A-Za-z0-9_-]{11}$/.test(video.videoId) || known.has(video.videoId)) continue;
+      known.add(video.videoId);
+      await ctx.db.insert("recipes", {
+        userId,
+        title: video.title.trim().slice(0, 120) || "Untitled video",
+        sourceType: "youtube",
+        sourceUrl: `https://www.youtube.com/watch?v=${video.videoId}`,
+        sourceName: video.channel.slice(0, 60),
+        imageUrl: video.thumbnail && /^https:\/\//.test(video.thumbnail) ? video.thumbnail : undefined,
+        servings: 4, // placeholder until the recipe is read
+        ingredients: [],
+        steps: [],
+        unread: true,
+      });
+      added++;
+    }
+    return added;
+  },
 });
 
 /** My Recipes, newest first. */
