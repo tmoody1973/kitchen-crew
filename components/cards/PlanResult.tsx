@@ -131,7 +131,7 @@ export default function PlanResult({
           type="button"
           onClick={() => use("replace")}
           disabled={saving}
-          className="flex-1 rounded-2xl border-b-4 border-leaf-dark bg-leaf py-3 font-black text-white active:translate-y-0.5 active:border-b-2 disabled:opacity-60"
+          className="btn-press flex-1"
         >
           {saving ? "Making your list…" : "Use this plan"}
         </button>
@@ -139,15 +139,15 @@ export default function PlanResult({
           type="button"
           onClick={() => use("add")}
           disabled={saving}
-          className="flex-1 rounded-2xl border-2 border-b-4 border-leaf bg-white py-3 font-black text-leaf-dark active:translate-y-0.5 disabled:opacity-60"
+          className="btn-crate flex-1"
         >
           + Add to this week
         </button>
       </div>
-      <p className="text-center text-xs font-bold text-slate-500">
+      <p className="text-center text-xs font-bold text-ink-soft">
         &ldquo;Use this plan&rdquo; replaces your current plan · &ldquo;Add&rdquo; keeps it and adds these dinners
       </p>
-      {error && <p className="font-bold text-carrot-dark">{error}</p>}
+      {error && <p className="font-bold text-tomato-dark" role="alert">{error}</p>}
     </div>
   );
 }

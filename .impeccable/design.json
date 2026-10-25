@@ -1,0 +1,546 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-25T20:06:11+00:00",
+  "title": "Design System: Mise",
+  "extensions": {
+    "colorMeta": {
+      "tomato": {
+        "role": "primary",
+        "displayName": "Market Tomato",
+        "canonical": "#d33722",
+        "tonalRamp": [
+          "#2c0000",
+          "#530000",
+          "#7e0000",
+          "#aa1906",
+          "#d83723",
+          "#ff6b54",
+          "#ff9a82",
+          "#ffc8b2"
+        ]
+      },
+      "tomato-dark": {
+        "role": "primary",
+        "displayName": "Tomato Lip",
+        "canonical": "#a82b1b",
+        "tonalRamp": [
+          "#280000",
+          "#4f0000",
+          "#791a0e",
+          "#a53627",
+          "#d25441",
+          "#f27f6b",
+          "#ffa895",
+          "#ffd2c1"
+        ]
+      },
+      "tag": {
+        "role": "secondary",
+        "displayName": "Shelf-Tag Yellow",
+        "canonical": "#ffd23f",
+        "tonalRamp": [
+          "#1a0500",
+          "#391f00",
+          "#5c3c00",
+          "#805b00",
+          "#a67c00",
+          "#c7a012",
+          "#e8c65f",
+          "#ffec96"
+        ]
+      },
+      "kale": {
+        "role": "tertiary",
+        "displayName": "Kale (under)",
+        "canonical": "#2e8b3e",
+        "tonalRamp": [
+          "#001300",
+          "#003000",
+          "#005117",
+          "#217430",
+          "#3e984b",
+          "#6cba74",
+          "#98dd9d",
+          "#c4ffc8"
+        ]
+      },
+      "kale-ink": {
+        "role": "tertiary",
+        "displayName": "Kale Ink",
+        "canonical": "#1f6b2c",
+        "tonalRamp": [
+          "#001200",
+          "#002f07",
+          "#164f1f",
+          "#317139",
+          "#4d9555",
+          "#77b77c",
+          "#a1daa4",
+          "#cbfece"
+        ]
+      },
+      "kale-wash": {
+        "role": "tertiary",
+        "displayName": "Kale Wash",
+        "canonical": "#eef7ea",
+        "tonalRamp": [
+          "#080d05",
+          "#21271e",
+          "#3d453a",
+          "#5c6459",
+          "#7d857a",
+          "#a0a89c",
+          "#c4ccc0",
+          "#e9f2e5"
+        ]
+      },
+      "squash": {
+        "role": "tertiary",
+        "displayName": "Squash (over)",
+        "canonical": "#f26b1d",
+        "tonalRamp": [
+          "#2a0000",
+          "#520000",
+          "#7c1600",
+          "#a93400",
+          "#d65200",
+          "#f77e43",
+          "#ffa976",
+          "#ffd3a7"
+        ]
+      },
+      "squash-ink": {
+        "role": "tertiary",
+        "displayName": "Squash Ink",
+        "canonical": "#a8430c",
+        "tonalRamp": [
+          "#250000",
+          "#4a0900",
+          "#722600",
+          "#9c4216",
+          "#c76032",
+          "#e88860",
+          "#ffb08c",
+          "#ffd9b9"
+        ]
+      },
+      "squash-wash": {
+        "role": "tertiary",
+        "displayName": "Squash Wash",
+        "canonical": "#fff1e6",
+        "tonalRamp": [
+          "#0f0a06",
+          "#2b241e",
+          "#494039",
+          "#6a5f57",
+          "#8c8076",
+          "#aea399",
+          "#d2c7bf",
+          "#f6ece5"
+        ]
+      },
+      "slate": {
+        "role": "neutral",
+        "displayName": "Chalkboard Slate",
+        "canonical": "#1f2a24",
+        "tonalRamp": [
+          "#050e09",
+          "#1d2822",
+          "#39453f",
+          "#58655e",
+          "#79867f",
+          "#9ba9a1",
+          "#bfcdc5",
+          "#e4f3ea"
+        ]
+      },
+      "slate-cell": {
+        "role": "neutral",
+        "displayName": "Raised Board Cell",
+        "canonical": "#3a4a41",
+        "tonalRamp": [
+          "#060d09",
+          "#1e2822",
+          "#39453e",
+          "#56655d",
+          "#76877d",
+          "#99aaa0",
+          "#bfcdc5",
+          "#e5f2eb"
+        ]
+      },
+      "chalk": {
+        "role": "neutral",
+        "displayName": "Chalk",
+        "canonical": "#f4f1e8",
+        "tonalRamp": [
+          "#0d0b06",
+          "#27251e",
+          "#44423b",
+          "#646159",
+          "#85827a",
+          "#a8a59c",
+          "#ccc9c0",
+          "#f1eee5"
+        ]
+      },
+      "chalk-dim": {
+        "role": "neutral",
+        "displayName": "Dim Chalk",
+        "canonical": "#b9c4bc",
+        "tonalRamp": [
+          "#060d08",
+          "#1f2721",
+          "#3b453e",
+          "#5a645d",
+          "#7b857e",
+          "#9ea8a0",
+          "#c1ccc4",
+          "#e6f2ea"
+        ]
+      },
+      "chalk-line": {
+        "role": "neutral",
+        "displayName": "Chalk Pill Line",
+        "canonical": "#9fb3a6",
+        "tonalRamp": [
+          "#060d08",
+          "#1d2821",
+          "#38463d",
+          "#55665b",
+          "#75887c",
+          "#99aa9f",
+          "#becec3",
+          "#e4f3e9"
+        ]
+      },
+      "crate": {
+        "role": "neutral",
+        "displayName": "Crate Wood",
+        "canonical": "#6b4f2e",
+        "tonalRamp": [
+          "#150800",
+          "#32210c",
+          "#533d24",
+          "#765c3e",
+          "#9a7c5a",
+          "#bca080",
+          "#dec4a8",
+          "#ffead1"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Produce-Bin Ground",
+        "canonical": "#fbf8f1",
+        "tonalRamp": [
+          "#0d0b07",
+          "#272520",
+          "#44423c",
+          "#63615b",
+          "#85827c",
+          "#a8a59e",
+          "#ccc9c2",
+          "#f1eee7"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#a5a5a5",
+          "#c9c9c9",
+          "#eeeeee"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Stall Ink",
+        "canonical": "#1d241f",
+        "tonalRamp": [
+          "#070d09",
+          "#202722",
+          "#3d443f",
+          "#5b645e",
+          "#7c857f",
+          "#9fa8a1",
+          "#c3ccc5",
+          "#e8f1ea"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#5b5346",
+        "tonalRamp": [
+          "#0e0b05",
+          "#29241c",
+          "#474137",
+          "#686054",
+          "#8a8173",
+          "#aca497",
+          "#cfc8bc",
+          "#f4eee3"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Crate-Paper Rule",
+        "canonical": "#e9e1d2",
+        "tonalRamp": [
+          "#0e0b06",
+          "#29241d",
+          "#474138",
+          "#676055",
+          "#898174",
+          "#aba498",
+          "#cfc8bd",
+          "#f3eee3"
+        ]
+      },
+      "placeholder": {
+        "role": "neutral",
+        "displayName": "Placeholder Grey",
+        "canonical": "#766d5f",
+        "tonalRamp": [
+          "#0e0a05",
+          "#29241c",
+          "#484137",
+          "#686054",
+          "#8a8173",
+          "#aca496",
+          "#d0c8bc",
+          "#f5ede3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Board Numerals",
+        "purpose": "Chalkboard spent figure, digit by digit in flip cells."
+      },
+      "headline": {
+        "displayName": "Stall Sign",
+        "purpose": "Page headings standing on the ground."
+      },
+      "title": {
+        "displayName": "Sub-sign",
+        "purpose": "Section signs, tag prices, press-button labels."
+      },
+      "body": {
+        "displayName": "Reading",
+        "purpose": "All reading text, bold, tabular figures."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Row status sentences, field values, crate buttons, pills, nav."
+      },
+      "label-stamp": {
+        "displayName": "Stamp",
+        "purpose": "Verdict stamps."
+      }
+    },
+    "shadows": [
+      {
+        "name": "board-lift",
+        "value": "inset 0 0 0 2px #3a4a41, 0 6px 14px -8px rgb(29 36 31 / 0.55)",
+        "purpose": "Chalkboard only."
+      },
+      {
+        "name": "tag-edge",
+        "value": "2px 3px 0 #1d241f",
+        "purpose": "Hard printed edge on shelf tags only."
+      },
+      {
+        "name": "field-halo",
+        "value": "0 0 0 3px #ffd23f",
+        "purpose": "Input focus."
+      },
+      {
+        "name": "press-lip",
+        "value": "border-bottom: 5px solid #a82b1b",
+        "purpose": "Press button lip (crate button: 4px ink)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "board-flip",
+        "value": "rotateX(90deg)->0, opacity .3->1, 420ms cubic-bezier(0.16, 1, 0.3, 1), perspective 420px",
+        "purpose": "Changed tally digits flip like a split-flap board."
+      },
+      {
+        "name": "press",
+        "value": "transform/filter 120ms ease-out; translateY(3px) active (crate 2px)",
+        "purpose": "Buttons sink onto their lip."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce -> flip and button transitions off",
+        "purpose": "Accessibility."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "column",
+        "value": "36rem max-width, single column, no breakpoints"
+      }
+    ],
+    "accessibility": [
+      "Color never carries meaning alone: kale/squash always paired with words.",
+      "Focus-visible: 3px tomato outline, 2px offset.",
+      "Tally cells aria-hidden; one aria-live polite sentence announces the tally.",
+      "Icons aria-hidden beside words.",
+      "Placeholder #766d5f at 5.1:1 on white."
+    ]
+  },
+  "components": [
+    {
+      "name": "Press Button",
+      "kind": "button",
+      "refersTo": "button-press",
+      "description": "Primary action: tomato block that sinks onto its darker lip. One per view.",
+      "html": "<button class=\"ds-btn-press\">Use this plan</button>",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-btn-press{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;background:var(--color-tomato);color:#fff;font-family:var(--font-sign);font-size:1rem;border:0;border-radius:14px;border-bottom:5px solid var(--color-tomato-dark);padding:.7rem 1.1rem;cursor:pointer;transition:transform 120ms ease-out,filter 120ms ease-out}.ds-btn-press:hover{filter:brightness(1.06)}.ds-btn-press:active{transform:translateY(3px);filter:brightness(.95)}.ds-btn-press:focus-visible{outline:3px solid var(--color-tomato);outline-offset:2px;}"
+    },
+    {
+      "name": "Crate Button",
+      "kind": "button",
+      "refersTo": "button-crate",
+      "description": "Secondary action: white with ink outline and a 4px ink lip.",
+      "html": "<button class=\"ds-btn-crate\">Try again</button>",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-btn-crate{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;background:#fff;color:var(--color-ink);font-family:var(--font-sans);font-weight:800;font-size:1rem;border:2px solid var(--color-ink);border-bottom-width:4px;border-radius:14px;padding:.6rem 1rem;cursor:pointer;transition:transform 120ms ease-out}.ds-btn-crate:active{transform:translateY(2px)}.ds-btn-crate:focus-visible{outline:3px solid var(--color-tomato);outline-offset:2px;}"
+    },
+    {
+      "name": "Shelf Tag",
+      "kind": "chip",
+      "refersTo": "shelf-tag",
+      "description": "Every estimate price: tilted yellow tag with a hard printed ink edge.",
+      "html": "<span class=\"ds-tag\">$3.49</span>",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-tag{display:inline-block;background:var(--color-tag);color:var(--color-ink);font-family:var(--font-sign);padding:4px 8px 3px;border-radius:4px;transform:rotate(-3deg);box-shadow:2px 3px 0 var(--color-ink);white-space:nowrap}"
+    },
+    {
+      "name": "Stamps",
+      "kind": "chip",
+      "refersTo": "stamp-under",
+      "description": "Verdicts. Under = kale ink, over = squash ink, ink and tagged for non-budget statuses.",
+      "html": "<div class=\"ds-row\"><span class=\"ds-stamp ds-under\">Fits your budget</span><span class=\"ds-stamp ds-over\">Over by $4</span><span class=\"ds-stamp ds-ink\">Have</span><span class=\"ds-stamp ds-tagged\">Out</span></div>",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:8px}.ds-stamp{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--font-sign);font-size:.875rem;letter-spacing:.04em;border:2.5px solid currentColor;border-radius:7px;padding:4px 10px 3px;transform:rotate(-3deg)}.ds-under{color:var(--color-kale-ink)}.ds-over{color:var(--color-squash-ink)}.ds-ink{color:var(--color-ink)}.ds-tagged{color:var(--color-ink);background:var(--color-tag);border-color:var(--color-ink)}"
+    },
+    {
+      "name": "Chalkboard Tally",
+      "kind": "custom",
+      "refersTo": "board",
+      "description": "The week at a glance: slate board in a crate frame, numerals in raised cells with edge seam notches.",
+      "html": "<section class=\"ds-board\"><p class=\"ds-big\"><span class=\"ds-cell\">$</span><span class=\"ds-cell\">8</span><span class=\"ds-cell\">7</span> <span class=\"ds-of\">of $150</span></p><p class=\"ds-sub\"><span class=\"ds-left\">$63 left</span> · 4 days left</p><p class=\"ds-pills\"><span class=\"ds-pill\">Dinners $62 / $110</span><span class=\"ds-pill ds-pill-over\">Extras $25 / $40</span></p></section>",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-board{background:var(--color-slate);color:var(--color-chalk);border:4px solid var(--color-crate);border-radius:18px;box-shadow:inset 0 0 0 2px var(--color-slate-cell),0 6px 14px -8px rgb(29 36 31/.55);padding:16px 16px 12px;font-family:var(--font-sans);font-variant-numeric:tabular-nums;max-width:22rem}.ds-board p{margin:0}.ds-big{font-family:var(--font-sign);font-size:2rem;line-height:1}.ds-cell{position:relative;display:inline-block;min-width:.62em;text-align:center;background:var(--color-slate-cell);border-radius:5px;padding:.04em .08em 0;margin-right:2px;animation:ds-flip 420ms cubic-bezier(.16,1,.3,1)}.ds-cell::before,.ds-cell::after{content:'';position:absolute;top:calc(50% - 1px);width:3px;height:2px;background:var(--color-slate)}.ds-cell::before{left:0}.ds-cell::after{right:0}.ds-of{font-size:1rem;color:var(--color-chalk-dim)}.ds-sub{margin-top:8px!important;font-size:.875rem;font-weight:700;color:var(--color-chalk-dim)}.ds-left{font-family:var(--font-sign);color:var(--color-chalk)}.ds-pills{margin-top:8px!important;display:flex;gap:8px;flex-wrap:wrap;font-size:.75rem;font-weight:800;color:var(--color-chalk-dim)}.ds-pill{border:1.5px dashed #9fb3a6;border-radius:999px;padding:3px 9px}.ds-pill-over{border-color:var(--color-tag);color:var(--color-tag)}@keyframes ds-flip{0%{transform:rotateX(90deg);opacity:.3}100%{transform:rotateX(0);opacity:1}}@media (prefers-reduced-motion:reduce){.ds-cell{animation:none}}"
+    },
+    {
+      "name": "List Rows",
+      "kind": "card",
+      "refersTo": "row-under",
+      "description": "Shopping rows divided by dashed rules; paid rows take the kale or squash legend, always with words.",
+      "html": "<ul class=\"ds-rows\"><li class=\"ds-r\"><b>Eggs, 12 ct</b><span class=\"ds-tag\">$3.49</span></li><li class=\"ds-r ds-r-under\"><b>Spinach</b><span class=\"ds-say ds-say-u\">Paid $2.50, under the estimate</span></li><li class=\"ds-r ds-r-over\"><b>Chicken thighs</b><span class=\"ds-say ds-say-o\">Paid $9.10, $1.12 over</span></li></ul>",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-rows{list-style:none;margin:0;padding:0 16px;background:#fff;border:2px solid var(--color-line);border-radius:16px;font-family:var(--font-sans);color:var(--color-ink)}.ds-r{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0}.ds-r+.ds-r{border-top:2px dashed var(--color-line)}.ds-r-under{background:var(--color-kale-wash);border:2px solid var(--color-kale)!important;border-radius:12px;padding:12px;margin:6px -8px}.ds-r-over{background:var(--color-squash-wash);border:2px solid var(--color-squash)!important;border-radius:12px;padding:12px;margin:6px -8px}.ds-say{font-size:.875rem;font-weight:800}.ds-say-u{color:var(--color-kale-ink)}.ds-say-o{color:var(--color-squash-ink)}.ds-tag{display:inline-block;background:var(--color-tag);font-family:var(--font-sign);padding:4px 8px 3px;border-radius:4px;transform:rotate(-3deg);box-shadow:2px 3px 0 var(--color-ink)}"
+    },
+    {
+      "name": "Paid Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Big ink-outlined input for thumbs; tag-yellow halo on focus, tomato caret.",
+      "html": "<input class=\"ds-field\" inputmode=\"decimal\" placeholder=\"Paid $\">",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-field{background:#fff;border:2px solid var(--color-ink);border-radius:12px;padding:.65rem .8rem;font-family:var(--font-sans);font-weight:800;font-size:1rem;color:var(--color-ink);caret-color:var(--color-tomato);width:8rem}.ds-field::placeholder{color:#766d5f}.ds-field:focus{outline:none;box-shadow:0 0 0 3px var(--color-tag)}"
+    },
+    {
+      "name": "Alert",
+      "kind": "card",
+      "refersTo": "alert",
+      "description": "Errors: tomato-dark ink, tomato-bordered crate for blocking errors, role=alert. Never squash.",
+      "html": "<div class=\"ds-alert\" role=\"alert\">Couldn't reach the crew.<button class=\"ds-retry\">Try again</button></div>",
+      "css": ":root{--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-ink:#1d241f}.ds-alert{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--color-tomato);border-radius:16px;padding:12px;font-family:Figtree,ui-sans-serif,system-ui,sans-serif;font-weight:700;color:var(--color-tomato-dark)}.ds-retry{margin-left:auto;background:#fff;color:var(--color-ink);font:inherit;font-weight:800;font-size:.875rem;border:2px solid var(--color-ink);border-bottom-width:4px;border-radius:14px;padding:.375rem .75rem;cursor:pointer}.ds-retry:active{transform:translateY(2px)}.ds-retry:focus-visible{outline:3px solid var(--color-tomato);outline-offset:2px}"
+    },
+    {
+      "name": "Crate",
+      "kind": "card",
+      "refersTo": "crate",
+      "description": "The one container: white paper, 2px crate-paper border, 16px corners, no shadow, never nested.",
+      "html": "<div class=\"ds-crate\"><p class=\"ds-sign\">Tonight</p><p>Sheet-pan chicken with spinach. Serves 3.</p></div>",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-crate{background:#fff;border:2px solid var(--color-line);border-radius:16px;padding:16px;font-family:var(--font-sans);font-weight:700;color:var(--color-ink);transition:border-color 120ms}.ds-crate:hover{border-color:var(--color-ink)}.ds-crate p{margin:0}.ds-sign{font-family:var(--font-sign);font-weight:400;font-size:1.25rem;margin-bottom:6px!important}"
+    },
+    {
+      "name": "Top Nav",
+      "kind": "nav",
+      "refersTo": "nav-link-active",
+      "description": "Sticky stall header: tomato Mise sign, icon-over-label links, active link is an ink pill.",
+      "html": "<header class=\"ds-nav\"><span class=\"ds-mark\">Mise</span><nav><a class=\"ds-l ds-on\" aria-current=\"page\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M7.9 20A9 9 0 1 0 4 16.1L2 22Z\"/></svg>Plan</a><a class=\"ds-l\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m3 17 2 2 4-4\"/><path d=\"m3 7 2 2 4-4\"/><path d=\"M13 6h8\"/><path d=\"M13 12h8\"/><path d=\"M13 18h8\"/></svg>List</a></nav></header>",
+      "css": ":root{--color-ground:#fbf8f1;--color-ink:#1d241f;--color-ink-soft:#5b5346;--color-crate:#6b4f2e;--color-slate:#1f2a24;--color-slate-cell:#3a4a41;--color-chalk:#f4f1e8;--color-chalk-dim:#b9c4bc;--color-tag:#ffd23f;--color-tomato:#d33722;--color-tomato-dark:#a82b1b;--color-line:#e9e1d2;--color-kale:#2e8b3e;--color-kale-ink:#1f6b2c;--color-kale-wash:#eef7ea;--color-squash:#f26b1d;--color-squash-ink:#a8430c;--color-squash-wash:#fff1e6;--font-sign:'Bowlby One',Figtree,sans-serif;--font-sans:Figtree,ui-sans-serif,system-ui,sans-serif}.ds-nav{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgb(251 248 241/.95);border-bottom:2px solid var(--color-line);font-family:var(--font-sans)}.ds-mark{font-family:var(--font-sign);font-size:1.5rem;color:var(--color-tomato);margin-right:auto}.ds-nav nav{display:flex;gap:2px}.ds-l{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:800;color:var(--color-ink-soft);text-decoration:none}.ds-l:hover{background:var(--color-line)}.ds-l:focus-visible{outline:3px solid var(--color-tomato);outline-offset:2px;}.ds-on{background:var(--color-ink);color:var(--color-chalk)}.ds-on:hover{background:var(--color-ink)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Market Stall",
+    "overview": "Mise is a farmers-market stall you carry in your pocket. The week's tally is a slate chalkboard in a crate-wood frame, its numerals in raised cells that flip when a price changes. Every estimate price is a tilted yellow shelf tag with a hard printed edge; verdicts arrive as rubber stamps. Everything else stands on an off-white produce-bin ground, separated by dashed crate-paper rules rather than boxed into cards.\n\nThe system is phone-first: one 36rem column, chunky Bowlby signs, bold Figtree reading text, big tap targets. Loudness is reserved for the money: board, tags, stamps and one tomato press button per view.",
+    "keyCharacteristics": [
+      "Slate chalkboard tally with raised flip cells and edge seam notches",
+      "Tilted yellow shelf tags with a hard ink edge",
+      "Tomato press buttons on a darker bottom lip",
+      "Stamps for verdicts; kale/squash only for under/over, always with words",
+      "Bowlby signs on the ground; ruled sections, not nested cards"
+    ],
+    "rules": [
+      {
+        "name": "The Strict Legend Rule",
+        "body": "Kale means under, squash means over; nothing else uses them and neither appears without words.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink-and-Tag Rule",
+        "body": "Non-budget statuses use ink or tag yellow, never kale or squash; errors use tomato-dark ink with a tomato border.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sign-on-the-Ground Rule",
+        "body": "Bowlby headings stand on the ground, never inside a card header.",
+        "section": "typography"
+      },
+      {
+        "name": "The Bold Aisle Rule",
+        "body": "Reading text is 700 or heavier.",
+        "section": "typography"
+      },
+      {
+        "name": "The Printed Edge Rule",
+        "body": "Hard offset shadows are for shelf tags only; buttons get depth from a bottom lip.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Ruled Section Rule",
+        "body": "Sections and rows are divided by 2px dashed crate-paper rules, never nested boxes.",
+        "section": "layout"
+      }
+    ],
+    "dos": [
+      "Do put every estimate price on a shelf tag and every verdict on a stamp.",
+      "Do pair kale or squash with the word that says which.",
+      "Do use ink or tagged stamps for non-budget statuses.",
+      "Do separate sections and rows with the dashed crate-paper rule.",
+      "Do honor prefers-reduced-motion.",
+      "Do keep tap targets large for one-handed aisle use."
+    ],
+    "donts": [
+      "Don't use kale or squash for errors, selection, quantities or decoration; errors are tomato, selection is tag yellow.",
+      "Don't nest crates inside crates.",
+      "Don't put a Bowlby sign inside a card header.",
+      "Don't give buttons or crates a drop shadow.",
+      "Don't draw the flap seam across the digits.",
+      "Don't add charts or soft gradient cards; the board is the dashboard."
+    ],
+    "knownDepartures": [
+      "Recipe view boxes its content sections as separate (non-nested) crates instead of ruled sections."
+    ]
+  }
+}

@@ -31,10 +31,10 @@ export default function BudgetCard({ suggestion }: { suggestion: BudgetSuggestio
   }
 
   return (
-    <div className="flex w-full flex-col gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4">
-      <p className="text-sm font-black uppercase tracking-wide text-leaf-dark">Suggested weekly budget</p>
-      <p className="text-4xl font-black">{formatMoney(pick.amount)}</p>
-      <p className="font-bold text-slate-600">{suggestion.reason}</p>
+    <div className="board flex w-full flex-col gap-3 p-4">
+      <p className="font-bold text-chalk-dim">Suggested weekly budget</p>
+      <p className="font-sign text-4xl leading-none">{formatMoney(pick.amount)}</p>
+      <p className="font-bold">{suggestion.reason}</p>
       <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="USDA plan level">
         {suggestion.levels.map((l) => (
           <button
@@ -46,24 +46,24 @@ export default function BudgetCard({ suggestion }: { suggestion: BudgetSuggestio
               setChosen(l.level);
               setSaved(false);
             }}
-            className={`rounded-xl border-2 px-3 py-2 text-sm font-bold ${l.level === chosen ? "border-leaf bg-leaf/10" : "border-slate-200"}`}
+            className={`chalk-pill text-sm font-extrabold ${l.level === chosen ? "border-solid border-tag bg-tag text-ink" : "text-chalk"}`}
           >
             {l.label} · {formatMoney(l.amount)}
           </button>
         ))}
       </div>
-      <p className="text-xs font-bold text-slate-500">
+      <p className="text-xs font-bold text-chalk-dim">
         USDA food-cost data, September 2026, for 2 adults + a 16-year-old.
       </p>
       <button
         type="button"
         onClick={use}
         disabled={saved}
-        className="rounded-2xl border-b-4 border-leaf-dark bg-leaf py-3 font-black text-white disabled:opacity-70"
+        className="btn-press w-full"
       >
-        {saved ? "Saved ✓" : `Use ${formatMoney(pick.amount)}/week`}
+        {saved ? "Saved — it's on the board" : `Use ${formatMoney(pick.amount)} a week`}
       </button>
-      {error && <p className="font-bold text-carrot-dark">{error}</p>}
+      {error && <p className="font-bold text-tag">{error}</p>}
     </div>
   );
 }

@@ -17,5 +17,5 @@ export default function Home() {
     router.replace(active ? "/plan" : "/budget");
   }, [week, router]);
 
-  return <p className="p-8 text-center font-bold text-slate-500">Checking your week…</p>;
+  return <p className="p-8 text-center font-bold text-ink-soft">Checking your week…</p>;
 }

@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: __dirname,
   // Verification builds use their own folder so they never clobber a running `npm run dev`.
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
+  devIndicators: false, // keep the dev badge out of screenshots
 };
 
 export default nextConfig;

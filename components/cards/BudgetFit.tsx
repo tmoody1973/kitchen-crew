@@ -1,13 +1,18 @@
+import { Check, TrendingUp } from "lucide-react";
 import { formatMoney } from "@/lib/tally";
 
-// "Fits!" or "Over by $X", always in words as well as color.
+// The verdict, stamped: fits (kale ink) or over by $X (squash ink). Words always carry it, not just color.
 export default function BudgetFit({ total, remaining, fits, overBy }: { total: number; remaining: number; fits: boolean; overBy: number }) {
   return (
-    <div className={`rounded-2xl border-b-4 p-4 text-white ${fits ? "border-leaf-dark bg-leaf" : "border-carrot-dark bg-carrot"}`}>
-      <p className="text-xl font-black">{fits ? "Fits your budget! 🎉" : `Over by ${formatMoney(overBy)}`}</p>
-      <p className="font-bold">
-        Plan {formatMoney(total)} · {formatMoney(remaining)} left this week
-      </p>
+    <div className={`crate flex flex-wrap items-center justify-between gap-3 p-4 ${fits ? "border-kale bg-kale-wash" : "border-squash bg-squash-wash"}`}>
+      <span className={`stamp text-base ${fits ? "under" : "over"}`}>
+        {fits ? <Check size={16} strokeWidth={3.5} aria-hidden /> : <TrendingUp size={16} strokeWidth={3} aria-hidden />}
+        {fits ? "Fits your budget" : `Over by ${formatMoney(overBy)}`}
+      </span>
+      <span className="text-sm font-extrabold text-ink-soft">
+        Plan <span className="tag ml-1 text-sm">{formatMoney(total)}</span>
+        <span className="ml-3">{formatMoney(remaining)} left</span>
+      </span>
     </div>
   );
 }

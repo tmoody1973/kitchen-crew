@@ -22,3 +22,6 @@ next-env.d.ts
 .remember/
 npm-debug.log*
 /.next-verify/
+
+# design review screenshots (real data, profile photo)
+/.impeccable/review/

@@ -1,36 +1,29 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { Nunito } from "next/font/google";
-import { ClerkProvider, UserButton } from "@clerk/nextjs";
+import type { Metadata, Viewport } from "next";
+import { Bowlby_One, Figtree } from "next/font/google";
+import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "@/components/ConvexClientProvider";
+import Nav from "@/components/Nav";
 import "./globals.css";
 
-const nunito = Nunito({ variable: "--font-nunito", subsets: ["latin"] });
+// Self-hosted by next/font: Bowlby One for signs and numbers, Figtree for reading.
+const bowlby = Bowlby_One({ variable: "--font-bowlby", weight: "400", subsets: ["latin"] });
+const figtree = Figtree({ variable: "--font-figtree", subsets: ["latin"], weight: ["500", "600", "700", "800", "900"] });
 
 export const metadata: Metadata = {
-  title: "Kitchen Crew",
-  description: "Your kitchen crew keeps the grocery budget on track.",
+  title: "Mise",
+  description: "Plan dinners, shop at real prices, and stay under your weekly grocery budget.",
 };
+
+export const viewport: Viewport = { themeColor: "#1f2a24" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body className={`${nunito.variable} font-sans antialiased`}>
+    // Font variables live on <html> so the theme tokens defined at :root (--font-sans, --font-sign) can resolve them.
+    <html lang="en" className={`${bowlby.variable} ${figtree.variable}`}>
+      <body className="font-sans antialiased">
         <ClerkProvider dynamic>
-          <header className="flex items-center justify-between gap-4 border-b-2 border-slate-200 bg-white px-4 py-3">
-            <Link href="/" className="text-xl font-black text-leaf">
-              Kitchen Crew
-            </Link>
-            <nav className="flex items-center gap-4 font-bold text-slate-600">
-              <Link href="/budget">Budget</Link>
-              <Link href="/plan">Plan</Link>
-              <Link href="/list">List</Link>
-              <Link href="/pantry">Pantry</Link>
-              <Link href="/recipes">Recipes</Link>
-              <UserButton />
-            </nav>
-          </header>
-          <main className="mx-auto max-w-xl p-4">
+          <Nav />
+          <main className="mx-auto max-w-xl px-3 py-4">
             <ConvexClientProvider>{children}</ConvexClientProvider>
           </main>
         </ClerkProvider>

@@ -69,7 +69,7 @@ Build mode: learn
   Learner check: Add 4 regulars, set the split, tap Add regulars, pay for one dinner item and one extra, and check both halves of the tally; plan a meal and check the Budget Fit uses the Dinners share.
   Commit: `feat: regulars and a dinners/extras budget split`
 
-- [ ] **7. Make it feel like Kitchen Crew: playful design and phone-ready list**
+- [x] **7. Make it feel like Kitchen Crew: playful design and phone-ready list**
   Becomes usable: All screens get the playful, Duolingo-like look, with a one-handed phone layout for the Shopping List (big tap targets, number keypad, tally always visible) and friendly empty and error states.
   Why now: Design is applied once the screens exist and their behavior is settled, so `/impeccable` styles the real thing instead of guesses.
   PRD ref: `prd.md > Look and Feel`, `prd.md > States and Boundaries`
@@ -170,3 +170,6 @@ Activity mode: [not started]
 - Slice 6: built Regulars (Pantry page), Add regulars + auto-add for new weeks, Dinners/Extras split (Budget page) with suggestion, two-line tally, 🍽/🛒 row labels, crew plans against the Dinners share. Moved shared Convex helpers into `convex/model.ts` after a circular import (weeks ↔ regulars ↔ listItems) broke the Convex upload. Not verified: auto-add when a real new week starts (needs a week to end). Trips (one weekly list split by store) still awaiting Tarik's decision.
 - Slice 6: regulars stay connected to Kroger (Tarik asked): "Add regulars" refreshes each price at the current store by product ID; regulars get "Change brand" / "Find at Kroger".
 - Slice 6 learner check: Tarik confirmed ("looks good"). Trips (one weekly list split by store) not built — no decision; listed as a possible later enhancement.
+- Slice 7: product renamed **Mise** (Tarik's pick from a name brainstorm). `PRODUCT.md` created for the `/impeccable` design pass (users: Tarik and his partner).
+- Slice 7: `/impeccable` design pass — Market Stall direction (assigned by the concept roll, chosen by Tarik over the "Cutting Board" pick). Built with self-hosted Bowlby One + Figtree, lucide icons, chalkboard tally with flipping cells, shelf tags, press buttons, stamps, sign headings, ruled sections. Verified with real phone-viewport captures (Playwright Chrome emulation, 390×844) after the first stand-in captures were rejected as invalid. Independent finish reviewer: fix → fix → ship over three rounds (user funded the third). Documenter wrote `DESIGN.md` + `.impeccable/design.json` and caught legend/contrast drift, fixed before commit (tomato #e5402b → #d33722 for 4.5:1 with white). Open (minor): empty-List first-use guidance verified in code only.
+- Slice 7 learner check: Tarik confirmed ("feels good").

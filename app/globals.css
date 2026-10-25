@@ -1,15 +1,313 @@
 @import "tailwindcss";
 
-/* Base playful palette; /impeccable refines this in slice 5. */
+/*
+ * Mise — Market Stall.
+ * A farmers-market price board for the tally, shelf tags for every price, crate stamps for good news.
+ * Kale green means under, squash orange means over, always with words.
+ */
 @theme {
-  --color-leaf: #58cc02;
-  --color-leaf-dark: #46a302;
-  --color-carrot: #ff9600;
-  --color-carrot-dark: #e08600;
-  --font-sans: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+  --color-ground: #fbf8f1; /* produce-bin off-white */
+  --color-ink: #1d241f;
+  --color-ink-soft: #5b5346;
+  --color-crate: #6b4f2e; /* board frame */
+  --color-slate: #1f2a24; /* chalkboard */
+  --color-slate-cell: #3a4a41; /* raised board cell: chalk on it is 8.3:1 */
+  --color-chalk: #f4f1e8;
+  --color-chalk-dim: #b9c4bc;
+  --color-tag: #ffd23f; /* shelf tag yellow */
+  --color-tomato: #d33722; /* white on it 4.8:1; as small text on the ground 4.6:1 */
+  --color-tomato-dark: #a82b1b;
+  --color-line: #e9e1d2; /* crate-paper rule */
+  --color-kale: #2e8b3e; /* under: fills and borders */
+  --color-kale-ink: #1f6b2c; /* under: small text */
+  --color-kale-wash: #eef7ea;
+  --color-squash: #f26b1d; /* over: fills and borders */
+  --color-squash-ink: #a8430c; /* over: small text */
+  --color-squash-wash: #fff1e6;
+
+  --color-chalk-line: #9fb3a6; /* dashed chalk pills on the board */
+  --color-placeholder: #766d5f; /* 5.1:1 on white */
+
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-sign: var(--font-bowlby), var(--font-figtree), sans-serif;
 }
 
-body {
-  background: #f7f7f2;
-  color: #1f2937;
+@layer base {
+  html {
+    background: var(--color-ground);
+    color: var(--color-ink);
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    font-feature-settings: "tnum" 1; /* prices line up */
+    caret-color: var(--color-tomato);
+  }
+  ::selection {
+    background: var(--color-tag);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-tomato);
+    outline-offset: 2px;
+    border-radius: 5px;
+  }
+  a {
+    text-underline-offset: 3px;
+    text-decoration-thickness: 2px;
+  }
+  input::placeholder {
+    color: var(--color-placeholder);
+  }
+  * {
+    scrollbar-color: var(--color-crate) transparent;
+    scrollbar-width: thin;
+  }
+}
+
+@layer components {
+  /* Signs and numbers */
+  .font-sign {
+    font-family: var(--font-sign);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* The chalkboard price board (tally) */
+  .board {
+    background: var(--color-slate);
+    color: var(--color-chalk);
+    border: 4px solid var(--color-crate);
+    border-radius: 18px;
+    box-shadow:
+      inset 0 0 0 2px var(--color-slate-cell),
+      0 6px 14px -8px rgb(29 36 31 / 0.55);
+  }
+  .board-number {
+    perspective: 420px; /* so the rotateX flip reads as a flap turning, not a squash */
+  }
+  .board-cell {
+    position: relative;
+    display: inline-block;
+    min-width: 0.62em;
+    text-align: center;
+    background: var(--color-slate-cell);
+    border-radius: 5px;
+    padding: 0.04em 0.08em 0;
+    margin-right: 2px;
+    transform-origin: 50% 50%;
+  }
+  .board-cell::before,
+  .board-cell::after {
+    /* the flap seam, shown as notches at the cell edges so it never crosses (or "cancels") a digit */
+    content: "";
+    position: absolute;
+    top: calc(50% - 1px);
+    width: 3px;
+    height: 2px;
+    background: var(--color-slate);
+  }
+  .board-cell::before {
+    left: 0;
+  }
+  .board-cell::after {
+    right: 0;
+  }
+  .board-cell.flip {
+    animation: flip 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .chalk-pill {
+    border: 1.5px dashed var(--color-chalk-line);
+    border-radius: 999px;
+    padding: 3px 9px;
+  }
+
+  /* Shelf tag: every estimate price */
+  .tag {
+    display: inline-block;
+    background: var(--color-tag);
+    color: var(--color-ink);
+    font-family: var(--font-sign);
+    padding: 4px 8px 3px;
+    border-radius: 4px;
+    transform: rotate(-3deg);
+    box-shadow: 2px 3px 0 var(--color-ink); /* printed tag edge: part of the Market Stall world */
+    white-space: nowrap;
+  }
+
+  /* Chunky press button */
+  .btn-press {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: var(--color-tomato);
+    color: #fff;
+    font-family: var(--font-sign);
+    border-radius: 14px;
+    border-bottom: 5px solid var(--color-tomato-dark);
+    padding: 0.7rem 1.1rem;
+    transition: transform 120ms ease-out, filter 120ms ease-out;
+  }
+  .btn-press:hover:not(:disabled) {
+    filter: brightness(1.06);
+  }
+  .btn-press:active:not(:disabled) {
+    transform: translateY(3px); /* sinks onto its lip; no size change, so nothing reflows */
+    filter: brightness(0.95);
+  }
+  .btn-press:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  /* Secondary: crate-paper button with ink outline */
+  .btn-crate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: #fff;
+    color: var(--color-ink);
+    font-weight: 800;
+    border: 2px solid var(--color-ink);
+    border-bottom-width: 4px;
+    border-radius: 14px;
+    padding: 0.6rem 1rem;
+    transition: transform 120ms ease-out;
+  }
+  .btn-crate:active:not(:disabled) {
+    transform: translateY(2px);
+  }
+  .btn-crate:disabled {
+    opacity: 0.55;
+  }
+  .btn-round {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 2px solid var(--color-ink);
+    background: #fff;
+    font-weight: 900;
+  }
+  .btn-round:disabled {
+    opacity: 0.35;
+  }
+
+  /* Crate card: the one container */
+  .crate {
+    background: #fff;
+    border: 2px solid var(--color-line);
+    border-radius: 16px;
+  }
+
+  /* Input box: ink outline, big for thumbs */
+  .field {
+    background: #fff;
+    border: 2px solid var(--color-ink);
+    border-radius: 12px;
+    padding: 0.65rem 0.8rem;
+    font-weight: 800;
+    color: var(--color-ink);
+  }
+  .field:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-tag);
+  }
+
+  /* Page sign: headings stand on the ground like a stall sign, not inside a card */
+  .sign {
+    font-family: var(--font-sign);
+    font-size: 1.75rem;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+  }
+  /* A section on the ground, separated by a crate-paper rule instead of a card */
+  .ruled {
+    border-top: 2px dashed var(--color-line);
+    padding-top: 1rem;
+  }
+  /* Rows inside a section: separated by rules, never boxed inside boxes */
+  .row-rule + .row-rule {
+    border-top: 2px dashed var(--color-line);
+  }
+
+  /* Checkbox in the stall's ink */
+  .check {
+    appearance: none;
+    width: 1.6rem;
+    height: 1.6rem;
+    flex-shrink: 0;
+    border: 2px solid var(--color-ink);
+    border-radius: 7px;
+    background: #fff;
+    display: inline-grid;
+    place-content: center;
+    cursor: pointer;
+  }
+  .check::after {
+    content: "";
+    width: 0.55rem;
+    height: 0.9rem;
+    border: solid var(--color-chalk);
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+    opacity: 0;
+  }
+  .check:checked {
+    background: var(--color-ink);
+  }
+  .check:checked::after {
+    opacity: 1;
+  }
+
+  /* Stamp: verdicts and good news */
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-sign);
+    letter-spacing: 0.04em;
+    border: 2.5px solid currentColor;
+    border-radius: 7px;
+    padding: 4px 10px 3px;
+    transform: rotate(-3deg);
+  }
+  .stamp.under {
+    color: var(--color-kale-ink);
+  }
+  .stamp.over {
+    color: var(--color-squash-ink);
+  }
+  /* Non-budget statuses never borrow kale or squash */
+  .stamp.ink {
+    color: var(--color-ink);
+  }
+  .stamp.tagged {
+    color: var(--color-ink);
+    background: var(--color-tag);
+    border-color: var(--color-ink);
+  }
+}
+
+@keyframes flip {
+  0% {
+    transform: rotateX(90deg);
+    opacity: 0.3;
+  }
+  100% {
+    transform: rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-cell.flip {
+    animation: none;
+  }
+  .btn-press,
+  .btn-crate {
+    transition: none;
+  }
 }

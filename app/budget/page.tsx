@@ -51,32 +51,32 @@ function BudgetForm({ current }: { current?: number }) {
   }
 
   return (
-    <form onSubmit={save} className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm">
-      <h1 className="text-2xl font-black">{current ? "This week's budget" : "Let's set your weekly budget"}</h1>
-      <p className="rounded-xl bg-leaf/10 p-3 font-bold text-leaf-dark">
-        Suggested: ${SUGGESTED}/week for 2 adults + a 16-year-old, based on USDA food-cost data (
-        {PLAN_LABELS[DEFAULT_PLAN_LEVEL]} plan, September 2026).
-      </p>
-      <label className="flex flex-col gap-1 font-bold">
+    <form onSubmit={save} className="board flex flex-col gap-4 p-5">
+      <h1 className="sign text-tag">{current ? "This week's budget" : "Let's set your weekly budget"}</h1>
+      <label className="flex flex-col gap-2 font-bold text-chalk-dim">
         Weekly budget
-        <span className="flex items-center gap-2 rounded-xl border-2 border-slate-200 px-3 focus-within:border-leaf">
-          <span className="text-2xl font-black text-slate-400">$</span>
+        <span className="flex items-center gap-2 rounded-xl bg-slate-cell px-3 focus-within:shadow-[0_0_0_3px_var(--color-tag)]">
+          <span className="font-sign text-3xl text-chalk-dim">$</span>
           <input
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full py-3 text-2xl font-black outline-none"
+            className="font-sign w-full bg-transparent py-3 text-4xl text-chalk caret-tag outline-none"
             aria-label="Weekly budget in dollars"
           />
         </span>
       </label>
-      <a href="/plan?ask=budget" className="text-center font-bold text-leaf-dark underline">
-        Not sure? Let the crew help you figure it out →
+      <p className="chalk-pill rounded-2xl px-3 py-2 text-sm font-bold">
+        Suggested ${SUGGESTED} a week for 2 adults + a 16-year-old, from USDA food-cost data (
+        {PLAN_LABELS[DEFAULT_PLAN_LEVEL]} plan, September 2026).
+      </p>
+      <a href="/plan?ask=budget" className="font-extrabold text-chalk underline">
+        Not sure? Ask the crew
       </a>
-      {error && <p className="font-bold text-carrot-dark">{error}</p>}
+      {error && <p className="font-bold text-tag">{error}</p>}
       <button
         disabled={saving}
-        className="rounded-2xl border-b-4 border-leaf-dark bg-leaf py-3 text-lg font-black text-white active:translate-y-0.5 active:border-b-2 disabled:opacity-60"
+        className="btn-press w-full text-lg"
       >
         {saving ? "Saving…" : current ? "Update budget" : "Start my week"}
       </button>

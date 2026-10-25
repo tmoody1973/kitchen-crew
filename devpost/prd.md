@@ -36,6 +36,7 @@ Source: `scope.md > The Core Loop`, `scope.md > What "Working" Looks Like`.
 - **Design process:** visual design will be produced with the `/impeccable` skill during `5-build`, using this vibe as its brief.
 - **Color carries meaning:** price rows color-code (paid ≤ estimate vs. paid > estimate); the tally signals under/over budget.
 - Not established: specific fonts, palette, or mascot/character. Leave to `/impeccable`.
+- *Decided in build (slice 7, with `/impeccable`):* the **Market Stall** look, chosen by Tarik over "Cutting Board": the tally is a slate farmers-market price board whose numbers flip when they change; every price is a tilted yellow shelf tag; chunky tomato press buttons; verdicts are stamps; page headings stand like stall signs. Kale green only means under budget / paid ≤ estimate and squash orange only means over, always with words. Fonts: Bowlby One (signs and numbers) and Figtree (reading). Name: **Mise**. Full system in `DESIGN.md`.
 
 ## Features and Behavior
 
@@ -131,7 +132,8 @@ Source: `scope.md > The Unique Kernel`.
 - Running tally (spent / budget / left / days left) with color-coded rows and an under-budget signal.
 - *Added in build:* store picker and brand choice; household sizing; My Pantry; recipe links, recipe view, and My Recipes; substitutes; saved chats; "Add to this week".
 - *Added in build (slice 6):* Regulars and a Dinners/Extras budget split.
-- *Planned in build order:* design pass (7), **week planning board, Kanban-style (day columns, dinner cards, an Ideas column, drag to reschedule), with a 1-week / 2-week view** (8), YouTube playlist sync with tags and search (9), barcode scanning (10), **Instacart: send the list to Instacart** (11, final; reopens the deferred Instacart integration at Tarik's request).
+- *Added in build (slice 7):* the Market Stall design and the Mise name.
+- *Planned in build order:* **week planning board, Kanban-style (day columns, dinner cards, an Ideas column, drag to reschedule), with a 1-week / 2-week view** (8), YouTube playlist sync with tags and search (9), barcode scanning (10), **Instacart: send the list to Instacart** (11, final; reopens the deferred Instacart integration at Tarik's request).
 
 ## Deferred From the POC
 - ~~**YouTube playlist import**~~ — *brought back in during the build as slice 6 at Tarik's request (official YouTube API).*
@@ -152,5 +154,5 @@ Source: `scope.md > The Unique Kernel`.
 - **Multiple users or accounts** — it's for Tarik's own household.
 
 ## Open Questions
-- **Project name** — "Kitchen Crew" is a working name; can change anytime (doesn't block `4-spec`).
+- ~~**Project name**~~ — *decided in build (slice 7): **Mise** (from mise en place), chosen by Tarik; "Kitchen Crew" was the working name. The assistant stays "the crew".*
 - ~~Persistence and week-boundary assumptions~~ — confirmed at PRD approval.

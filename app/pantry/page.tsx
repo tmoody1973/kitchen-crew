@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Check, ShoppingBasket, X } from "lucide-react";
 import RegularsSection from "@/components/RegularsSection";
 
 // What's in your pantry, remembered across weeks. The crew reads this when it plans.
@@ -30,13 +31,13 @@ export default function PantryPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-2xl bg-white p-4">
-        <h1 className="text-2xl font-black">My Pantry</h1>
-        <p className="font-bold text-slate-500">
+      <header>
+        <h1 className="sign">My Pantry</h1>
+        <p className="mt-1 font-bold text-ink-soft">
           The crew won&apos;t buy what you have, and adds what you&apos;re out of.
           {out.length > 0 && ` Out of ${out.length}.`}
         </p>
-      </div>
+      </header>
 
       <form onSubmit={add} className="flex gap-2">
         <input
@@ -44,44 +45,41 @@ export default function PantryPage() {
           onChange={(e) => setName(e.target.value)}
           placeholder="Add a staple, like soy sauce"
           maxLength={60}
-          className="min-w-0 flex-1 rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-lg font-bold"
+          aria-label="Add a pantry staple"
+          className="field min-w-0 flex-1 rounded-2xl px-4 py-3 text-base"
         />
-        <button
-          disabled={!name.trim()}
-          className="rounded-2xl border-b-4 border-leaf-dark bg-leaf px-5 font-black text-white disabled:opacity-60"
-        >
+        <button disabled={!name.trim()} className="btn-press px-5">
           Add
         </button>
       </form>
-      {error && <p className="font-bold text-carrot-dark">{error}</p>}
+      {error && <p className="font-bold text-tomato-dark" role="alert">{error}</p>}
 
       {pantry.length === 0 ? (
-        <p className="rounded-2xl bg-white p-4 text-center font-bold text-slate-500">
+        <p className="rounded-2xl border-2 border-dashed border-line p-5 text-center font-bold text-ink-soft">
           Nothing here yet. Add staples above, or tap pantry items on a meal plan card.
         </p>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="crate px-4">
           {pantry.map((item) => (
-            <li
-              key={item._id}
-              className={`flex items-center gap-3 rounded-2xl border-2 p-3 ${item.have ? "border-leaf bg-leaf/10" : "border-carrot bg-carrot/10"}`}
-            >
+            <li key={item._id} className="row-rule flex items-center gap-3 py-3">
               <span className="flex-1 text-lg font-black capitalize">{item.name}</span>
               <button
                 type="button"
                 onClick={() => setHave({ name: item.name, have: !item.have })}
                 aria-pressed={!item.have}
-                className={`rounded-full px-3 py-2 text-sm font-black ${item.have ? "text-leaf-dark" : "text-carrot-dark"}`}
+                aria-label={`${item.name}: ${item.have ? "have it" : "out, buy it"}. Tap to switch.`}
+                className={`stamp text-xs ${item.have ? "ink" : "tagged"}`}
               >
-                {item.have ? "✓ Have it" : "🛒 Out"}
+                {item.have ? <Check size={14} strokeWidth={3.5} aria-hidden /> : <ShoppingBasket size={14} strokeWidth={3} aria-hidden />}
+                {item.have ? "Have" : "Out · buy"}
               </button>
               <button
                 type="button"
                 onClick={() => remove({ id: item._id })}
-                className="rounded-full px-3 py-2 text-slate-400 hover:bg-slate-100"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft hover:bg-line"
                 aria-label={`Remove ${item.name}`}
               >
-                ✕
+                <X size={16} strokeWidth={3} aria-hidden />
               </button>
             </li>
           ))}

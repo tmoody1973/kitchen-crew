@@ -9,6 +9,7 @@ import TallyHeader from "@/components/TallyHeader";
 import ListRow from "@/components/ListRow";
 import { isWeekActive } from "@/lib/tally";
 import { fetchPrices } from "@/lib/kroger-client";
+import { ShoppingBasket } from "lucide-react";
 
 type Store = { id: string; name: string };
 const ADD_STORE = "__add";
@@ -19,7 +20,15 @@ export default function ListPage() {
   if (week === undefined || items === undefined) return null;
 
   if (week === null || !isWeekActive(week.startDate, Date.now())) {
-    return <TallyHeader />;
+    return (
+      <div className="flex flex-col gap-4">
+        <TallyHeader />
+        <p className="rounded-2xl border-2 border-dashed border-line p-5 text-center font-bold text-ink-soft">
+          Your shopping list lives here. Set this week&apos;s budget, then plan dinners with the crew or add items
+          yourself.
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -29,9 +38,9 @@ export default function ListPage() {
       <AddItem krogerStoreId={week.storeId} />
       <AddRegulars krogerStoreId={week.storeId} />
       {items.length === 0 ? (
-        <p className="rounded-2xl bg-white p-4 text-center font-bold text-slate-500">
+        <p className="crate border-dashed p-5 text-center font-bold text-ink-soft">
           Your list is empty. Add an item above, or{" "}
-          <Link href="/plan" className="text-leaf-dark underline">
+          <Link href="/plan" className="font-extrabold text-ink underline">
             plan meals with the crew
           </Link>
           .
@@ -102,13 +111,13 @@ function StorePicker({ week, items }: { week: Doc<"weeks">; items: Doc<"listItem
   const value = week.otherStore ? `other:${week.otherStore}` : week.storeId ? `kroger:${week.storeId}` : "";
 
   return (
-    <div className="flex flex-col gap-2 rounded-2xl bg-white p-4 font-bold">
+    <div className="crate flex flex-col gap-2 p-4 font-bold">
       <label className="flex flex-col gap-1">
         Shopping at
         <select
           value={adding ? ADD_STORE : value}
           onChange={(e) => onSelect(e.target.value)}
-          className="rounded-xl border-2 border-slate-200 bg-white px-3 py-3 text-lg font-black"
+          className="field py-3 text-base"
         >
           <option value="" disabled>
             {stores ? "Pick your store" : "Loading stores…"}
@@ -145,23 +154,23 @@ function StorePicker({ week, items }: { week: Doc<"weeks">; items: Doc<"listItem
             onChange={(e) => setNewName(e.target.value)}
             placeholder="Sendik's, Whole Foods…"
             maxLength={60}
-            className="min-w-0 flex-1 rounded-xl border-2 border-slate-200 px-3 py-2"
+            className="field min-w-0 flex-1 py-2"
           />
-          <button className="rounded-xl bg-leaf px-4 font-black text-white">Add</button>
-          <button type="button" onClick={() => setAdding(false)} className="px-2 text-slate-500">
+          <button className="btn-press px-4 py-2">Add</button>
+          <button type="button" onClick={() => setAdding(false)} className="px-2 text-ink-soft underline">
             Cancel
           </button>
         </form>
       )}
 
       {week.otherStore && (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-ink-soft">
           {week.storeName
             ? `Type what you pay at ${week.otherStore}; each row compares it to Kroger prices at ${week.storeName}.`
             : `Pick a Pick 'n Save or Metro Market once to get Kroger prices to compare against.`}
         </p>
       )}
-      {status && <p className="text-sm text-slate-500">{status}</p>}
+      {status && <p className="text-sm text-ink-soft">{status}</p>}
     </div>
   );
 }
@@ -199,16 +208,16 @@ function AddItem({ krogerStoreId }: { krogerStoreId?: string }) {
           onChange={(e) => setName(e.target.value)}
           placeholder="Add an item, like chicken thighs"
           maxLength={80}
-          className="min-w-0 flex-1 rounded-2xl border-2 border-slate-200 bg-white px-4 py-3 text-lg font-bold"
+          className="field min-w-0 flex-1 rounded-2xl px-4 py-3 text-base"
         />
         <button
           disabled={busy || !name.trim()}
-          className="rounded-2xl border-b-4 border-leaf-dark bg-leaf px-5 font-black text-white disabled:opacity-60"
+          className="btn-press px-5"
         >
           {busy ? "…" : "Add"}
         </button>
       </div>
-      {error && <p className="text-sm font-bold text-carrot-dark">{error}</p>}
+      {error && <p className="text-sm font-bold text-tomato-dark" role="alert">{error}</p>}
     </form>
   );
 }
@@ -243,11 +252,11 @@ function AddRegulars({ krogerStoreId }: { krogerStoreId?: string }) {
           setBusy(false);
           setNote(added < 0 ? "Couldn't add regulars." : added === 0 ? "Regulars are already on your list (prices refreshed)." : `Added ${added} regulars at today's prices.`);
         }}
-        className="rounded-2xl border-2 border-leaf bg-white px-4 py-2 font-black text-leaf-dark disabled:opacity-60"
+        className="btn-crate"
       >
-        🛒 Add regulars ({regulars.length})
+        <ShoppingBasket size={18} strokeWidth={2.5} aria-hidden /> Add regulars ({regulars.length})
       </button>
-      {note && <span className="text-sm font-bold text-slate-500">{note}</span>}
+      {note && <span className="text-sm font-bold text-ink-soft">{note}</span>}
     </div>
   );
 }

@@ -29,9 +29,9 @@ export default function ExtrasSplit() {
   }
 
   return (
-    <section className="flex flex-col gap-3 rounded-2xl bg-white p-6 shadow-sm">
-      <h2 className="text-xl font-black">Dinners and extras</h2>
-      <p className="font-bold text-slate-500">
+    <section className="ruled flex flex-col gap-3">
+      <h2 className="sign text-2xl">Dinners and extras</h2>
+      <p className="font-bold text-ink-soft">
         Set aside part of {formatMoney(week.budget)} for snacks, drinks, and fruit, so the crew plans dinners with the rest.
       </p>
       <div className="flex items-center gap-2 font-black">
@@ -41,17 +41,17 @@ export default function ExtrasSplit() {
           value={value}
           onChange={(e) => setText(e.target.value)}
           onBlur={() => text !== null && save(Number(text) || 0)}
-          className="w-24 rounded-xl border-2 border-slate-200 px-3 py-2 text-lg"
+          className="field w-24 py-2 text-lg"
           aria-label="Extras budget in dollars"
         />
-        <span className="text-slate-500">· Dinners {formatMoney(Math.max(0, week.budget - (Number(value) || 0)))}</span>
+        <span className="text-ink-soft">· Dinners {formatMoney(Math.max(0, week.budget - (Number(value) || 0)))}</span>
       </div>
       {suggested > 0 && suggested !== current && (
-        <button type="button" onClick={() => save(Math.min(suggested, week.budget))} className="self-start font-bold text-leaf-dark underline">
+        <button type="button" onClick={() => save(Math.min(suggested, week.budget))} className="self-start font-extrabold text-ink underline">
           Use {formatMoney(suggested)}, your regulars&apos; total
         </button>
       )}
-      {error && <p className="font-bold text-carrot-dark">{error}</p>}
+      {error && <p className="font-bold text-tomato-dark" role="alert">{error}</p>}
     </section>
   );
 }

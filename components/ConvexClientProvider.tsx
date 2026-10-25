@@ -12,10 +12,10 @@ export default function ConvexClientProvider({ children }: { children: ReactNode
   return (
     <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
       <AuthLoading>
-        <p className="p-8 text-center font-bold text-slate-500">Waking up the crew…</p>
+        <p className="p-8 text-center font-extrabold text-ink-soft">Waking up the crew…</p>
       </AuthLoading>
       <Unauthenticated>
-        <p className="p-8 text-center font-bold text-slate-500">
+        <p className="p-8 text-center font-extrabold text-ink-soft">
           Signed in, but the database didn&apos;t accept it. Check CLERK_JWT_ISSUER_DOMAIN on Convex.
         </p>
       </Unauthenticated>

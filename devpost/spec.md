@@ -59,6 +59,7 @@ Carried from `prd.md > Look and Feel`.
 - **Color carries meaning:** green = paid ≤ estimate / under budget; orange = paid more / over budget; neutral = no price yet. Color is never the only signal — always paired with text.
 - **Phone first:** the shopping list must be easy to use one-handed in an aisle — big tap targets, number keyboard for prices, tally always visible.
 - **Process:** visual design produced with `/impeccable` during `5-build`, using Tailwind. Fonts, exact palette, mascot: left to `/impeccable`.
+- **Built (slice 7):** Market Stall world, documented in `DESIGN.md` (tokens, components, rules) and `.impeccable/design.json`; product record in `PRODUCT.md`; direction contract in `.impeccable/surfaces/app.md`. Tokens and component classes (`.board`, `.tag`, `.btn-press`, `.btn-crate`, `.stamp`, `.sign`, `.ruled`, `.row-rule`, `.field`, `.check`) live in `app/globals.css`; fonts self-hosted with `next/font` (Bowlby One, Figtree); icons from `lucide-react` (no emoji icons). Navigation: `components/Nav.tsx`. Reviewed by an independent finish reviewer over three rounds (disposition: ship); one minor item unverified on screen (empty List guidance on first use).
 
 ## Components
 
