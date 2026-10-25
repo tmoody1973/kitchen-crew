@@ -151,14 +151,14 @@ Build mode: learn
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
+- [x] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: [not started]
-Route and stops: [not started]
-Edit outcome: [not started]
-Reflection: [not started]
+Activity and evidence: Brief recap with a reference route, tied to Tarik's goal ("understanding the code better"). The guided route was offered with real paths and search anchors; Tarik reviewed it and the map and replied "looks good". Completing each stop in his editor was not confirmed, so this is recorded as a reviewed recap, not a hands-on tour.
+Route and stops: Typing a paid amount → `components/ListRow.tsx` (`savePaid`) → `convex/listItems.ts` (`setPaid`) → `components/TallyHeader.tsx` (`useQuery(api.listItems.mine` → `computeTally` in `lib/tally.ts`).
+Edit outcome: Offered (change "Under budget this week!" in `TallyHeader.tsx`); not taken — no change in git.
+Reflection: Offered ("What would you do differently next time you start with an agent?"); not answered.
 Activity mode: [not started]
 
 ## Revisions
