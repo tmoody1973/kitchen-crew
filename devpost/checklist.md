@@ -142,12 +142,12 @@ Build mode: learn
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored — after slice 2 (real Kroger prices + live tally), before the AI chat is built on top
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
 
-- [ ] List "By plan" view (Tarik, kick-the-tires: "a list per plan"): each plan's items under its dinners, its cost (paid where paid, else estimate), "Send this plan to Instacart"; an item two plans share stays one row, shown in both and marked shared; dinners from before plans were tracked show as "Earlier dinners".
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] List "By plan" view (Tarik, kick-the-tires: "a list per plan"): each plan's items under its dinners, its cost (paid where paid, else estimate), "Send this plan to Instacart"; an item two plans share stays one row, shown in both and marked shared; dinners from before plans were tracked show as "Earlier dinners".
+- [x] Final review complete — feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 

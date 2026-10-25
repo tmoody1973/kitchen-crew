@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mise — App Map</title>
+<style>
+  :root { --ink:#1f2a24; --soft:#5f574b; --line:#e4dccb; --ground:#fbf7ee; --tag:#ffd23f; --tomato:#d33722; --kale:#2f7d3b; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 17px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 2.2rem; line-height: 1.1; margin: 0 0 6px; letter-spacing: -0.02em; }
+  h2 { font-size: 1.35rem; margin: 40px 0 10px; padding-top: 14px; border-top: 2px dashed var(--line); }
+  h3 { font-size: 1.05rem; margin: 0 0 4px; }
+  p { margin: 0 0 12px; }
+  .lede { color: var(--soft); font-weight: 600; }
+  code { font: 0.92em ui-monospace, SFMono-Regular, Menlo, monospace; background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; overflow-wrap: anywhere; }
+  .pieces { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; padding: 0; list-style: none; }
+  .pieces li, .stop, .practice { background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 14px 16px; }
+  .stop { margin: 0 0 12px; display: grid; grid-template-columns: 40px 1fr; gap: 12px; }
+  .num { width: 36px; height: 36px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 800; }
+  .where { font-size: 0.9rem; color: var(--soft); margin-bottom: 6px; }
+  figure { margin: 8px 0 0; background: #fff; border: 2px solid var(--line); border-radius: 16px; padding: 12px; }
+  figcaption { font-size: 0.9rem; color: var(--soft); margin-top: 6px; }
+  .flow { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+  .box { border: 2px solid var(--ink); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; text-align: center; }
+  .box span { font-size: 0.85rem; color: var(--soft); overflow-wrap: anywhere; }
+  .arrow { text-align: center; font-weight: 800; transform: rotate(90deg); }
+  .note { font-size: 0.9rem; color: var(--soft); margin: 10px 0 0; }
+  @media (min-width: 640px) { .flow { flex-direction: row; align-items: center; } .box { flex: 1; } .arrow { transform: none; } }
+  table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: #f3ecdc; font-size: 0.9rem; }
+  details { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-top: 10px; }
+  summary { cursor: pointer; font-weight: 700; }
+  summary:focus-visible, a:focus-visible { outline: 3px solid var(--tomato); outline-offset: 2px; }
+  pre { white-space: pre-wrap; margin: 8px 0 0; font: 0.88rem/1.45 ui-monospace, Menlo, monospace; }
+  .practice { border-color: var(--tag); }
+  .meta { margin-top: 40px; font-size: 0.9rem; color: var(--soft); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Mise — App Map</h1>
+  <p class="lede">A take-home guide to where things live in the code. A snapshot of the finished build; it can drift as the app changes.</p>
+
+  <h2>What Mise is</h2>
+  <p>Mise keeps a family's weekly groceries under budget. A chat "crew" (Claude) plans dinners priced with real Kroger prices, the week board schedules them, the shopping list fills itself, and a tally shows what's left as you type what you actually paid.</p>
+  <ul class="pieces">
+    <li><h3>Screens</h3>Next.js pages in <code>app/</code>: Plan, Week, List, Pantry, Recipes, Budget.</li>
+    <li><h3>Data</h3>Convex in <code>convex/</code>: weeks, list items, dinners, recipes. Screens subscribe to it and redraw when it changes.</li>
+    <li><h3>Rules and math</h3>Plain functions in <code>lib/</code>: the tally, plan pricing, barcodes, grouping. Most have tests next to them.</li>
+    <li><h3>Outside services</h3>Kroger (prices), Claude (crew, recipe reading, tags), YouTube, TinyFish, Instacart — called only from server routes in <code>app/api/</code>.</li>
+  </ul>
+
+  <h2>One action, followed through the code</h2>
+  <p><strong>You type what you paid for an item; the tally at the top changes.</strong> There is no "save" button and no refresh: the number travels to the database, and every screen watching that data redraws.</p>
+  <figure>
+    <div class="flow" role="img" aria-label="The paid box in ListRow calls setPaid in Convex, which saves the amount; TallyHeader is subscribed to the list, recomputes with computeTally, and shows the new total.">
+      <div class="box"><strong>1 · Paid box</strong><span>components/ListRow.tsx</span><span>savePaid()</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="box"><strong>2 · Save it</strong><span>convex/listItems.ts</span><span>setPaid (Convex mutation)</span></div>
+      <div class="arrow" aria-hidden="true">→</div>
+      <div class="box"><strong>3 · Tally redraws</strong><span>components/TallyHeader.tsx</span><span>computeTally() in lib/tally.ts</span></div>
+    </div>
+    <p class="note">Convex pushes the changed list to every screen subscribed with <code>useQuery(api.listItems.mine)</code>, so step 3 happens on its own.</p>
+    <figcaption>Reference route (not toured live unless noted in the checklist). Search for the names in bold to jump to each stop.</figcaption>
+  </figure>
+
+  <div class="stop"><div class="num">1</div><div>
+    <h3>The paid box</h3>
+    <p class="where"><code>components/ListRow.tsx</code> · search <strong><code>async function savePaid</code></strong></p>
+    <p>When you leave the box (or press Enter), <code>savePaid</code> turns your text into a number and calls the <code>setPaid</code> mutation with this row's id. Leaving the box empty clears the amount.</p>
+  </div></div>
+  <div class="stop"><div class="num">2</div><div>
+    <h3>Saving it</h3>
+    <p class="where"><code>convex/listItems.ts</code> · search <strong><code>export const setPaid</code></strong></p>
+    <p>Runs on Convex's servers: <code>checkAmount</code> rejects nonsense amounts, <code>ownItem</code> makes sure the row belongs to the signed-in person, then <code>ctx.db.patch</code> writes <code>paid</code> onto the row.</p>
+    <details><summary>The whole function</summary><pre>export const setPaid = mutation({
+  args: { id: v.id(&quot;listItems&quot;), paid: v.optional(v.number()) },
+  handler: async (ctx, { id, paid }) =&gt; {
+    checkAmount(paid, &quot;Paid amount&quot;);
+    await ownItem(ctx, id);
+    await ctx.db.patch(id, { paid });
+  },
+});</pre></details>
+  </div></div>
+  <div class="stop"><div class="num">3</div><div>
+    <h3>The tally redraws</h3>
+    <p class="where"><code>components/TallyHeader.tsx</code> · search <strong><code>useQuery(api.listItems.mine</code></strong> → <code>lib/tally.ts</code> · <strong><code>export function computeTally</code></strong></p>
+    <p>The header is subscribed to the week's list. When the row changes, Convex sends the new list, and <code>computeTally</code> (plus <code>computeSplitTally</code> for Dinners/Extras) recomputes what's spent and what's left. The "Under budget this week!" line comes from the same file.</p>
+  </div></div>
+
+  <h2>To change this, start here</h2>
+  <table>
+    <thead><tr><th>If you want to change…</th><th>Start here</th></tr></thead>
+    <tbody>
+      <tr><td>The tally's words ("Under budget this week!")</td><td><code>components/TallyHeader.tsx</code> · search <code>Under budget this week</code></td></tr>
+      <tr><td>How the budget math works</td><td><code>lib/tally.ts</code> (<code>computeTally</code>, <code>computeSplitTally</code>) and its tests in <code>lib/tally.test.ts</code></td></tr>
+      <tr><td>What the crew says or how it plans</td><td><code>lib/staff-prompt.ts</code> (its instructions) and <code>app/api/chat/route.ts</code> (its tools)</td></tr>
+      <tr><td>How a plan is priced at Kroger</td><td><code>lib/meal-plan.ts</code> · <code>pricePlan</code>; Kroger calls in <code>lib/kroger.ts</code></td></tr>
+      <tr><td>Which links count as a written recipe on YouTube</td><td><code>lib/recipes/links.ts</code> and the real examples in <code>lib/recipes/links.test.ts</code></td></tr>
+      <tr><td>The List's views (All items / By dinner / By plan)</td><td><code>lib/list-groups.ts</code> and <code>app/list/page.tsx</code></td></tr>
+      <tr><td>Colors, fonts, buttons</td><td><code>app/globals.css</code> and <code>DESIGN.md</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>A practice to reuse</h2>
+  <div class="practice">
+    <p><strong>Test a rule against real data, not just the examples you imagined.</strong></p>
+    <p>When Mise reads recipes from YouTube, it has to pick the written-recipe link out of descriptions full of shop, sponsor and social links. The first version of the filter in <code>lib/recipes/links.ts</code> passed its six tests. Running it over all 86 real descriptions in the playlist then exposed leaks the tests didn't cover: sponsor links on lines that mentioned "recipe" much earlier, and blog category pages. Those real lines became new tests in <code>lib/recipes/links.test.ts</code>, and the fix was checked by rerunning the whole playlist (49 of 86 videos correctly found a recipe link).</p>
+    <p>On another project: whenever a rule decides something from messy input (parsing, matching, filtering), run it over a real sample before trusting it, and turn every surprise into a test.</p>
+  </div>
+
+  <h2>Run it again</h2>
+  <p><code>npm install</code> once, then <code>npm run dev</code> (starts the website and Convex together) and open <code>http://localhost:3000</code>. Keys go in <code>.env.local</code>; <code>.env.example</code> lists their names. Checks: <code>npm test</code>, <code>npm run typecheck</code>, <code>npm run build</code>.</p>
+
+  <p class="meta">Made from commit <code>6aa436f</code> (feat: shopping list grouped by plan). A snapshot: paths and names can drift as the code changes.</p>
+</main>
+</body>
+</html>
