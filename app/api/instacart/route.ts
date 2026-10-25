@@ -4,6 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { convexToken } from "@/lib/convex-token";
 import { createInstacartLink, InstacartError, listLineItems, recipeIngredients } from "@/lib/instacart";
 import { scaleIngredients } from "@/lib/recipes/scale";
+import { groupByPlan } from "@/lib/list-groups";
 
 // POST { offset } → this week's (0) or next week's (1) unpaid list as an Instacart page.
 // POST { recipeId, servings } → one recipe, scaled, as an Instacart recipe page.
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
   if (!userId) return Response.json({ error: "Not signed in" }, { status: 401 });
   const token = await convexToken();
   if (!token) return Response.json({ error: "Not signed in" }, { status: 401 });
-  const body = (await req.json().catch(() => ({}))) as { offset?: unknown; recipeId?: unknown; servings?: unknown };
+  const body = (await req.json().catch(() => ({}))) as { offset?: unknown; recipeId?: unknown; servings?: unknown; planId?: unknown };
 
   try {
     if (typeof body.recipeId === "string") {
@@ -35,10 +36,19 @@ export async function POST(req: Request) {
     }
 
     const offset = body.offset === 1 ? 1 : 0;
-    const lineItems = listLineItems(await fetchQuery(api.listItems.mine, { offset }, { token }));
+    let rows = await fetchQuery(api.listItems.mine, { offset }, { token });
+    let title = offset === 1 ? "Mise · next week's groceries" : "Mise · this week's groceries";
+    // One plan only (the List's "By plan" view): its rows, worked out here from the dinners.
+    if (typeof body.planId === "string") {
+      const plan = groupByPlan(rows, await fetchQuery(api.plans.meals, { offset }, { token })).find((g) => g.planId === body.planId);
+      if (!plan) return Response.json({ error: "That plan isn't on this week's board anymore." }, { status: 404 });
+      rows = plan.items.map((e) => e.item);
+      title = `Mise · ${plan.title}`.slice(0, 120);
+    }
+    const lineItems = listLineItems(rows);
     if (lineItems.length === 0) return Response.json({ error: "Everything on the list is already paid for." }, { status: 400 });
     const url = await createInstacartLink("/idp/v1/products/products_link", {
-      title: offset === 1 ? "Mise · next week's groceries" : "Mise · this week's groceries",
+      title,
       link_type: "shopping_list",
       expires_in: 30,
       line_items: lineItems.slice(0, 200),

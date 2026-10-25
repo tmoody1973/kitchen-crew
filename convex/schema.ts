@@ -64,6 +64,7 @@ export default defineSchema({
     servings: v.optional(v.number()),
     recipeId: v.optional(v.id("recipes")),
     dayIndex: v.optional(v.number()), // 0–6 within its week; missing = an Idea (not scheduled, not bought)
+    planId: v.optional(v.string()), // dinners added together by one "Use this plan" / "Add to this week" (the List's "By plan" view)
     // What the shopping list is rebuilt from: this dinner's scaled ingredients and the products chosen for them.
     ingredients: v.optional(v.array(v.object({ name: v.string(), amount: v.number(), unit: v.string(), pantry: v.boolean() }))),
     products: v.optional(

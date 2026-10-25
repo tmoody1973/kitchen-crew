@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ShoppingCart } from "lucide-react";
 
 // Opens Instacart with the list (or a recipe) filled in; Tarik picks a store there and checks out.
-export default function SendToInstacart({ body, label = "Send to Instacart" }: { body: { offset: number } | { recipeId: string; servings: number }; label?: string }) {
+export default function SendToInstacart({ body, label = "Send to Instacart" }: { body: { offset: number; planId?: string } | { recipeId: string; servings: number }; label?: string }) {
   const [state, setState] = useState<{ busy: boolean; error?: string }>({ busy: false });
   async function send() {
     // Open the tab now, while the tap still counts as the user's: phones block tabs opened after a wait.

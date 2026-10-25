@@ -10,13 +10,15 @@ import ListRow from "@/components/ListRow";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import SendToInstacart from "@/components/SendToInstacart";
 import CompareStores from "@/components/CompareStores";
-import { isWeekActive } from "@/lib/tally";
-import { groupByDinner } from "@/lib/list-groups";
+import { formatMoney, isWeekActive } from "@/lib/tally";
+import { groupByDinner, groupByPlan } from "@/lib/list-groups";
 import { dayLabel } from "@/lib/weeks";
 import { fetchPrices } from "@/lib/kroger-client";
 import { ShoppingBasket } from "lucide-react";
 
 type Store = { id: string; name: string };
+type View = "all" | "dinner" | "plan";
+const VIEW_LABEL: Record<View, string> = { all: "All items", dinner: "By dinner", plan: "By plan" };
 const ADD_STORE = "__add";
 
 export default function ListPage() {
@@ -25,10 +27,11 @@ export default function ListPage() {
   const [offset, setOffset] = useState(0);
   const items = useQuery(api.listItems.mine, { offset });
   const dinners = useQuery(api.plans.meals, { offset });
-  // "All items" (one merged list, for the aisle) or "By dinner" (for prep night), remembered on this device.
-  const [byDinner, setByDinner] = useState(false);
+  // "All items" (one merged list, for the aisle), "By dinner" (prep night), or "By plan", remembered on this device.
+  const [view, setView] = useState<View>("all");
   useEffect(() => {
-    if (localStorage.getItem("listView") === "dinner") setByDinner(true);
+    const saved = localStorage.getItem("listView");
+    if (saved === "dinner" || saved === "plan") setView(saved);
   }, []);
   if (week === undefined || items === undefined || nextWeek === undefined || dinners === undefined) return null;
 
@@ -45,8 +48,13 @@ export default function ListPage() {
   }
 
   const viewing = offset === 1 && nextWeek ? nextWeek : week;
-  const scheduled = dinners.filter((d) => d.dayIndex !== undefined).length;
-  const grouped = byDinner && scheduled >= 2;
+  const onBoard = dinners.filter((d) => d.dayIndex !== undefined);
+  const views: View[] = [
+    "all",
+    ...(onBoard.length >= 2 ? (["dinner"] as const) : []),
+    ...(new Set(onBoard.map((d) => d.planId ?? "earlier")).size >= 2 ? (["plan"] as const) : []),
+  ];
+  const shown = views.includes(view) ? view : "all";
   return (
     <div className="flex flex-col gap-4">
       {nextWeek && (
@@ -85,26 +93,52 @@ export default function ListPage() {
         </p>
       ) : (
         <>
-          {scheduled >= 2 && (
+          {views.length > 1 && (
             <div className="flex self-start rounded-full border-2 border-ink bg-white p-0.5 text-sm font-black" role="radiogroup" aria-label="Arrange the list">
-              {([false, true] as const).map((d) => (
+              {views.map((v) => (
                 <button
-                  key={String(d)}
+                  key={v}
                   type="button"
                   role="radio"
-                  aria-checked={byDinner === d}
+                  aria-checked={shown === v}
                   onClick={() => {
-                    setByDinner(d);
-                    localStorage.setItem("listView", d ? "dinner" : "all");
+                    setView(v);
+                    localStorage.setItem("listView", v);
                   }}
-                  className={`rounded-full px-3 py-1 ${byDinner === d ? "bg-ink text-chalk" : "text-ink-soft"}`}
+                  className={`rounded-full px-3 py-1 ${shown === v ? "bg-ink text-chalk" : "text-ink-soft"}`}
                 >
-                  {d ? "By dinner" : "All items"}
+                  {VIEW_LABEL[v]}
                 </button>
               ))}
             </div>
           )}
-          {grouped ? (
+          {shown === "plan" ? (
+            groupByPlan(items, dinners).map((g) => (
+              <section key={g.title} className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-end justify-between gap-2">
+                  <h2 className="font-sign text-lg leading-tight">
+                    {g.title}{" "}
+                    <span className="font-sans text-sm font-extrabold text-ink-soft">
+                      · {g.items.length} {g.items.length === 1 ? "item" : "items"} · {formatMoney(g.cost)}
+                    </span>
+                  </h2>
+                  {g.planId && g.items.some((e) => e.item.paid === undefined) && (
+                    <SendToInstacart body={{ offset, planId: g.planId }} label="Send this plan to Instacart" />
+                  )}
+                </div>
+                <ul className="flex flex-col gap-3">
+                  {g.items.map(({ item, sharedWith }) => (
+                    <ListRow
+                      key={item._id}
+                      item={item}
+                      krogerStoreId={viewing.storeId}
+                      note={sharedWith.length ? `shared · also in ${sharedWith.join(" · ")}` : undefined}
+                    />
+                  ))}
+                </ul>
+              </section>
+            ))
+          ) : shown === "dinner" ? (
             groupByDinner(items, dinners, (d) => `${dayLabel(viewing.startDate, d.dayIndex)} · ${d.name}`).map((g) => (
               <section key={g.title} className="flex flex-col gap-2">
                 <h2 className="font-sign text-lg leading-tight">

@@ -66,6 +66,7 @@ export const usePlan = mutation({
       (args.mode === "add" ? existing : []).flatMap((m) => (m.dayIndex === undefined ? [] : [m.dayIndex])),
     );
     const days = openDays(week.startDate, Date.now(), taken);
+    const planId = `plan-${Date.now().toString(36)}`; // groups these dinners as one plan on the List
 
     for (const [n, m] of args.meals.entries()) {
       let recipeId = m.recipeId ? ctx.db.normalizeId("recipes", m.recipeId) : null;
@@ -88,6 +89,7 @@ export const usePlan = mutation({
         servings: m.servings,
         recipeId: recipeId ?? undefined,
         dayIndex: days[n], // undefined when the week is full → an Idea
+        planId,
         ingredients: m.ingredients.slice(0, 40).map((i) => ({ ...i, name: i.name.slice(0, 80), unit: i.unit.slice(0, 20) })),
         products: m.products.slice(0, 40),
       });
