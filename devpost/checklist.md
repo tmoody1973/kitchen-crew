@@ -121,7 +121,7 @@ Build mode: learn
 
   Progress (built and verified by Claude): 7 barcode tests (UPC-A, EAN-13 with a leading 0, foreign EAN, UPC-E, store sticker, misreads rejected, typed spaces); real lookups of 4 barcodes at Pick 'n Save return the right products and prices (Heinz, Cheerios, Coke 2 L, Coke can via UPC-E); end-to-end camera test in Chrome with a fake camera showing a sticker barcode: decoded in ~50 ms and the sheet asked "Sticker price $19.95. Which item is it?" (closed without writing); `next build` passes with the reader loaded only on Scan. Tarik's phone check moved to 6-ship (his call): the camera needs https, which the Vercel deploy provides; box stays unticked until then.
 
-- [ ] **11. Send your list to Instacart**
+- [x] **11. Send your list to Instacart**
   Becomes usable: A "Send to Instacart" button on the Shopping List (and on a recipe) opens Instacart with the items pre-filled, so Tarik can pick a store and check out for delivery; the tally still tracks what he spends when he types the Instacart prices into the paid boxes.
   Why now: Tarik orders groceries from Instacart often; he asked for it as the final slice, after everything else is built. Reopens scope's "Later: Instacart integration" at his request.
   PRD ref: `prd.md > Deferred From the POC` (Instacart, now reopened), `prd.md > Shopping List and Prices`
@@ -130,6 +130,7 @@ Build mode: learn
   Verify (mechanical): A scripted request with 3 real list items returns a working Instacart link; `npm run build` succeeds.
   Learner check: Tap Send to Instacart from a real list, check the items arrive in Instacart correctly, and (optionally) place an order.
   Commit: `feat: send shopping list to Instacart`
+  Progress (built and verified by Claude): 4 tests (UPC rebuilt from productId, unpaid rows only and one line per product, recipe units, made-in-recipe left out); scripted sandbox list (Heinz, Coca-Cola, green onions) and recipe links both opened with the right products at Pick 'n Save; the real button on Tarik's list opened "Mise · this week's groceries" with 23 items = 25 rows minus 2 already paid; `next build` passes. Found: the key is a development key (sandbox store, no real orders); packaged items arrive as quantity 1 on the sandbox whatever is sent.
 
 ## Hands-on Checkpoints
 

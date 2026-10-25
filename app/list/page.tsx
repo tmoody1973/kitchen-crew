@@ -8,6 +8,7 @@ import { Doc } from "@/convex/_generated/dataModel";
 import TallyHeader from "@/components/TallyHeader";
 import ListRow from "@/components/ListRow";
 import BarcodeScanner from "@/components/BarcodeScanner";
+import SendToInstacart from "@/components/SendToInstacart";
 import { isWeekActive } from "@/lib/tally";
 import { groupByDinner } from "@/lib/list-groups";
 import { dayLabel } from "@/lib/weeks";
@@ -69,6 +70,7 @@ export default function ListPage() {
       <div className="flex flex-wrap gap-2">
         <BarcodeScanner items={items} storeId={viewing.storeId} offset={offset} />
         {offset === 0 && <AddRegulars krogerStoreId={week.storeId} />}
+        {items.some((i) => i.paid === undefined) && <SendToInstacart body={{ offset }} />}
       </div>
       {items.length === 0 ? (
         <p className="rounded-2xl border-2 border-dashed border-line p-5 text-center font-bold text-ink-soft">

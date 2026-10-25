@@ -10,6 +10,7 @@ import { scaleIngredients } from "@/lib/recipes/scale";
 import { formatAmount, type UnitSystem } from "@/lib/recipes/units";
 import { formatServings, targetServings } from "@/lib/household";
 import TagEditor from "@/components/TagEditor";
+import SendToInstacart from "@/components/SendToInstacart";
 
 const BADGE = { web: { label: "Website", Icon: Globe }, youtube: { label: "YouTube", Icon: PlayCircle }, crew: { label: "Mise crew", Icon: ChefHat } } as const;
 
@@ -170,6 +171,12 @@ export default function RecipePage() {
         </section>
       )}
       </>
+      )}
+
+      {!recipe.unread && (
+        <div className="self-center">
+          <SendToInstacart body={{ recipeId: recipe._id, servings: cookFor }} label={`Send ${formatServings(cookFor)} servings to Instacart`} />
+        </div>
       )}
 
       {recipe.sourceUrl && (
