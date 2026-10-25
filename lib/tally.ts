@@ -52,3 +52,14 @@ export function formatMoney(dollars: number): string {
     maximumFractionDigits: digits,
   });
 }
+
+/** Row color: green when paid ≤ estimate, orange when paid more, neutral until both are known. */
+export function rowStatus(estimate: number | undefined, paid: number | undefined): "under" | "over" | "none" {
+  if (estimate === undefined || paid === undefined) return "none";
+  return toCents(paid) <= toCents(estimate) ? "under" : "over";
+}
+
+/** Estimated cost of a row: price per package × packages. */
+export function estimateTotal(estimate: number | undefined, packs = 1): number | undefined {
+  return estimate === undefined ? undefined : (toCents(estimate) * packs) / 100;
+}

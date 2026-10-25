@@ -54,6 +54,10 @@ Source: `scope.md > The POC Boundary` (Kroger prices).
 - As Tarik, I want a shopping list with real store prices so that I know what the plan should cost before I'm in the aisle.
   - [ ] Each row shows the item, its Kroger estimated price, and an empty actual-paid box.
   - [ ] If Kroger has no price, the row says "no price found" and Tarik can type an estimate.
+  - [ ] Tarik picks which nearby Pick 'n Save or Metro Market he's shopping at; prices come from that store, and switching stores re-prices the list (estimates he typed stay). *Added in build (slice 2) at Tarik's request: he shops at several stores.*
+  - [ ] He can pick a different brand/size from Kroger's top matches, and set how many packages he's buying. *(Added in build, slice 2.)*
+  - [ ] He can add a non-Kroger store (Sendik's, Whole Foods); while there, each row compares what he paid to the Kroger price. *(Added in build, slice 2.)*
+  - [ ] Plan ingredients carry amounts, priced as the whole packages he'd buy. *(Added in build; delivered in slices 3–4.)*
 
 ### Running Tally
 Source: `scope.md > The Unique Kernel`.

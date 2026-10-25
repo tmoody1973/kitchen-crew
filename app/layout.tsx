@@ -24,6 +24,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <nav className="flex items-center gap-4 font-bold text-slate-600">
               <Link href="/budget">Budget</Link>
               <Link href="/plan">Plan</Link>
+              <Link href="/list">List</Link>
               <UserButton />
             </nav>
           </header>

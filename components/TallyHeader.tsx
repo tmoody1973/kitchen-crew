@@ -8,7 +8,8 @@ import { computeTally, formatMoney, isWeekActive } from "@/lib/tally";
 // "$142 of $200 this week · $58 left · 4 days left", plus whether you're under or over.
 export default function TallyHeader() {
   const week = useQuery(api.weeks.latest);
-  if (week === undefined) return null;
+  const items = useQuery(api.listItems.mine);
+  if (week === undefined || items === undefined) return null;
 
   const now = Date.now();
   if (week === null || !isWeekActive(week.startDate, now)) {
@@ -19,8 +20,12 @@ export default function TallyHeader() {
     );
   }
 
-  // ponytail: no list items until slice 2, so nothing is paid yet.
-  const t = computeTally(week.budget, [], week.startDate, now);
+  const t = computeTally(
+    week.budget,
+    items.map((i) => i.paid),
+    week.startDate,
+    now,
+  );
   const under = t.status === "under";
   return (
     <section

@@ -84,11 +84,11 @@ The fixed set of generated-UI pieces: Budget Card (amount, plan level, Use butto
 PRD ref: `prd.md > Screens and Layout`, `prd.md > Meal Planning Chat`.
 
 ### Kroger Client (`lib/kroger.ts`)
-Server-only. Gets an access token, finds the home store from `KROGER_ZIP` once, searches each ingredient, and returns the first result's price (promo if present, else regular) or "no price". Caches the token in memory until it expires.
+Server-only. Gets an access token, lists Kroger-family stores within 10 miles of `KROGER_ZIP` (closest first) for the store picker, searches each ingredient at the chosen store, and returns the first result's price (promo if present, else regular) or "no price". Caches the token in memory until it expires.
 PRD ref: `prd.md > Shopping List and Prices`.
 
 ### Shopping List Screen
-Reads the week's list items live from Convex. Each row: item, Kroger estimate (or "no price found" with an editable estimate), and a paid box using the number keypad. Saving a price writes to Convex; the row color updates.
+Store picker at the top ("Shopping at"): the choice is saved on the week and carried into the next week; switching stores re-prices Kroger-priced and "no price found" rows (estimates Tarik typed are kept). Reads the week's list items live from Convex. Each row: item, Kroger estimate (or "no price found" with an editable estimate), and a paid box using the number keypad. Saving a price writes to Convex; the row color updates.
 PRD ref: `prd.md > Shopping List and Prices`, `prd.md > Running Tally`.
 
 ### Tally Header and Budget Math (`lib/tally.ts`)
@@ -98,9 +98,10 @@ PRD ref: `prd.md > Running Tally`.
 ## Data Model
 All in Convex, every record tagged with the signed-in user's ID.
 
-- **weeks** — `userId`, `budget` (number), `planLevel` ("thrifty" | "low" | "moderate" | "custom"), `startDate`. Created at budget setup. The "active week" is the latest one less than 7 days old; after 7 days, Budget Setup appears again (`prd.md > States and Boundaries > Week boundary`).
+- **weeks** — `userId`, `budget` (number), `planLevel` ("thrifty" | "low" | "moderate" | "custom"), `startDate`, `storeId` / `storeName` (the store being shopped; optional). Created at budget setup. The "active week" is the latest one less than 7 days old; after 7 days, Budget Setup appears again (`prd.md > States and Boundaries > Week boundary`).
 - **meals** — `weekId`, `day`, `name`, `estimatedCost`. Written when Tarik taps "Use this plan". Replaced if he uses a new plan.
-- **listItems** — `weekId`, `name`, `estimate` (number or empty), `estimateSource` ("kroger" | "manual"), `paid` (number or empty). Created from the plan's ingredients, merging identical names across meals into one row; `paid` updated in the store.
+- **listItems** — `weekId`, `name`, `estimate` (price per package, or empty), `estimateSource` ("kroger" | "manual"), `productId` / `productName` / `size` (chosen Kroger product), `packs` (packages to buy), `paid` (number or empty). Slice 3–4 add `amount` / `unit` from recipes.
+- **otherStores** — `userId`, `name`. Non-Kroger stores Tarik has added; the week's `otherStore` says he's shopping at one. Created from the plan's ingredients, merging identical names across meals into one row; `paid` updated in the store.
 
 Leaving and coming back: everything is in Convex, so any device shows the same week after sign-in. The chat conversation itself is **not** saved; only the plan it produced is (see Simplified).
 
@@ -114,7 +115,10 @@ kitchen-crew/
 │   ├── budget/page.tsx         # Budget Setup Screen
 │   ├── plan/page.tsx           # Planner Chat (renders cards)
 │   ├── list/page.tsx           # Shopping List Screen
-│   └── api/chat/route.ts       # Chat Route: Claude + tools
+│   └── api/
+│       ├── chat/route.ts       # Chat Route: Claude + tools
+│       ├── price/route.ts      # Kroger prices for item names at a store
+│       └── stores/route.ts     # nearby Kroger-family stores
 ├── components/
 │   ├── TallyHeader.tsx         # spent / left / days left, under/over
 │   ├── ListRow.tsx             # item · estimate · paid box, color state
@@ -144,7 +148,7 @@ kitchen-crew/
 
 ### Kroger Public API
 Docs: https://developer.kroger.com/documentation/public/getting-started/quick-start · Products API reference on developer.kroger.com.
-**Unverified — automated reads of the docs were blocked during planning. Check these against the docs (or one test call) as the first Kroger step of the build:**
+**Verified in build (slice 2) with `scripts/kroger-probe.mjs`: token, locations, and products calls work as below (token lasts 1800 s).**
 - Token: `POST https://api.kroger.com/v1/connect/oauth2/token`, body `grant_type=client_credentials&scope=product.compact`, header `Authorization: Basic base64(client_id:client_secret)` → `{ access_token, expires_in }` (~30 min).
 - Store lookup: `GET https://api.kroger.com/v1/locations?filter.zipCode.near={KROGER_ZIP}&filter.limit=1` → `data[0].locationId`.
 - Price search: `GET https://api.kroger.com/v1/products?filter.term={ingredient}&filter.locationId={id}&filter.limit=1` → `data[0].items[0].price.regular` / `.promo` (prices appear only when a `locationId` is given).
@@ -175,10 +179,11 @@ Docs: https://vercel.com/docs · Hobby plan, free. Same env vars set in project 
 ## What Was Simplified and Why
 - **Fixed cards** instead of open-ended generated UI — readable, debuggable, matches the learning goal. Fuller version: an OpenUI-style renderer letting Claude compose new components.
 - **Chat history not saved** — only the resulting plan is. Fuller version: a messages table in Convex.
-- **First Kroger search result = the price** — no picking between brands or sizes. Fuller version: show a few matches and let Tarik choose.
+- **Kroger's top match is the default product**; Tarik can tap "Change brand" to pick from the top 5 (brand · size · price). The chosen product is saved and re-priced by ID when he switches stores. *(Changed in build, slice 2.)*
 - **USDA numbers copied in once** instead of fetched — the reports are monthly PDFs. Fuller version: a scheduled job that reads each new report.
-- **Ingredient quantities not priced precisely** — a "chicken thighs" search prices one package. Good enough to estimate a plan; the paid box holds the truth.
-- **One home store from the ZIP** — no store picker.
+- **Quantities priced as whole packages** *(changed in build)*: Claude returns each ingredient with an amount and unit; code reads Kroger's package size ("1 lb", "24 ct"), converts units, adds amounts across meals, then rounds up to packages (cost to buy). Unconvertible units fall back to 1 package marked "check amount"; pantry staples are flagged "probably have it" and add $0 until needed. Rows have a pack count (×1, ×2…) Tarik can change.
+- **Other stores without prices** *(added in build)*: Tarik can add non-Kroger stores (Sendik's, Whole Foods); while shopping there, rows compare what he paid against Kroger prices from the last Kroger store he picked. Price history across stores stays Later.
+- **Stores limited to Kroger-family stores near the ZIP** (Pick 'n Save, Metro Market) — other chains show "no price found".
 
 ## Decisions and Open Issues
 
@@ -188,7 +193,7 @@ Docs: https://vercel.com/docs · Hobby plan, free. Same env vars set in project 
 - Fixed cards (recommended) over OpenUI-style.
 - Convex for data (his usual tool), over local storage.
 - Clerk for sign-in, over Vercel's protection toggle.
-- Home store from ZIP code, kept in `.env.local`.
+- Store picker (changed in build, slice 2): he shops several Pick 'n Save and Metro Market stores, so he picks the store per trip; switching re-prices the list. ZIP in `.env.local` sets the area.
 - Household: 2 adults + 16-year-old son, for the USDA calculation.
 
 **Derived by Claude (implementation detail)**
