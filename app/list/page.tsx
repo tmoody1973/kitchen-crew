@@ -8,6 +8,8 @@ import { Doc } from "@/convex/_generated/dataModel";
 import TallyHeader from "@/components/TallyHeader";
 import ListRow from "@/components/ListRow";
 import { isWeekActive } from "@/lib/tally";
+import { groupByDinner } from "@/lib/list-groups";
+import { dayLabel } from "@/lib/weeks";
 import { fetchPrices } from "@/lib/kroger-client";
 import { ShoppingBasket } from "lucide-react";
 
@@ -19,7 +21,13 @@ export default function ListPage() {
   const nextWeek = useQuery(api.weeks.byOffset, { offset: 1 });
   const [offset, setOffset] = useState(0);
   const items = useQuery(api.listItems.mine, { offset });
-  if (week === undefined || items === undefined || nextWeek === undefined) return null;
+  const dinners = useQuery(api.plans.meals, { offset });
+  // "All items" (one merged list, for the aisle) or "By dinner" (for prep night), remembered on this device.
+  const [byDinner, setByDinner] = useState(false);
+  useEffect(() => {
+    if (localStorage.getItem("listView") === "dinner") setByDinner(true);
+  }, []);
+  if (week === undefined || items === undefined || nextWeek === undefined || dinners === undefined) return null;
 
   if (week === null || !isWeekActive(week.startDate, Date.now())) {
     return (
@@ -34,6 +42,8 @@ export default function ListPage() {
   }
 
   const viewing = offset === 1 && nextWeek ? nextWeek : week;
+  const scheduled = dinners.filter((d) => d.dayIndex !== undefined).length;
+  const grouped = byDinner && scheduled >= 2;
   return (
     <div className="flex flex-col gap-4">
       {nextWeek && (
@@ -66,11 +76,52 @@ export default function ListPage() {
           )}
         </p>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {items.map((item) => (
-            <ListRow key={item._id} item={item} krogerStoreId={viewing.storeId} />
-          ))}
-        </ul>
+        <>
+          {scheduled >= 2 && (
+            <div className="flex self-start rounded-full border-2 border-ink bg-white p-0.5 text-sm font-black" role="radiogroup" aria-label="Arrange the list">
+              {([false, true] as const).map((d) => (
+                <button
+                  key={String(d)}
+                  type="button"
+                  role="radio"
+                  aria-checked={byDinner === d}
+                  onClick={() => {
+                    setByDinner(d);
+                    localStorage.setItem("listView", d ? "dinner" : "all");
+                  }}
+                  className={`rounded-full px-3 py-1 ${byDinner === d ? "bg-ink text-chalk" : "text-ink-soft"}`}
+                >
+                  {d ? "By dinner" : "All items"}
+                </button>
+              ))}
+            </div>
+          )}
+          {grouped ? (
+            groupByDinner(items, dinners, (d) => `${dayLabel(viewing.startDate, d.dayIndex)} · ${d.name}`).map((g) => (
+              <section key={g.title} className="flex flex-col gap-2">
+                <h2 className="font-sign text-lg leading-tight">
+                  {g.title} <span className="font-sans text-sm font-extrabold text-ink-soft">· {g.items.length}</span>
+                </h2>
+                <ul className="flex flex-col gap-3">
+                  {g.items.map(({ item, dinners: usedIn }) => (
+                    <ListRow
+                      key={item._id}
+                      item={item}
+                      krogerStoreId={viewing.storeId}
+                      note={usedIn.length > 1 ? `for ${usedIn.join(" · ")}` : undefined}
+                    />
+                  ))}
+                </ul>
+              </section>
+            ))
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {items.map((item) => (
+                <ListRow key={item._id} item={item} krogerStoreId={viewing.storeId} />
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   );

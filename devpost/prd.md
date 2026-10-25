@@ -102,6 +102,7 @@ Source: `scope.md > The POC Boundary` (Kroger prices).
   - [ ] If Kroger has no price, the row says "no price found" and Tarik can type an estimate.
   - [ ] Tarik picks which nearby Pick 'n Save or Metro Market he's shopping at; prices come from that store, and switching stores re-prices the list (estimates he typed stay). *Added in build (slice 2) at Tarik's request: he shops at several stores.*
   - [ ] He can pick a different brand/size from Kroger's top matches, and set how many packages he's buying. *(Added in build, slice 2.)*
+  - [ ] With two or more dinners planned, he can switch the list to **By dinner**: each dinner's ingredients under its own heading, items shared by several dinners shown once on top, and extras/regulars last; same rows and tally. *(Added in build after slice 9, at Tarik's request.)*
   - [ ] He can add a non-Kroger store (Sendik's, Whole Foods); while there, each row compares what he paid to the Kroger price. *(Added in build, slice 2.)*
   - [ ] Plan ingredients carry amounts, priced as the whole packages he'd buy. *(Added in build; delivered in slices 3–4.)*
   - [ ] **My Pantry:** a remembered list of staples he has or is out of; the crew reads it when planning, and pantry chips on the plan card let him mark anything he's out of so it's priced and added. *(Added in build, slice 4, at Tarik's request.)*

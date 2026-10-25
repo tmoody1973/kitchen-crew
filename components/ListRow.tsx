@@ -22,7 +22,8 @@ const STATUS_STYLE = {
 };
 
 // One shopping list row: item · product · packs · estimate · what you paid, colored by how it compares.
-export default function ListRow({ item, krogerStoreId }: { item: Doc<"listItems">; krogerStoreId?: string }) {
+// note: an extra line under the name, e.g. which dinners a shared item is for (the List's "By dinner" view).
+export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"listItems">; krogerStoreId?: string; note?: string }) {
   const setPaid = useMutation(api.listItems.setPaid);
   const setEstimate = useMutation(api.listItems.setEstimate);
   const setPacks = useMutation(api.listItems.setPacks);
@@ -77,6 +78,7 @@ export default function ListRow({ item, krogerStoreId }: { item: Doc<"listItems"
             </button>
             <span className="truncate">{item.name}</span>
           </p>
+          {note && <p className="mt-0.5 truncate text-xs font-extrabold text-ink-soft">{note}</p>}
           {item.productName && (
             <p className="mt-0.5 truncate text-xs font-bold text-ink-soft">
               {item.productName}

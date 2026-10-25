@@ -100,6 +100,13 @@ Build mode: learn
   Also: **auto-tags** (cuisine, main protein, meal type, time, traits like spicy/one-pan/vegetarian) assigned by Claude as recipes arrive (whole playlist tagged in one call at sync); Tarik can add/remove his own tags; a **search box** over titles, ingredients, and tags (Convex text search) plus **tag filter chips** on My Recipes; the crew answers mood-based requests ("something cozy") from the shelf. Vector search and folders stay Later.
   Commit: `feat: YouTube playlist synced into My Recipes, tagged and searchable`
 
+- [x] **9b. See the list by dinner** *(added by Tarik after slice 9)*
+  Becomes usable: with 2+ dinners scheduled, an **All items | By dinner** toggle on the List; by dinner, each dinner's ingredients sit under its day and name, an item merged across dinners shows once under "Shared by 2+ dinners" (naming them), and extras/regulars/hand-added items sit under "Everything else". Same rows, paid boxes, and tally.
+  Build: `lib/list-groups.ts` groups rows against each dinner's stored ingredients by name (no schema change); `ListRow` takes an optional note line.
+  Verify (mechanical): 4 grouping tests (shared first, day order, Ideas and pantry ignored, empty groups dropped); on Tarik's list the toggle shows Shared 1 · Gochujang Chicken 10 · Mongolian Beef 12 · Everything else 2, with 25 rows in both views; phone width 390.
+  Learner check: switch to By dinner, check each dinner's items, tick one paid and see the tally move.
+  Commit: `feat: shopping list grouped by dinner`
+
   Progress (9a, playlist + reading, built and verified by Claude): sync of the real playlist (86 videos) added 86 then 0 on a second run (test user, cleaned up); reading a synced video fills the same entry and clears "not read yet"; 8 link-filter tests from real descriptions; real reads covering a recipe-site link (Din Tai Fung green beans), description/transcript (Pasta al Limone), a blocked site falling back to the transcript (Tan Tan Ramen: site and TinyFish both blocked), and TinyFish rendering pages without recipe data (Basque cheesecake, Singapore noodles; confirmed in TinyFish's usage log); `next build` passes (built in a throwaway copy). 9b (tags + search) built and verified by Claude: 86 real titles auto-tagged in ~21 s with none left empty; 6 filter tests; on Tarik's shelf (84 recipes) the "chicken" chip shows 22; tag editor on the recipe view; phone width checked (also fixed a pre-existing overflow where the recipe view's servings stepper ran off-screen). Search is a browser-side filter instead of Convex text search (see spec > What Was Simplified). 72 tests; `next build` passes.
 
 - [ ] **10. Scan a barcode in the aisle**

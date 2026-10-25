@@ -97,7 +97,7 @@ Server-only. Gets an access token (one shared request even when many searches st
 PRD ref: `prd.md > Shopping List and Prices`.
 
 ### Shopping List Screen
-`app/list/page.tsx`. Store picker at the top ("Shopping at"): Pick 'n Save and Metro Market stores near the ZIP plus non-Kroger stores Tarik added; the choice is saved on the week and carried into the next; switching Kroger stores re-prices Kroger rows by product ID (estimates he typed are kept). Each row (`components/ListRow.tsx`): item, product photo and name, Kroger estimate × packs (or "no price found" with an editable estimate), − / + pack count, "Change brand" (`components/ProductPicker.tsx`), remove, and a paid box with the number keypad. Rows turn green or orange with a sentence saying which. A manual "Add an item" box stays (Tarik's choice).
+`app/list/page.tsx`. Store picker at the top ("Shopping at"): Pick 'n Save and Metro Market stores near the ZIP plus non-Kroger stores Tarik added; the choice is saved on the week and carried into the next; switching Kroger stores re-prices Kroger rows by product ID (estimates he typed are kept). Each row (`components/ListRow.tsx`): item, product photo and name, Kroger estimate × packs (or "no price found" with an editable estimate), − / + pack count, "Change brand" (`components/ProductPicker.tsx`), remove, and a paid box with the number keypad. Rows turn green or orange with a sentence saying which. A manual "Add an item" box stays (Tarik's choice). *Added after slice 9 (Tarik's request):* with 2+ dinners scheduled, an **All items | By dinner** toggle (remembered per device) regroups the same rows by dinner (`lib/list-groups.ts`, matched against each dinner's stored ingredients by name; no new data): "Shared by 2+ dinners" first (shown once, with a "for …" line naming the dinners, so a merged 3-pack never looks bought twice), then each dinner in day order, then "Everything else" (extras, regulars, hand-added).
 PRD ref: `prd.md > Shopping List and Prices`, `prd.md > Running Tally`.
 
 ### Tally Header and Budget Math (`lib/tally.ts`)
@@ -162,7 +162,7 @@ components/
   TallyHeader · ListRow · ProductPicker · HouseholdSettings · ExtrasSplit · RegularsSection · ChatMenu · ConvexClientProvider
   cards/  BudgetCard · BudgetFit · MealPlanCard · PlanResult · PricingProgress · PantryChips · RecipeCard
 lib/
-  tally.ts · usda.ts · household.ts · quantities.ts · meal-plan.ts · pick-products.ts · staff-prompt.ts
+  tally.ts · usda.ts · household.ts · quantities.ts · meal-plan.ts · list-groups.ts · pick-products.ts · staff-prompt.ts
   kroger.ts (server) · kroger-client.ts (browser)
   recipes/  import · youtube · playlist · links · tags · auto-tag · filter · safe-url · scale · units · parseJsonLdRecipe · parseMicrodataRecipe · youtubeUrlParser · recipeTypes
   convex-token.ts            # sign-in pass for server routes calling Convex
