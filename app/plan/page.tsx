@@ -9,6 +9,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import TallyHeader from "@/components/TallyHeader";
 import ChatMenu from "@/components/ChatMenu";
+import WeekRail from "@/components/WeekRail";
 import PlanResult from "@/components/cards/PlanResult";
 import BudgetCard, { type BudgetSuggestion } from "@/components/cards/BudgetCard";
 import RecipeCard, { type RecipeImport } from "@/components/cards/RecipeCard";
@@ -127,8 +128,13 @@ function ChatView({
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-28">
-      <TallyHeader />
+    // Laptop: the chat on the left, the tally and this week's dinners pinned on the right. Phone: tally on top, then the chat.
+    <div className="flex flex-col gap-4 pb-28 lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8">
+      <aside className="flex flex-col gap-4 lg:sticky lg:top-20 lg:col-start-2 lg:row-start-1">
+        <TallyHeader />
+        <WeekRail />
+      </aside>
+      <div className="flex min-w-0 flex-col gap-4 lg:col-start-1 lg:row-start-1">
       <ChatMenu currentId={savedId.current} />
 
       {messages.length === 0 && (
@@ -240,9 +246,11 @@ function ChatView({
         </div>
       )}
       <div ref={bottom} />
+      </div>
 
       <form onSubmit={send} className="fixed inset-x-0 bottom-0 z-10 border-t-2 border-line bg-ground/95 py-3 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-xl gap-2 px-3">
+        {/* Laptop: lines up under the chat column (page padding + rail + gap kept clear on the right). */}
+        <div className="mx-auto flex max-w-xl gap-2 px-3 lg:max-w-6xl lg:pl-8 lg:pr-[24rem]">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}

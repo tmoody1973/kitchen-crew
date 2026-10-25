@@ -23,7 +23,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="font-sans antialiased">
         <ClerkProvider dynamic>
           <Nav />
-          <main className="mx-auto max-w-xl px-3 py-4">
+          <main className="mx-auto max-w-xl px-3 py-4 lg:max-w-6xl lg:px-8 lg:py-6">
             <ConvexClientProvider>{children}</ConvexClientProvider>
           </main>
         </ClerkProvider>

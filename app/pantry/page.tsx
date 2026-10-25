@@ -30,7 +30,9 @@ export default function PantryPage() {
   const out = pantry.filter((p) => !p.have);
 
   return (
-    <div className="flex flex-col gap-4">
+    // Laptop: pantry and regulars side by side. Phone: pantry, then regulars.
+    <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
+      <div className="flex flex-col gap-4">
       <header>
         <h1 className="sign">My Pantry</h1>
         <p className="mt-1 font-bold text-ink-soft">
@@ -85,6 +87,7 @@ export default function PantryPage() {
           ))}
         </ul>
       )}
+      </div>
       <RegularsSection />
     </div>
   );

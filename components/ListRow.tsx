@@ -59,8 +59,9 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
 
   const CategoryIcon = category === "dinner" ? Utensils : ShoppingBasket;
   return (
-    <li className={`flex flex-col gap-2 rounded-2xl border-2 p-3 ${STATUS_STYLE[status]}`}>
-      <div className="flex items-center gap-3">
+    // Laptop: one line (item · packs and actions · price and paid); the verdict and pickers wrap underneath.
+    <li className={`flex flex-col gap-2 rounded-2xl border-2 p-3 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-5 lg:gap-y-1.5 lg:py-2.5 ${STATUS_STYLE[status]}`}>
+      <div className="flex items-center gap-3 lg:min-w-[15rem] lg:flex-1">
         {item.imageUrl && (
           // eslint-disable-next-line @next/next/no-img-element -- tiny Kroger thumbnail, no optimizer needed
           <img src={item.imageUrl} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-lg bg-white object-contain" />
@@ -109,7 +110,7 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
       </div>
 
       {/* Price line: the shelf tag on the left, the paid box on the right (within thumb reach). */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 lg:order-3">
         {item.estimate !== undefined && (
           <span className="tag text-base" title={`${item.estimateSource === "kroger" ? "Kroger" : "Your"} estimate`}>
             <span className="sr-only">{item.estimateSource === "kroger" ? "Kroger estimate " : "Your estimate "}</span>
@@ -127,13 +128,13 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
             onChange={(e) => setPaidText(e.target.value)}
             onBlur={savePaid}
             onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
-            className="field w-24 py-3 text-right text-lg"
+            className="field w-24 py-3 text-right text-lg lg:py-2"
           />
         </label>
       </div>
 
       {status !== "none" && (
-        <p className={`flex items-center gap-1 text-sm font-extrabold ${status === "under" ? "text-kale-ink" : "text-squash-ink"}`}>
+        <p className={`flex items-center gap-1 text-sm font-extrabold lg:order-4 lg:basis-full ${status === "under" ? "text-kale-ink" : "text-squash-ink"}`}>
           {status === "under" ? <Check size={16} strokeWidth={3} aria-hidden /> : <TrendingUp size={16} strokeWidth={3} aria-hidden />}
           {status === "under"
             ? `Nice! ${formatMoney(total! - item.paid!)} under ${versus}`
@@ -141,7 +142,7 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
         </p>
       )}
 
-      <div className="flex items-center gap-2 text-sm font-bold text-ink-soft">
+      <div className="flex items-center gap-2 text-sm font-bold text-ink-soft lg:order-2">
         <span className="flex items-center gap-1.5" aria-label={`${packs} ${packs === 1 ? "package" : "packages"}`}>
           <button
             type="button"
@@ -174,11 +175,12 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
           className="ml-auto flex items-center gap-1 rounded-full px-2 py-2 hover:bg-line"
           aria-label={`Remove ${item.name}`}
         >
-          <X size={16} strokeWidth={3} aria-hidden /> Remove
+          <X size={16} strokeWidth={3} aria-hidden /> <span className="lg:sr-only">Remove</span>
         </button>
       </div>
 
       {picking && krogerStoreId && (
+        <div className="lg:order-5 lg:basis-full">
         <ProductPicker
           name={item.name}
           storeId={krogerStoreId}
@@ -189,8 +191,9 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
           }}
           onClose={() => setPicking(false)}
         />
+        </div>
       )}
-      {error && <p className="text-sm font-bold text-tomato-dark" role="alert">{error}</p>}
+      {error && <p className="text-sm font-bold text-tomato-dark lg:order-5 lg:basis-full" role="alert">{error}</p>}
     </li>
   );
 }

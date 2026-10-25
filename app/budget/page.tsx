@@ -17,9 +17,12 @@ export default function BudgetPage() {
   const active = week !== null && isWeekActive(week.startDate, Date.now());
   // key resets the form when the saved budget changes
   return (
-    <div className="flex flex-col gap-4">
-      <BudgetForm key={week?._id ?? "new"} current={active ? week.budget : undefined} />
-      <ExtrasSplit />
+    // Laptop: budget and its split on the left, household on the right. Phone: stacked in the same order.
+    <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-8">
+      <div className="flex flex-col gap-4">
+        <BudgetForm key={week?._id ?? "new"} current={active ? week.budget : undefined} />
+        <ExtrasSplit />
+      </div>
       <HouseholdSettings />
     </div>
   );

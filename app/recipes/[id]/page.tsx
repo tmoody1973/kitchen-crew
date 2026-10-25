@@ -81,7 +81,7 @@ export default function RecipePage() {
   const ingredients = scaleIngredients(recipe.ingredients, recipe.servings, cookFor);
 
   return (
-    <article className="flex flex-col gap-4 pb-8">
+    <article className="flex flex-col gap-4 pb-8 lg:grid lg:grid-cols-[20rem_minmax(0,1fr)] lg:grid-rows-[auto_auto_auto_auto_auto_1fr] lg:items-start lg:gap-x-8">
       <div className="relative overflow-hidden rounded-2xl bg-line">
         {recipe.imageUrl && (
           // eslint-disable-next-line @next/next/no-img-element -- recipe photo from the source site
@@ -105,10 +105,7 @@ export default function RecipePage() {
       </div>
       <TagEditor id={recipe._id} tags={recipe.tags ?? []} />
 
-      {recipe.unread ? (
-        <ReadingPanel id={recipe._id} />
-      ) : (
-      <>
+      {!recipe.unread && (
       <div className="grid grid-cols-2 gap-2 crate p-4 text-center font-bold">
         <div>
           <p className="text-xs uppercase text-ink-soft">Time</p>
@@ -119,7 +116,14 @@ export default function RecipePage() {
           <p className="text-lg font-black">serves {formatServings(recipe.servings)}</p>
         </div>
       </div>
+      )}
 
+      {/* Laptop: ingredients and steps fill the right side (side by side on wide screens) so cooking needs no scrolling back. */}
+      <div className="flex flex-col gap-4 lg:col-start-2 lg:row-span-6 lg:row-start-1 xl:grid xl:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] xl:items-start">
+      {recipe.unread ? (
+        <ReadingPanel id={recipe._id} />
+      ) : (
+      <>
       <section className="flex flex-col gap-3 crate p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-sign text-xl">Ingredients</h2>
@@ -172,15 +176,16 @@ export default function RecipePage() {
       )}
       </>
       )}
+      </div>
 
       {!recipe.unread && (
-        <div className="self-center">
+        <div className="self-center lg:self-start">
           <SendToInstacart body={{ recipeId: recipe._id, servings: cookFor }} label={`Send ${formatServings(cookFor)} servings to Instacart`} />
         </div>
       )}
 
       {recipe.sourceUrl && (
-        <a href={recipe.sourceUrl} target="_blank" rel="noopener noreferrer" className="btn-crate self-center">
+        <a href={recipe.sourceUrl} target="_blank" rel="noopener noreferrer" className="btn-crate self-center lg:self-start">
           {recipe.sourceType === "youtube" ? "Watch the video" : "Original recipe"} <ArrowUpRight size={16} strokeWidth={3} aria-hidden />
         </a>
       )}

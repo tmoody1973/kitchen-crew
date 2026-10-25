@@ -47,7 +47,7 @@ export default function RegularsSection() {
 
   if (!regulars || !household) return null;
   return (
-    <section className="ruled flex flex-col gap-3">
+    <section className="ruled flex flex-col gap-3 lg:border-t-0 lg:pt-0">
       <div>
         <h2 className="sign text-2xl">Regulars</h2>
         <p className="font-bold text-ink-soft">Things you buy most weeks. They go on the list as extras.</p>

@@ -27,7 +27,7 @@ function ScrollPin({ children, slim }: { children: ReactNode; slim: ReactNode })
       <div ref={board}>{children}</div>
       {/* Floats over the page (no layout jump); hidden from screen readers, which hear the big board's updates. */}
       {top !== null && (
-        <div className="fixed inset-x-0 z-10 mx-auto max-w-xl bg-ground/95 px-3 pb-1.5 pt-1" style={{ top }} aria-hidden="true">
+        <div className="fixed inset-x-0 z-10 mx-auto max-w-xl bg-ground/95 px-3 pb-1.5 pt-1 lg:hidden" style={{ top }} aria-hidden="true">
           {slim}
         </div>
       )}

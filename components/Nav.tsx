@@ -19,8 +19,8 @@ export default function Nav() {
   const path = usePathname();
   return (
     <header className="sticky top-0 z-20 border-b-2 border-line bg-ground/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-xl items-center gap-1 px-2 py-2">
-        <Link href="/" className="font-sign mr-0.5 text-xl text-tomato" aria-label="Mise home">
+      <div className="mx-auto flex max-w-xl items-center gap-1 px-2 py-2 lg:max-w-6xl lg:px-8">
+        <Link href="/" className="font-sign mr-0.5 text-xl text-tomato lg:text-2xl" aria-label="Mise home">
           Mise
         </Link>
         <nav className="flex flex-1 items-center justify-end gap-0 overflow-x-auto" aria-label="Main">
@@ -31,7 +31,7 @@ export default function Nav() {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex shrink-0 flex-col items-center gap-0.5 rounded-xl px-1 py-1 text-xs font-extrabold ${
+                className={`flex shrink-0 flex-col items-center gap-0.5 rounded-xl px-1 py-1 text-xs font-extrabold lg:flex-row lg:gap-1.5 lg:px-3 lg:py-2 lg:text-sm ${
                   active ? "bg-ink text-chalk" : "text-ink-soft hover:bg-line"
                 }`}
               >

@@ -56,7 +56,9 @@ export default function ListPage() {
   ];
   const shown = views.includes(view) ? view : "all";
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-start lg:gap-8">
+      {/* Laptop: the tally and tools stay pinned on the left while the list scrolls. Phone: the same pieces, stacked. */}
+      <aside className="flex flex-col gap-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pb-2">
       {nextWeek && (
         <div className="flex rounded-full border-2 border-ink bg-white p-0.5 text-sm font-black" role="radiogroup" aria-label="Which week's list">
           {(["This week", "Next week"] as const).map((label, i) => (
@@ -82,6 +84,8 @@ export default function ListPage() {
         {offset === 0 && <AddRegulars krogerStoreId={week.storeId} />}
         {items.some((i) => i.paid === undefined) && <SendToInstacart body={{ offset }} />}
       </div>
+      </aside>
+      <section className="flex min-w-0 flex-col gap-4" aria-label="Shopping list">
       {items.length === 0 ? (
         <p className="rounded-2xl border-2 border-dashed border-line p-5 text-center font-bold text-ink-soft">
           {offset === 1 ? "Nothing for next week yet. Put dinners on next week's board, or add items here." : "Your list is empty. Add an item above, or "}
@@ -165,6 +169,7 @@ export default function ListPage() {
           )}
         </>
       )}
+      </section>
     </div>
   );
 }

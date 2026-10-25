@@ -85,7 +85,9 @@ export default function RecipesPage() {
   const toggle = (t: string) => setChips((c) => (c.includes(t) ? c.filter((x) => x !== t) : [...c, t]));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[18rem_minmax(0,1fr)] lg:items-start lg:gap-8">
+      {/* Laptop: this week, sync, search, and tags stay pinned on the left; recipes fill a photo grid. */}
+      <aside className="flex flex-col gap-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pb-2">
       {meals.length > 0 && (
         <section className="flex flex-col gap-1">
           <h2 className="sign text-2xl">This week&apos;s dinners</h2>
@@ -130,7 +132,7 @@ export default function RecipesPage() {
             />
           </label>
           {chipTags.length > 0 && (
-            <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none]" role="group" aria-label="Filter by tag">
+            <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] lg:mx-0 lg:flex-wrap lg:overflow-visible lg:px-0" role="group" aria-label="Filter by tag">
               {chipTags.map((t) => (
                 <button
                   key={t}
@@ -153,6 +155,8 @@ export default function RecipesPage() {
         </div>
       )}
 
+      </aside>
+      <section className="flex min-w-0 flex-col gap-4" aria-label="Saved recipes">
       {recipes.length > 0 && shown.length === 0 && (
         <div className="crate flex flex-col items-start gap-2 p-4">
           <p className="font-bold text-ink-soft">No recipes match.</p>
@@ -160,18 +164,18 @@ export default function RecipesPage() {
         </div>
       )}
 
-      {shown.length > 0 && <ul className="crate px-3">
+      {shown.length > 0 && <ul className="crate px-3 lg:grid lg:grid-cols-3 lg:gap-4 lg:border-0 lg:bg-transparent lg:px-0 xl:grid-cols-4">
         {shown.map((r) => (
-          <li key={r._id} className="row-rule flex items-center gap-3 py-3">
-            <Link href={`/recipes/${r._id}`} className="flex min-w-0 flex-1 items-center gap-3">
-              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-line">
+          <li key={r._id} className="row-rule flex items-center gap-3 py-3 lg:relative lg:flex-col lg:items-stretch lg:gap-0 lg:overflow-hidden lg:rounded-2xl lg:border-2 lg:border-solid lg:border-line lg:bg-white lg:py-0">
+            <Link href={`/recipes/${r._id}`} className="flex min-w-0 flex-1 items-center gap-3 lg:flex-col lg:items-stretch lg:gap-0">
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-line lg:aspect-video lg:h-auto lg:w-full lg:rounded-none">
                 {r.imageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element -- recipe photo from the source site
                   <img src={r.imageUrl} alt="" className="h-full w-full object-cover" />
                 )}
                 <SourceBadge type={r.sourceType} />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 lg:p-3">
                 <p className="line-clamp-2 font-black leading-snug">{r.title}</p>
                 <p className="text-sm font-bold text-ink-soft">
                   {r.unread ? (
@@ -187,7 +191,7 @@ export default function RecipesPage() {
             <button
               type="button"
               onClick={() => remove({ id: r._id })}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft hover:bg-line"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-ink-soft hover:bg-line lg:absolute lg:right-2 lg:top-2 lg:bg-white/90 lg:text-ink"
               aria-label={`Remove ${r.title}`}
             >
               <X size={16} strokeWidth={3} aria-hidden />
@@ -195,6 +199,7 @@ export default function RecipesPage() {
           </li>
         ))}
       </ul>}
+      </section>
     </div>
   );
 }

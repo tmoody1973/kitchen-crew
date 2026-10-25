@@ -149,6 +149,7 @@ Build mode: learn
 - [x] List "By plan" view (Tarik, kick-the-tires: "a list per plan"): each plan's items under its dinners, its cost (paid where paid, else estimate), "Send this plan to Instacart"; an item two plans share stays one row, shown in both and marked shared; dinners from before plans were tracked show as "Earlier dinners".
 - [x] Final review complete — feedback resolved and learner confirms ready to ship
 - [ ] After review (Tarik): keep the tally visible while scrolling — a slim pinned tally bar appears under the top menu once the big board scrolls away.
+- [ ] After review (Tarik): laptop layouts with less scrolling, phones unchanged — List sidebar + compact rows (5.9 → 3.6 screens at 1440×900), Recipes sidebar + photo grid (9.8 → 5.9), recipe view in columns, Plan with a pinned week rail, Pantry and Budget side by side.
 
 ## Code Tour and App Map
 
