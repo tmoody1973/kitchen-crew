@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* Base playful palette; /impeccable refines this in slice 5. */
+@theme {
+  --color-leaf: #58cc02;
+  --color-leaf-dark: #46a302;
+  --color-carrot: #ff9600;
+  --color-carrot-dark: #e08600;
+  --font-sans: var(--font-nunito), ui-rounded, system-ui, sans-serif;
+}
+
+body {
+  background: #f7f7f2;
+  color: #1f2937;
+}

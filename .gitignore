@@ -1,0 +1,23 @@
+# private learner context
+/devpost/learner-profile.md
+
+# secrets (key-free .env.example is committed)
+.env
+.env.*
+!.env.example
+/.clerk/
+
+# dependencies and build output
+/node_modules
+/.next/
+/out/
+/build
+/coverage
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
+.DS_Store
+.remember/
+npm-debug.log*
