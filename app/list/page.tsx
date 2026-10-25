@@ -9,6 +9,7 @@ import TallyHeader from "@/components/TallyHeader";
 import ListRow from "@/components/ListRow";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import SendToInstacart from "@/components/SendToInstacart";
+import CompareStores from "@/components/CompareStores";
 import { isWeekActive } from "@/lib/tally";
 import { groupByDinner } from "@/lib/list-groups";
 import { dayLabel } from "@/lib/weeks";
@@ -66,6 +67,7 @@ export default function ListPage() {
       )}
       <TallyHeader offset={offset} />
       {offset === 0 && <StorePicker week={week} items={items} />}
+      {offset === 0 && <CompareStores items={items} defaultStoreId={week.storeId} />}
       <AddItem krogerStoreId={viewing.storeId} offset={offset} />
       <div className="flex flex-wrap gap-2">
         <BarcodeScanner items={items} storeId={viewing.storeId} offset={offset} />

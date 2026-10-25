@@ -132,6 +132,13 @@ Build mode: learn
   Commit: `feat: send shopping list to Instacart`
   Progress (built and verified by Claude): 4 tests (UPC rebuilt from productId, unpaid rows only and one line per product, recipe units, made-in-recipe left out); scripted sandbox list (Heinz, Coca-Cola, green onions) and recipe links both opened with the right products at Pick 'n Save; the real button on Tarik's list opened "Mise · this week's groceries" with 23 items = 25 rows minus 2 already paid; `next build` passes. Found: the key is a development key (sandbox store, no real orders); packaged items arrive as quantity 1 on the sandbox whatever is sent.
 
+- [x] **11b. Compare two stores' prices** *(added by Tarik after slice 11)*
+  Becomes usable: "Compare stores" on the List prices the unpaid rows at two Kroger-family stores and shows both totals, the cheaper store, the biggest differences, and items only one or neither carries.
+  Why not Instacart: its Developer Platform API only creates list/recipe pages and lists nearby stores (24 near 53206); no prices. Reading prices off Instacart pages with a bot was rejected (slow, fragile, likely against its terms).
+  Verify: 3 comparison tests; on Tarik's list (23 unpaid) Metro Market Van Buren $101.42 vs Pick 'n Save 11th & Garfield $101.22 over 22 shared items, Shaoxing cooking wine at neither; ~15 s first run, ~9 s cached; phone width 390.
+  Learner check: run Compare stores on the List and check one of the listed differences against the item's price.
+  Commit: `feat: compare list prices at two Kroger stores`
+
 ## Hands-on Checkpoints
 
 - [x] Early usable behavior explored — after slice 2 (real Kroger prices + live tally), before the AI chat is built on top
