@@ -63,6 +63,19 @@ export default defineSchema({
     estimatedCost: v.number(),
     servings: v.optional(v.number()),
     recipeId: v.optional(v.id("recipes")),
+    dayIndex: v.optional(v.number()), // 0–6 within its week; missing = an Idea (not scheduled, not bought)
+    // What the shopping list is rebuilt from: this dinner's scaled ingredients and the products chosen for them.
+    ingredients: v.optional(v.array(v.object({ name: v.string(), amount: v.number(), unit: v.string(), pantry: v.boolean() }))),
+    products: v.optional(
+      v.array(
+        v.object({
+          name: v.string(),
+          product: v.optional(
+            v.object({ productId: v.string(), name: v.string(), size: v.optional(v.string()), price: v.number(), imageUrl: v.optional(v.string()), suggestedPacks: v.optional(v.number()), substitute: v.optional(v.string()) }),
+          ),
+        }),
+      ),
+    ),
   }).index("by_week", ["weekId"]),
 
   // My Recipes: imported from a link, or the crew's own dinners saved when a plan is used.
@@ -102,6 +115,7 @@ export default defineSchema({
     packs: v.optional(v.number()), // packages to buy; missing = 1
     paid: v.optional(v.number()),
     fromPlan: v.optional(v.boolean()), // added by "Use this plan"; replaced when a new plan is used
+    fromBoard: v.optional(v.boolean()), // managed by the week board: rebuilt whenever its dinners change (unless paid)
     category: v.optional(v.union(v.literal("dinner"), v.literal("extra"))), // missing → plan items dinner, others extra
   }).index("by_week", ["weekId"]),
 });

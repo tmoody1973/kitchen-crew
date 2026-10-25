@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { adjustPlan, mergeIngredients, resolvePlan, planSchema, pricePlan, removeMeals, validatePlan, PlanInput, Product } from "./meal-plan";
+import { adjustPlan, mergeIngredients, priceBoard, resolvePlan, planSchema, pricePlan, removeMeals, validatePlan, PlanInput, Product } from "./meal-plan";
 
 const thighs: Product = { productId: "1", name: "Heritage Farm Chicken Thighs", size: "1 lb", price: 3.99 };
 const fishSauce: Product = { productId: "2", name: "Dynasty Fish Sauce", size: "6.7 fl oz", price: 3.49 };
@@ -179,5 +179,32 @@ describe("dinners from My Recipes", () => {
   it("sends back an unknown recipe id or a dinner with nothing in it", () => {
     expect(resolvePlan({ meals: [{ day: "Mon", name: "X", servings: 3.5, recipeId: "nope" }] }, new Map(), pantry, scale)).toMatchObject({ error: expect.stringMatching(/isn't in My Recipes/) });
     expect(resolvePlan({ meals: [{ day: "Mon", name: "Tacos", servings: 3.5 }] }, new Map(), pantry, scale)).toMatchObject({ error: expect.stringMatching(/needs ingredients/) });
+  });
+});
+
+describe("the shopping list follows the board", () => {
+  const curry = {
+    name: "Thai basil chicken",
+    servings: 3.5,
+    ingredients: plan.meals[0].ingredients,
+    products: [{ name: "chicken thighs", product: thighs }, { name: "fish sauce", product: fishSauce }],
+  };
+  const friedRice = {
+    name: "Chicken fried rice",
+    servings: 3.5,
+    ingredients: plan.meals[1].ingredients,
+    products: [{ name: "Chicken thighs", product: thighs }, { name: "jasmine rice", product: rice }, { name: "garlic", product: null }],
+  };
+
+  it("prices only scheduled dinners, merging shared ingredients", () => {
+    const priced = priceBoard([{ ...curry, dayIndex: 0 }, { ...friedRice, dayIndex: 2 }], 200)!;
+    expect(priced.total).toBe(19.96); // same as pricing the two-dinner plan directly
+    expect(priced.items.find((i) => i.name === "chicken thighs")?.packs).toBe(3);
+  });
+
+  it("leaves Ideas out, and returns nothing when no dinner is scheduled", () => {
+    expect(priceBoard([{ ...curry, dayIndex: 0 }, { ...friedRice }], 200)!.total).toBe(11.47); // fried rice is an Idea
+    expect(priceBoard([{ ...curry }], 200)).toBeNull();
+    expect(priceBoard([{ name: "old plan dinner", dayIndex: 1 }], 200)).toBeNull(); // no stored ingredients
   });
 });

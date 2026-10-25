@@ -31,15 +31,30 @@ function BoardNumber({ value }: { value: string }) {
   );
 }
 
-// The chalkboard: where the week stands, in one glance.
-export default function TallyHeader() {
-  const week = useQuery(api.weeks.latest);
-  const items = useQuery(api.listItems.mine);
+// The chalkboard: where the week stands, in one glance. offset 1 shows next week's board.
+export default function TallyHeader({ offset = 0 }: { offset?: number }) {
+  const thisWeek = useQuery(api.weeks.latest, offset === 0 ? {} : "skip");
+  const nextWeek = useQuery(api.weeks.byOffset, offset === 1 ? { offset: 1 } : "skip");
+  const week = offset === 1 ? nextWeek : thisWeek;
+  const items = useQuery(api.listItems.mine, { offset });
   if (week === undefined || items === undefined) {
     return <div className="board h-[118px] animate-pulse" aria-label="Loading your week" />;
   }
 
   const now = Date.now();
+  if (offset === 1 && week) {
+    // Next week hasn't started: show its budget and what's planned, counting down from its first day.
+    const t = computeTally(week.budget, items.map((i) => i.paid), week.startDate, week.startDate);
+    return (
+      <section className="board px-4 pb-3 pt-4" aria-label="Next week's tally">
+        <p className="font-sign flex flex-wrap items-baseline gap-x-2 text-[2rem] leading-none">
+          <BoardNumber value={formatMoney(t.spent)} />
+          <span className="text-base text-chalk-dim">of {formatMoney(t.budget)}</span>
+        </p>
+        <p className="font-sign mt-2 text-sm text-tag">Next week · starts {new Date(week.startDate).toLocaleDateString("en-US", { weekday: "short", month: "numeric", day: "numeric" })}</p>
+      </section>
+    );
+  }
   if (week === null || !isWeekActive(week.startDate, now)) {
     return (
       <Link href="/budget" className="board block p-4">

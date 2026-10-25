@@ -1,20 +1,31 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { activeWeek, addRegularsToWeek, requireUserId } from "./model";
+import { activeWeek, addRegularsToWeek, ensureNextWeek, requireUserId, userWeeks, weekForOffset } from "./model";
 
 const planLevel = v.union(v.literal("thrifty"), v.literal("low"), v.literal("moderate"), v.literal("custom"));
 
-/** The signed-in user's most recent week. The page decides if it's still active. */
+/** This week if there is one, else the most recent past week (so pages can say "new week, fresh board"). */
 export const latest = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await requireUserId(ctx);
-    return await ctx.db
-      .query("weeks")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .order("desc")
-      .first();
+    const current = await activeWeek(ctx);
+    if (current) return current;
+    const now = Date.now();
+    const past = (await userWeeks(ctx, await requireUserId(ctx))).filter((w) => w.startDate <= now);
+    return past.sort((a, b) => b.startDate - a.startDate)[0] ?? null;
   },
+});
+
+/** This week (offset 0) or next week (offset 1), or null. */
+export const byOffset = query({
+  args: { offset: v.number() },
+  handler: async (ctx, { offset }) => weekForOffset(ctx, offset),
+});
+
+/** Next week, created on first use with this week's budget, split, and store. */
+export const ensureNext = mutation({
+  args: {},
+  handler: async (ctx) => (await ensureNextWeek(ctx))._id,
 });
 
 /** Changes this week's budget, or starts a new 7-day week if none is active. */

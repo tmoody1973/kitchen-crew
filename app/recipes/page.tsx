@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { ArrowRight, ChefHat, Globe, PlayCircle, X } from "lucide-react";
 import { formatServings } from "@/lib/household";
+import { dayLabel } from "@/lib/weeks";
 
 const ICON = { web: Globe, youtube: PlayCircle, crew: ChefHat } as const;
 
@@ -20,7 +21,10 @@ function SourceBadge({ type }: { type: keyof typeof ICON }) {
 // This week's dinners up top, then everything you've saved. Layout borrowed from Digero's recipe list.
 export default function RecipesPage() {
   const recipes = useQuery(api.recipes.mine);
-  const meals = useQuery(api.plans.meals);
+  const week = useQuery(api.weeks.latest);
+  const allMeals = useQuery(api.plans.meals, {});
+  // This week's scheduled dinners, in day order (Ideas live on the Week board).
+  const meals = allMeals?.filter((m) => m.dayIndex !== undefined).sort((a, b) => a.dayIndex! - b.dayIndex!);
   const remove = useMutation(api.recipes.remove);
   if (recipes === undefined || meals === undefined) return null;
 
@@ -33,7 +37,7 @@ export default function RecipesPage() {
           {meals.map((m) => (
             <div key={m._id} className="row-rule flex items-center justify-between gap-3 py-3">
               <div>
-                <p className="font-sign text-xs text-tomato">{m.day}</p>
+                <p className="font-sign text-xs text-tomato">{week ? dayLabel(week.startDate, m.dayIndex!) : m.day}</p>
                 <p className="font-black">{m.name}</p>
               </div>
               {m.recipeId && (

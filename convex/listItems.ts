@@ -1,21 +1,23 @@
 import { v } from "convex/values";
 import { mutation, MutationCtx, query } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
-import { activeWeek, checkAmount, product, productFields } from "./model";
+import { checkAmount, ownWeek, product, productFields, weekForOffset } from "./model";
 
-/** Loads an item only if it belongs to the signed-in user's current week. */
+/** Loads an item only if it's on one of the signed-in user's weeks. */
 async function ownItem(ctx: MutationCtx, id: Id<"listItems">) {
-  const week = await activeWeek(ctx);
   const item = await ctx.db.get(id);
-  if (!week || !item || item.weekId !== week._id) throw new Error("Item not found");
+  if (!item) throw new Error("Item not found");
+  await ownWeek(ctx, item.weekId).catch(() => {
+    throw new Error("Item not found");
+  });
   return item;
 }
 
-/** This week's shopping list, oldest first. Empty if no week is active. */
+/** This week's (offset 0) or next week's (offset 1) shopping list, oldest first. */
 export const mine = query({
-  args: {},
-  handler: async (ctx) => {
-    const week = await activeWeek(ctx);
+  args: { offset: v.optional(v.number()) },
+  handler: async (ctx, { offset }) => {
+    const week = await weekForOffset(ctx, offset ?? 0);
     if (!week) return [];
     return await ctx.db
       .query("listItems")
@@ -25,11 +27,11 @@ export const mine = query({
 });
 
 export const add = mutation({
-  args: { name: v.string(), product: v.optional(product) },
-  handler: async (ctx, { name, product }) => {
+  args: { name: v.string(), product: v.optional(product), offset: v.optional(v.number()) },
+  handler: async (ctx, { name, product, offset }) => {
     const trimmed = name.trim();
     if (!trimmed || trimmed.length > 80) throw new Error("Item name must be 1–80 characters");
-    const week = await activeWeek(ctx);
+    const week = await weekForOffset(ctx, offset ?? 0);
     if (!week) throw new Error("Set this week's budget first");
     return await ctx.db.insert("listItems", { weekId: week._id, name: trimmed, packs: 1, category: "extra", ...productFields(product) });
   },

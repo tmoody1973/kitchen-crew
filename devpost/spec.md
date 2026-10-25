@@ -107,6 +107,9 @@ PRD ref: `prd.md > Running Tally`.
 ### Regulars and Extras (`components/RegularsSection.tsx`, `components/ExtrasSplit.tsx`, `convex/regulars.ts`) *(added in build, slice 6)*
 Regulars live on the Pantry page, priced through the Kroger client, with "Change brand" / "Find at Kroger" (same top-5 picker as the List); "Add regulars" re-prices each one at the current store (same product by ID) before adding, refreshing the saved price; "Add regulars" on the List and an auto-add option (new weeks, via `weeks.setBudget`) copy them onto the list as extras. `weeks.extrasBudget` holds the Extras share (kept into the next week). `lib/tally.ts > computeSplitTally` splits spending by row category (`categoryOf`: plan items dinner, others extra, overridable), shown as a second tally line; the chat route passes the Dinners remaining to the crew and Budget Fit. `suggestExtras` suggests the share from the regulars' total.
 
+### Week Board (`app/week/page.tsx`, `convex/plans.ts`, `lib/weeks.ts`) *(added in build, slice 8)*
+Weeks are date-aware: "this week" is the week whose 7 days include now (`lib/weeks.ts > currentWeek`), so a next week created ahead takes over on its first day; `weeks.byOffset` / `weeks.ensureNext` (shared `ensureNextWeek` in `convex/model.ts`). Dinners (`meals`) carry `dayIndex` (missing = Idea) plus their scaled `ingredients` and chosen `products`. `rebuildWeek` re-prices a week's scheduled dinners with `lib/meal-plan.ts > priceBoard` and replaces only list rows flagged `fromBoard` (unpaid); paid, hand-added, and pre-board plan rows are untouched. `plans.usePlan` places dinners on open days (`openDays`), `plans.moveMeal` / `removeMeal` rebuild affected weeks. Layout (redesigned after Tarik's phone review, from two reference apps): on a phone the board shows **one column per screen** with the neighbours peeking, a **day strip** above it to jump to a day (today ringed, a dot when a dinner is planned) that follows the swipe, and opens on today. Columns have a header (day, date, today badge, dinner count); cards show the recipe photo, name, servings, and estimated cost. Moving and removing live behind a card's **"···"** button: a bottom sheet on phones, a centred panel on desktop, rendered outside the board (a React portal) so nothing clips it. Drag-and-drop (dnd-kit, `@dnd-kit/core`) is **desktop-only** via a grip handle, since a swipeable phone board and dragging fight each other; on desktop the board spans the window and cards stack the photo on top. The List and tally take a week offset (This week / Next week).
+
 ### My Pantry (`app/pantry/page.tsx`, `convex/pantry.ts`) *(added in build, slice 4)*
 Staples marked have / out, remembered across weeks. The chat route passes them to the crew; the plan card's pantry chips flip an item to "need it", price it, and save the change.
 PRD ref: `prd.md > My Pantry`.
@@ -128,7 +131,7 @@ All in Convex, every record tagged with the signed-in user's ID (directly, or th
 
 - **weeks** — `userId`, `budget`, `planLevel` ("thrifty" | "low" | "moderate" | "custom"), `startDate`, `storeId` / `storeName` (last Kroger store picked), `otherStore` (shopping at a non-Kroger store). The "active week" is the latest one less than 7 days old; after 7 days, Budget Setup appears again.
 - **listItems** — `weekId`, `name`, `estimate` (price per package, or empty), `estimateSource` ("kroger" | "manual"), `productId` / `productName` / `size` / `imageUrl` (chosen Kroger product), `packs`, `paid`, `fromPlan` (added by "Use this plan"; replaced by the next plan unless paid).
-- **meals** — `weekId`, `day`, `name`, `estimatedCost`, `servings`, `recipeId`. Written by "Use this plan"; replaced by the next plan.
+- **meals** — `weekId`, `day`, `name`, `estimatedCost`, `servings`, `recipeId`, `dayIndex` (0–6; missing = Idea), `ingredients`, `products` (slice 8: the board rebuilds the list from these). Written by "Use this plan", moved on the Week board.
 - **recipes** *(slice 5)* — `userId`, `title`, `sourceType` ("web" | "youtube" | "crew"), `sourceUrl`, `sourceName`, `imageUrl`, `servings`, `totalMinutes`, `ingredients` (raw, name, amount, unit, pantry, fixed, madeInRecipe), `steps`. The same link saved again updates the existing recipe.
 - **chats** *(slice 5)* — `userId`, `title`, `updatedAt`, `messagesJson` (the conversation including card data), `removedJson` (dinners removed per plan card).
 - **pantry** *(slice 4)* — `userId`, `name` (lowercase), `have`.
@@ -147,6 +150,7 @@ app/
   layout.tsx · page.tsx · globals.css
   budget/page.tsx            # Budget Setup + Household
   plan/page.tsx              # Planner chat, saved chats, cards
+  week/page.tsx              # Kanban week board (1 or 2 weeks)
   list/page.tsx              # Shopping list, store picker, add item
   pantry/page.tsx            # My Pantry
   recipes/page.tsx           # My Recipes shelf + this week's dinners

@@ -16,8 +16,10 @@ const ADD_STORE = "__add";
 
 export default function ListPage() {
   const week = useQuery(api.weeks.latest);
-  const items = useQuery(api.listItems.mine);
-  if (week === undefined || items === undefined) return null;
+  const nextWeek = useQuery(api.weeks.byOffset, { offset: 1 });
+  const [offset, setOffset] = useState(0);
+  const items = useQuery(api.listItems.mine, { offset });
+  if (week === undefined || items === undefined || nextWeek === undefined) return null;
 
   if (week === null || !isWeekActive(week.startDate, Date.now())) {
     return (
@@ -31,24 +33,42 @@ export default function ListPage() {
     );
   }
 
+  const viewing = offset === 1 && nextWeek ? nextWeek : week;
   return (
     <div className="flex flex-col gap-4">
-      <TallyHeader />
-      <StorePicker week={week} items={items} />
-      <AddItem krogerStoreId={week.storeId} />
-      <AddRegulars krogerStoreId={week.storeId} />
+      {nextWeek && (
+        <div className="flex rounded-full border-2 border-ink bg-white p-0.5 text-sm font-black" role="radiogroup" aria-label="Which week's list">
+          {(["This week", "Next week"] as const).map((label, i) => (
+            <button
+              key={label}
+              type="button"
+              role="radio"
+              aria-checked={offset === i}
+              onClick={() => setOffset(i)}
+              className={`flex-1 rounded-full px-3 py-1.5 ${offset === i ? "bg-ink text-chalk" : "text-ink-soft"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+      <TallyHeader offset={offset} />
+      {offset === 0 && <StorePicker week={week} items={items} />}
+      <AddItem krogerStoreId={viewing.storeId} offset={offset} />
+      {offset === 0 && <AddRegulars krogerStoreId={week.storeId} />}
       {items.length === 0 ? (
-        <p className="crate border-dashed p-5 text-center font-bold text-ink-soft">
-          Your list is empty. Add an item above, or{" "}
-          <Link href="/plan" className="font-extrabold text-ink underline">
-            plan meals with the crew
-          </Link>
-          .
+        <p className="rounded-2xl border-2 border-dashed border-line p-5 text-center font-bold text-ink-soft">
+          {offset === 1 ? "Nothing for next week yet. Put dinners on next week's board, or add items here." : "Your list is empty. Add an item above, or "}
+          {offset === 0 && (
+            <Link href="/plan" className="font-extrabold text-ink underline">
+              plan meals with the crew
+            </Link>
+          )}
         </p>
       ) : (
         <ul className="flex flex-col gap-3">
           {items.map((item) => (
-            <ListRow key={item._id} item={item} krogerStoreId={week.storeId} />
+            <ListRow key={item._id} item={item} krogerStoreId={viewing.storeId} />
           ))}
         </ul>
       )}
@@ -176,7 +196,7 @@ function StorePicker({ week, items }: { week: Doc<"weeks">; items: Doc<"listItem
 }
 
 // ponytail: temporary manual add box until slice 4 fills the list from a meal plan.
-function AddItem({ krogerStoreId }: { krogerStoreId?: string }) {
+function AddItem({ krogerStoreId, offset = 0 }: { krogerStoreId?: string; offset?: number }) {
   const add = useMutation(api.listItems.add);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -191,7 +211,7 @@ function AddItem({ krogerStoreId }: { krogerStoreId?: string }) {
     try {
       // Without a Kroger store there's nothing to price against; the row asks for an estimate.
       const [product] = krogerStoreId ? await fetchPrices([{ name: trimmed }], krogerStoreId) : [null];
-      await add({ name: trimmed, product: product ?? undefined });
+      await add({ name: trimmed, product: product ?? undefined, offset });
       setName("");
     } catch {
       setError("Couldn't add that. Try again.");

@@ -78,6 +78,16 @@ Source: `scope.md > The Core Loop`.
   - [ ] The tally shows both halves ("🍽 Dinners $98 of $160 · 🛒 Extras $41 of $62"); the crew and the Budget Fit card plan dinners against the Dinners share.
   - [ ] Every list row is labeled 🍽 dinner or 🛒 extra (plan items are dinners; regulars and hand-added items are extras), tap to switch.
 
+### Week Board *(added in build, slice 8)*
+- As Tarik, I want to see and rearrange the week's dinners on a board so that I can mix plans and plan two weeks for one big shop.
+  - [ ] A Kanban-style board (Week tab): an Ideas column plus one column per day; dinner cards show servings, estimated cost, and a recipe link.
+  - [ ] Move a card to another day, to next week, or to Ideas from its "···" menu (a bottom sheet on phones); on desktop, also drag it.
+  - [ ] On a phone: one day per screen, swipe between days, and a day strip to jump straight to one; opens on today.
+  - [ ] A 1 week / 2 weeks toggle; placing a dinner in next week creates next week with this week's budget, split, and store.
+  - [ ] The shopping list follows the board: scheduled dinners add their ingredients (merged, priced as packages); moving or removing a dinner updates the list; paid and hand-added items are never touched; Ideas cost nothing.
+  - [ ] The List has a This week / Next week switch, each with its own tally.
+  - [ ] "Use this plan" puts dinners on open days from today (extras become Ideas); "Add to this week" keeps the dinners already there.
+
 ### My Pantry *(added in build, slice 4)*
 - As Tarik, I want the crew to know what's already in my kitchen so that plans don't make me buy what I have.
   - [ ] A Pantry list of staples he has or is out of, remembered across weeks; the crew reads it when planning.
@@ -133,7 +143,8 @@ Source: `scope.md > The Unique Kernel`.
 - *Added in build:* store picker and brand choice; household sizing; My Pantry; recipe links, recipe view, and My Recipes; substitutes; saved chats; "Add to this week".
 - *Added in build (slice 6):* Regulars and a Dinners/Extras budget split.
 - *Added in build (slice 7):* the Market Stall design and the Mise name.
-- *Planned in build order:* **week planning board, Kanban-style (day columns, dinner cards, an Ideas column, drag to reschedule), with a 1-week / 2-week view** (8), YouTube playlist sync with tags and search (9), barcode scanning (10), **Instacart: send the list to Instacart** (11, final; reopens the deferred Instacart integration at Tarik's request).
+- *Added in build (slice 8):* the Kanban week board with real two-week planning.
+- *Planned in build order:* YouTube playlist sync with tags and search (9), barcode scanning (10), **Instacart: send the list to Instacart** (11, final; reopens the deferred Instacart integration at Tarik's request).
 
 ## Deferred From the POC
 - ~~**YouTube playlist import**~~ — *brought back in during the build as slice 6 at Tarik's request (official YouTube API).*

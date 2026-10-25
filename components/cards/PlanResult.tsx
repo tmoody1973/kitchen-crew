@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { adjustPlan, mergeIngredients, type PricedPlan, type Product } from "@/lib/meal-plan";
+import { adjustPlan, key, mergeIngredients, type PricedPlan, type Product } from "@/lib/meal-plan";
 import { fetchPrices } from "@/lib/kroger-client";
 import MealPlanCard from "./MealPlanCard";
 import BudgetFit from "./BudgetFit";
@@ -78,32 +78,29 @@ export default function PlanResult({
         mode,
         meals: current.meals.map((m, n) => {
           const source = current.plan.meals[n];
+          // The products chosen for this dinner's ingredients, so the board can rebuild the list later.
+          const chosen = new Map(current.items.map((i) => [key(i.name), i.product]));
           return {
             day: m.day,
             name: m.name,
             estimatedCost: m.cost,
             servings: m.servings,
             recipeId: m.recipeId,
-            crewRecipe: m.recipeId
-              ? undefined
-              : {
-                  ingredients: source.ingredients.map(({ name, amount, unit, pantry }) => ({ name, amount, unit, pantry })),
-                  steps: source.steps ?? [],
-                },
+            steps: m.recipeId ? undefined : (source.steps ?? []),
+            ingredients: source.ingredients.map(({ name, amount, unit, pantry }) => ({ name, amount, unit, pantry })),
+            products: source.ingredients.map((ing) => {
+              const p = chosen.get(key(ing.name));
+              return {
+                name: ing.name,
+                product: p
+                  ? { productId: p.productId, name: p.name, size: p.size, price: p.price, imageUrl: p.imageUrl, suggestedPacks: p.suggestedPacks, substitute: p.substitute }
+                  : undefined,
+              };
+            }),
           };
         }),
-        items: current.items
-          .filter((i) => !i.pantry)
-          .map((i) => ({
-            name: i.name,
-            packs: i.packs,
-            // Only the fields the database stores (drop the picker's suggestion).
-            product: i.product
-              ? { productId: i.product.productId, name: i.product.name, size: i.product.size, price: i.product.price, imageUrl: i.product.imageUrl }
-              : undefined,
-          })),
       });
-      router.push("/list");
+      router.push("/week");
     } catch {
       setError("Couldn't save the plan. Try again.");
       setSaving(false);

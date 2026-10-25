@@ -222,3 +222,27 @@ export function resolvePlan(
   }
   return { plan: { meals } };
 }
+
+/** A dinner as stored on the board: its own ingredients and the products chosen when it was planned. */
+export type BoardMeal = {
+  name: string;
+  dayIndex?: number; // undefined = an Idea (not scheduled, not bought)
+  servings?: number;
+  ingredients?: PlanInput["meals"][number]["ingredients"];
+  products?: { name: string; product: Product | null }[];
+};
+
+/**
+ * The shopping list for a week = every scheduled dinner on the board, priced with its saved products.
+ * Ideas and dinners without stored ingredients (older plans) are left out.
+ */
+export function priceBoard(meals: readonly BoardMeal[], remaining: number): PricedPlan | null {
+  const scheduled = meals.filter((m) => m.dayIndex !== undefined && m.ingredients && m.ingredients.length > 0);
+  if (scheduled.length === 0) return null;
+  const plan: PlanInput = {
+    meals: scheduled.map((m) => ({ day: `Day ${m.dayIndex! + 1}`, name: m.name, servings: m.servings ?? 3.5, ingredients: m.ingredients! })),
+  };
+  const products = new Map<string, Product | null>();
+  for (const m of scheduled) for (const p of m.products ?? []) if (!products.get(key(p.name))) products.set(key(p.name), p.product);
+  return pricePlan(plan, products, remaining);
+}
