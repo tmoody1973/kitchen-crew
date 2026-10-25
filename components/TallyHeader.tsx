@@ -1,11 +1,39 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { computeSplitTally, computeTally, formatMoney, isWeekActive } from "@/lib/tally";
 import { ArrowRight } from "lucide-react";
+
+/** Keeps the tally in view: once the big board scrolls under the top menu, a slim copy pins just below it. */
+function ScrollPin({ children, slim }: { children: ReactNode; slim: ReactNode }) {
+  const board = useRef<HTMLDivElement>(null);
+  const [top, setTop] = useState<number | null>(null);
+  useEffect(() => {
+    const el = board.current;
+    if (!el) return;
+    const navBottom = Math.round(document.querySelector("header")?.getBoundingClientRect().bottom ?? 0);
+    const watch = new IntersectionObserver(
+      ([e]) => setTop(e.isIntersecting || e.boundingClientRect.top > navBottom ? null : navBottom),
+      { rootMargin: `-${navBottom}px 0px 0px 0px` },
+    );
+    watch.observe(el);
+    return () => watch.disconnect();
+  }, []);
+  return (
+    <>
+      <div ref={board}>{children}</div>
+      {/* Floats over the page (no layout jump); hidden from screen readers, which hear the big board's updates. */}
+      {top !== null && (
+        <div className="fixed inset-x-0 z-10 mx-auto max-w-xl bg-ground/95 px-3 pb-1.5 pt-1" style={{ top }} aria-hidden="true">
+          {slim}
+        </div>
+      )}
+    </>
+  );
+}
 
 /** Board numerals in cells; a digit that changes flips over, like a market price board. */
 function BoardNumber({ value }: { value: string }) {
@@ -73,7 +101,25 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
     under ? "left" : "over"
   }, ${t.daysLeft} days left.`;
 
+  const slim = (
+    <div className="board flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-3 py-2 text-sm font-bold text-chalk-dim">
+      <span>
+        <span className={`font-sign ${under ? "text-chalk" : "text-tag"}`}>
+          {formatMoney(Math.abs(t.left))} {under ? "left" : "over"}
+        </span>{" "}
+        · {formatMoney(t.spent)} of {formatMoney(t.budget)}
+      </span>
+      {split && (
+        <span className="flex gap-1.5 text-xs font-extrabold">
+          <span className={`chalk-pill ${split.dinner.left < 0 ? "border-tag text-tag" : ""}`}>Dinners {formatMoney(split.dinner.spent)} / {formatMoney(split.dinner.budget)}</span>
+          <span className={`chalk-pill ${split.extra.left < 0 ? "border-tag text-tag" : ""}`}>Extras {formatMoney(split.extra.spent)} / {formatMoney(split.extra.budget)}</span>
+        </span>
+      )}
+    </div>
+  );
+
   return (
+    <ScrollPin slim={slim}>
     <section className="board px-4 pb-3 pt-4" aria-label="This week's tally">
       {/* Screen readers hear one sentence when the numbers change (the board cells are hidden from them). */}
       <p className="sr-only" aria-live="polite">
@@ -103,5 +149,6 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
       )}
       <p className="font-sign mt-2 text-sm text-tag">{under ? "Under budget this week!" : "Over budget this week. Let's trim."}</p>
     </section>
+    </ScrollPin>
   );
 }

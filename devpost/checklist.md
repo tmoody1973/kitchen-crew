@@ -148,6 +148,7 @@ Build mode: learn
 
 - [x] List "By plan" view (Tarik, kick-the-tires: "a list per plan"): each plan's items under its dinners, its cost (paid where paid, else estimate), "Send this plan to Instacart"; an item two plans share stays one row, shown in both and marked shared; dinners from before plans were tracked show as "Earlier dinners".
 - [x] Final review complete — feedback resolved and learner confirms ready to ship
+- [ ] After review (Tarik): keep the tally visible while scrolling — a slim pinned tally bar appears under the top menu once the big board scrolls away.
 
 ## Code Tour and App Map
 

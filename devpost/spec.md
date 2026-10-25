@@ -101,7 +101,7 @@ PRD ref: `prd.md > Shopping List and Prices`.
 PRD ref: `prd.md > Shopping List and Prices`, `prd.md > Running Tally`.
 
 ### Tally Header and Budget Math (`lib/tally.ts`)
-Plain code: spent = sum of paid amounts this week (added in whole cents); left = budget − spent; days left = 7 − days since week start; status = under/over; row color = paid vs. estimate × packs. Shown as "$142 of $200 this week · $58 left · 4 days left" with an under/over message. Covered by `lib/tally.test.ts`.
+Plain code: spent = sum of paid amounts this week (added in whole cents); left = budget − spent; days left = 7 − days since week start; status = under/over; row color = paid vs. estimate × packs. Shown as "$142 of $200 this week · $58 left · 4 days left" with an under/over message. Covered by `lib/tally.test.ts`. *After final review (Tarik):* once the big board scrolls under the top menu, a slim pinned copy (`components/TallyHeader.tsx > ScrollPin`: "$207 left · $18 of $225" plus the Dinners/Extras pills) stays just below the menu, so the tally is always visible while scrolling the List or the chat; it floats (no layout jump) and is hidden from screen readers, which already hear the big board's updates.
 PRD ref: `prd.md > Running Tally`.
 
 ### Regulars and Extras (`components/RegularsSection.tsx`, `components/ExtrasSplit.tsx`, `convex/regulars.ts`) *(added in build, slice 6)*
