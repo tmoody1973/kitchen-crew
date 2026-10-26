@@ -102,6 +102,7 @@ Source: `scope.md > The Core Loop`.
   - [ ] The List has a This week / Next week switch, each with its own tally.
   - [ ] "Use this plan" puts dinners on open days from today (extras become Ideas); "Add to this week" keeps the dinners already there.
 
+  - [ ] **Remove a whole plan** in one tap, from a dinner's menu on the Week board ("Remove this whole plan (3 dinners)") or "Remove plan" on the List's By plan heading, after a confirm. Unpaid items for those dinners leave the list; paid items stay. *(Added on submission day, at Tarik's request.)*
 ### My Pantry *(added in build, slice 4)*
 - As Tarik, I want the crew to know what's already in my kitchen so that plans don't make me buy what I have.
   - [ ] A Pantry list of staples he has or is out of, remembered across weeks; the crew reads it when planning.

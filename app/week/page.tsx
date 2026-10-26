@@ -122,6 +122,9 @@ export default function WeekPage() {
   const imageFor = new Map(recipes.map((r) => [r._id as string, r.imageUrl]));
   // Dinners from before the board aren't linked to a recipe; match them by name so they still get a photo.
   const imageByTitle = new Map(recipes.map((r) => [r.title.trim().toLowerCase(), r.imageUrl]));
+  // How many scheduled dinners share this dinner's plan (same week), for "Remove this whole plan".
+  const planSize = (m: Meal) =>
+    m.planId ? [...(thisMeals ?? []), ...(nextMeals ?? [])].filter((x) => x.weekId === m.weekId && x.planId === m.planId && x.dayIndex !== undefined).length : 1;
   const photo = (m: Meal) => (m.recipeId ? imageFor.get(m.recipeId) : undefined) ?? imageByTitle.get(m.name.trim().toLowerCase());
   const targets = columns.map((c) => ({
     label: c.key === IDEAS ? "Ideas" : `${c.target.offset === 1 ? "Next " : ""}${c.weekday.slice(0, 3)} ${c.date}`,
@@ -227,7 +230,7 @@ export default function WeekPage() {
             {columns.map((c) => (
               <Column key={c.key} col={c}>
                 {c.meals.map((m) => (
-                  <MealCard key={m._id} meal={m} image={photo(m)} targets={targets} onMove={move} />
+                  <MealCard key={m._id} meal={m} image={photo(m)} targets={targets} onMove={move} planSize={planSize(m)} />
                 ))}
               </Column>
             ))}
@@ -274,13 +277,16 @@ function MealCard({
   image,
   targets,
   onMove,
+  planSize = 1,
 }: {
   meal: Meal;
   image?: string;
   targets: { label: string; target: Target }[];
   onMove: (id: Id<"meals">, to: Target) => void;
+  planSize?: number; // scheduled dinners from the same "Use this plan"
 }) {
   const remove = useMutation(api.plans.removeMeal);
+  const removePlan = useMutation(api.plans.removePlan);
   const [menu, setMenu] = useState(false);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: meal._id });
   const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
@@ -381,6 +387,21 @@ function MealCard({
             >
               Remove from the week
             </button>
+            {meal.planId && planSize > 1 && (
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMenu(false);
+                  if (window.confirm(`Remove all ${planSize} dinners from this plan? Items you already paid for stay on the list.`)) {
+                    removePlan({ weekId: meal.weekId, planId: meal.planId! });
+                  }
+                }}
+                className="block w-full rounded-xl px-3 py-3 text-left font-bold text-tomato-dark hover:bg-line lg:rounded-lg lg:px-2 lg:py-1.5 lg:text-sm"
+              >
+                Remove this whole plan ({planSize} dinners)
+              </button>
+            )}
           </div>
         </>,
           document.body,

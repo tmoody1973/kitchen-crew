@@ -128,3 +128,16 @@ export const removeMeal = mutation({
     await rebuildWeek(ctx, meal.weekId);
   },
 });
+
+/** Takes every dinner of one plan off a week's board; the list rebuilds (paid rows stay). Returns how many were removed. */
+export const removePlan = mutation({
+  args: { weekId: v.id("weeks"), planId: v.string() },
+  handler: async (ctx, { weekId, planId }) => {
+    await ownWeek(ctx, weekId);
+    const meals = await ctx.db.query("meals").withIndex("by_week", (q) => q.eq("weekId", weekId)).collect();
+    const doomed = meals.filter((m) => m.planId === planId && m.dayIndex !== undefined);
+    for (const m of doomed) await ctx.db.delete(m._id);
+    if (doomed.length) await rebuildWeek(ctx, weekId);
+    return doomed.length;
+  },
+});

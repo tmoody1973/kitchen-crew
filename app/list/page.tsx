@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Doc } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import TallyHeader from "@/components/TallyHeader";
 import ListRow from "@/components/ListRow";
 import BarcodeScanner from "@/components/BarcodeScanner";
@@ -22,6 +22,23 @@ type Store = { id: string; name: string };
 type View = "all" | "dinner" | "plan";
 const VIEW_LABEL: Record<View, string> = { all: "All items", dinner: "By dinner", plan: "By plan" };
 const ADD_STORE = "__add";
+
+/** "Remove plan": takes that plan's dinners off the week; the list rebuilds and paid rows stay. */
+function RemovePlan({ planId, weekId }: { planId: string; weekId?: Id<"weeks"> }) {
+  const removePlan = useMutation(api.plans.removePlan);
+  if (!weekId) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        if (window.confirm("Remove this plan's dinners from your week? Items you already paid for stay on the list.")) removePlan({ weekId, planId });
+      }}
+      className="text-sm font-extrabold text-tomato-dark underline"
+    >
+      Remove plan
+    </button>
+  );
+}
 
 export default function ListPage() {
   const week = useQuery(api.weeks.latest);
@@ -133,6 +150,7 @@ export default function ListPage() {
                   {g.planId && g.items.some((e) => e.item.paid === undefined) && (
                     <SendToInstacart body={{ offset, planId: g.planId }} label="Send this plan to Instacart" />
                   )}
+                  {g.planId && <RemovePlan planId={g.planId} weekId={dinners.find((d) => d.planId === g.planId)?.weekId} />}
                 </div>
                 <ul className="flex flex-col gap-3">
                   {g.items.map(({ item, sharedWith }) => (
