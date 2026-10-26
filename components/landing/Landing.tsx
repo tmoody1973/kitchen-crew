@@ -266,7 +266,28 @@ export default function Landing() {
           </div>
         </Stall>
 
-        <Stall id="stall-help" title="When money's tight" tone="bg-ground">
+        <Stall id="stall-box" title="Got a food box?" tone="bg-ground">
+          <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="flex flex-col gap-5 lg:col-span-7">
+              <p className="max-w-[36rem] text-xl font-bold">
+                Picked up a box from a food pantry? Snap a photo of it. The crew lists what&apos;s inside, then plans dinners
+                around the box and buys only what&apos;s missing.
+              </p>
+              <Facts
+                items={[
+                  "One photo reads the whole box, with counts. Or tick what came in it.",
+                  "The plan card says how much the box covers and what's left to buy.",
+                  "In a test, a seven-item box became three dinners for $20.68 more.",
+                ]}
+              />
+            </div>
+            <div className="lg:col-span-5">
+              <PhoneShot src="/landing/box-phone.webp" alt="Adding a food box on a phone: In your box, 7 items read from a photo: canned black beans, white rice, canned diced tomatoes, canned chicken breast, spaghetti, creamy peanut butter, and canned corn, then Save to my pantry." />
+            </div>
+          </div>
+        </Stall>
+
+        <Stall id="stall-help" title="When money's tight" tone="bg-white">
           <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
             <div className="flex flex-col gap-5 lg:col-span-7">
               <p className="max-w-[36rem] text-xl font-bold">
