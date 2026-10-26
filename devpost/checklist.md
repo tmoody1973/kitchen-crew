@@ -152,7 +152,7 @@ Build mode: learn
 - [x] **11e. First sign-in onboarding, web recipe search, Kroger cart** *(added by Tarik on submission day)*
   Becomes usable: a new account gets a 3-step Welcome (name, who's eating, USDA budget for that household) and the crew plans for that household by name; the crew searches the web for recipes (TinyFish) with Add from chat; "Send to my Pick 'n Save cart" via Kroger sign-in.
   Verify: 3 new tests (USDA reference family of four, thrifty = $236.30 published vs $236 computed; Tarik's household still $222). New test user "Maria" (1 woman, 2 kids, 1 little kid): first stop /welcome, 3 servings, budgets $199 / $227 / $276, crew opened with "Hi Maria! … cooking for 4"; test user deleted. Recipe search: 6 chickpea curries, A Couple Cooks saved from chat. Kroger cart: Tarik connected his Kroger account after adding the redirect URI.
-  Not verified: whether cart items landed in the Pick 'n Save cart (waiting on Tarik).
+  Kroger cart verified by Tarik on his own account (Oct 26): connect, send, items arrived — "the cart works".
 
 ## Hands-on Checkpoints
 
