@@ -154,14 +154,16 @@ function words(text: string): string[] {
  * Kroger's order is kept within the tier.
  * ponytail: word matching only; Claude picks by meaning for planned meals (slice 3).
  */
-export function rankByRelevance<T extends { name: string }>(term: string, products: T[]): T[] {
+/** 2 = the exact phrase is in the name, 1 = every word is, 0 = neither. */
+export function matchScore(term: string, name: string): number {
   const q = words(term);
-  const phrase = ` ${q.join(" ")} `;
-  const score = (name: string) => {
-    const w = words(name);
-    if (` ${w.join(" ")} `.includes(phrase)) return 2;
-    return q.every((t) => w.includes(t)) ? 1 : 0;
-  };
+  const w = words(name);
+  if (` ${w.join(" ")} `.includes(` ${q.join(" ")} `)) return 2;
+  return q.every((t) => w.includes(t)) ? 1 : 0;
+}
+
+export function rankByRelevance<T extends { name: string }>(term: string, products: T[]): T[] {
+  const score = (name: string) => matchScore(term, name);
   const scored = products.map((p) => ({ p, s: score(p.name) }));
   const best = Math.max(0, ...scored.map(({ s }) => s));
   return scored.filter(({ s }) => s === best).map(({ p }) => p);

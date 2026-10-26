@@ -11,7 +11,8 @@ import {
   UIMessage,
 } from "ai";
 import { api } from "@/convex/_generated/api";
-import { rankByRelevance, searchCandidates, Product } from "@/lib/kroger";
+import { productsById, rankByRelevance, searchCandidates, Product } from "@/lib/kroger";
+import { bestSale, bySaving, toSale, topIngredients, type Sale } from "@/lib/sales";
 import { mergeIngredients, planToolSchema, pricePlan, resolvePlan, validatePlan, PlanToolOutput } from "@/lib/meal-plan";
 import { importRecipe, ImportError } from "@/lib/recipes/import";
 import { scaleIngredients } from "@/lib/recipes/scale";
@@ -178,6 +179,40 @@ export async function POST(req: Request) {
           } catch (err) {
             if (!(err instanceof ImportError)) console.error("Recipe import failed:", err);
             return { ok: false as const, error: err instanceof ImportError ? err.message : "I couldn't read that recipe." };
+          }
+        },
+      }),
+      findSales: tool({
+        description:
+          "Check which items are on sale at Tarik's Kroger store and show a Sales card. scope: needed = this week's shopping list, " +
+          "regulars = the things he buys most weeks, recipes = the ingredients his saved recipes use most.",
+        inputSchema: z.object({ scope: z.enum(["needed", "regulars", "recipes"]) }),
+        execute: async ({ scope }) => {
+          const storeId = activeWeek?.storeId;
+          const storeName = activeWeek?.storeName?.split(" · ")[0];
+          if (!storeId) return { ok: false as const, error: "No Kroger store is picked yet. Ask Tarik to pick one on the List page." };
+          try {
+            if (scope === "recipes") {
+              // ponytail: the 12 most-used ingredients, one search at a time (each cached 30 minutes).
+              const top = topIngredients(savedRecipes, 12);
+              const sales: Sale[] = [];
+              for (const ing of top) {
+                const options = await searchCandidates(ing.name, storeId).catch(() => [] as Product[]);
+                const sale = bestSale(ing.name, options);
+                if (sale) sales.push({ ...sale, recipes: ing.recipes.slice(0, 3) });
+              }
+              return { ok: true as const, scope, storeName, checked: top.length, sales: sales.sort(bySaving) };
+            }
+            const rows =
+              scope === "needed"
+                ? items.flatMap((i) => (i.productId && i.paid === undefined ? [{ name: i.name, productId: i.productId }] : []))
+                : (await fetchQuery(api.regulars.mine, {}, { token })).flatMap((r) => (r.productId ? [{ name: r.name, productId: r.productId }] : []));
+            const found = await productsById(rows.slice(0, 50).map((r) => r.productId), storeId);
+            const sales = rows.flatMap((r) => toSale(r.name, found.get(r.productId)) ?? []).sort(bySaving);
+            return { ok: true as const, scope, storeName, checked: Math.min(rows.length, 50), sales };
+          } catch (err) {
+            console.error("Sales check failed:", err);
+            return { ok: false as const, error: "Couldn't reach Kroger for sale prices. Tell Tarik to try again in a minute." };
           }
         },
       }),

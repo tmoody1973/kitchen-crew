@@ -13,9 +13,10 @@ import WeekRail from "@/components/WeekRail";
 import PlanResult from "@/components/cards/PlanResult";
 import BudgetCard, { type BudgetSuggestion } from "@/components/cards/BudgetCard";
 import RecipeCard, { type RecipeImport } from "@/components/cards/RecipeCard";
+import SalesCard, { type SalesResult } from "@/components/cards/SalesCard";
 import PricingProgress from "@/components/cards/PricingProgress";
 import type { PlanToolOutput } from "@/lib/meal-plan";
-import { ArrowUp, BookOpen, Calculator, NotebookPen, Store } from "lucide-react";
+import { ArrowUp, BadgePercent, BookOpen, Calculator, NotebookPen, Store } from "lucide-react";
 
 /** A quiet working line while a tool runs. */
 function Working({ icon: Icon, children }: { icon: typeof BookOpen; children: React.ReactNode }) {
@@ -26,7 +27,7 @@ function Working({ icon: Icon, children }: { icon: typeof BookOpen; children: Re
   );
 }
 
-const SUGGESTIONS = ["What should we cook this week?", "Plan 3 days from my saved recipes", "Something cheap and cozy for 2 nights"];
+const SUGGESTIONS = ["What should we cook this week?", "Plan 3 days from my saved recipes", "Something cheap and cozy for 2 nights", "What's on sale in my recipes?"];
 
 type Removed = Record<string, number[]>; // plan card (tool call id) → removed dinner indexes
 
@@ -217,6 +218,15 @@ function ChatView({
               return (
                 <Working key={i} icon={BookOpen}>
                   Reading the recipe…
+                </Working>
+              );
+            }
+            if (part.type === "tool-findSales") {
+              if (part.state === "output-available") return <SalesCard key={i} data={part.output as SalesResult} />;
+              if (part.state === "output-error") return null;
+              return (
+                <Working key={i} icon={BadgePercent}>
+                  Checking this week&apos;s sales…
                 </Working>
               );
             }
