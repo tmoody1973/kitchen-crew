@@ -102,3 +102,19 @@ export function suggestExtras(regulars: ReadonlyArray<{ estimate?: number; packs
   const cents = regulars.reduce((s, r) => s + (r.estimate === undefined ? 0 : toCents(r.estimate) * (r.packs ?? 1)), 0);
   return Math.ceil(cents / 500) * 5;
 }
+
+type Covered = { paid?: number; receiptId?: string };
+
+/**
+ * What the tally adds up: paid boxes for rows not on a receipt, plus each receipt's total
+ * (register prices, tax and fees), so a finished trip counts once, at what it really cost.
+ */
+export function actualPaid(items: ReadonlyArray<Covered>, receipts: ReadonlyArray<{ total: number }>): number[] {
+  return [...items.flatMap((i) => (i.receiptId || i.paid === undefined ? [] : [i.paid])), ...receipts.map((r) => r.total)];
+}
+
+/** Receipts' totals minus the paid boxes they cover: tax, fees, and register differences. */
+export function receiptExtra(items: ReadonlyArray<Covered>, receipts: ReadonlyArray<{ total: number }>): number {
+  const covered = items.reduce((s, i) => s + (i.receiptId && i.paid !== undefined ? toCents(i.paid) : 0), 0);
+  return (receipts.reduce((s, r) => s + toCents(r.total), 0) - covered) / 100;
+}

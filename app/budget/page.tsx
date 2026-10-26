@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { isWeekActive } from "@/lib/tally";
@@ -22,6 +24,10 @@ export default function BudgetPage() {
       <div className="flex flex-col gap-4">
         <BudgetForm key={week?._id ?? "new"} current={active ? week.budget : undefined} />
         <ExtrasSplit />
+        <Link href="/history" className="crate flex items-center justify-between gap-2 p-4 font-black hover:border-ink">
+          Spending history: weekly, monthly, quarterly
+          <ArrowRight size={18} strokeWidth={3} aria-hidden />
+        </Link>
       </div>
       <HouseholdSettings />
     </div>

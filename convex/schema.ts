@@ -12,7 +12,23 @@ export default defineSchema({
     // Set while shopping at a non-Kroger store; prices still come from storeId (the last Kroger store).
     otherStore: v.optional(v.string()),
     extrasBudget: v.optional(v.number()), // the Extras share of the budget (snacks, drinks, fruit…)
+    sample: v.optional(v.boolean()), // a labelled sample week on the demo account (History shows "Sample")
   }).index("by_user", ["userId"]),
+
+  // A finished shopping trip: the receipt's real total (tax, fees, register prices) for the rows it covers.
+  receipts: defineTable({
+    userId: v.string(),
+    weekId: v.id("weeks"),
+    store: v.string(),
+    subtotal: v.optional(v.number()),
+    tax: v.optional(v.number()),
+    fees: v.optional(v.number()), // delivery, service, bag fees, tip
+    total: v.number(),
+    at: v.number(), // when the trip was confirmed
+    fromPhoto: v.boolean(), // read from a receipt photo (else typed)
+  })
+    .index("by_week", ["weekId"])
+    .index("by_user", ["userId"]),
 
   // How to size meals: servings per dinner (teen counts as 1.5) and whether to plan lunch leftovers.
   household: defineTable({
@@ -121,5 +137,6 @@ export default defineSchema({
     fromPlan: v.optional(v.boolean()), // added by "Use this plan"; replaced when a new plan is used
     fromBoard: v.optional(v.boolean()), // managed by the week board: rebuilt whenever its dinners change (unless paid)
     category: v.optional(v.union(v.literal("dinner"), v.literal("extra"))), // missing → plan items dinner, others extra
+    receiptId: v.optional(v.id("receipts")), // paid row covered by a confirmed receipt (the receipt's total counts instead)
   }).index("by_week", ["weekId"]),
 });

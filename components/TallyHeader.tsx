@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { computeSplitTally, computeTally, formatMoney, isWeekActive } from "@/lib/tally";
+import { actualPaid, computeSplitTally, computeTally, formatMoney, isWeekActive, receiptExtra } from "@/lib/tally";
 import { ArrowRight } from "lucide-react";
 
 /** Keeps the tally in view: once the big board scrolls under the top menu, a slim copy pins just below it. */
@@ -65,14 +65,15 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
   const nextWeek = useQuery(api.weeks.byOffset, offset === 1 ? { offset: 1 } : "skip");
   const week = offset === 1 ? nextWeek : thisWeek;
   const items = useQuery(api.listItems.mine, { offset });
-  if (week === undefined || items === undefined) {
+  const receipts = useQuery(api.receipts.forWeek, { offset });
+  if (week === undefined || items === undefined || receipts === undefined) {
     return <div className="board h-[118px] animate-pulse" aria-label="Loading your week" />;
   }
 
   const now = Date.now();
   if (offset === 1 && week) {
     // Next week hasn't started: show its budget and what's planned, counting down from its first day.
-    const t = computeTally(week.budget, items.map((i) => i.paid), week.startDate, week.startDate);
+    const t = computeTally(week.budget, actualPaid(items, receipts), week.startDate, week.startDate);
     return (
       <section className="board px-4 pb-3 pt-4" aria-label="Next week's tally">
         <p className="font-sign flex flex-wrap items-baseline gap-x-2 text-[2rem] leading-none">
@@ -94,7 +95,9 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
     );
   }
 
-  const t = computeTally(week.budget, items.map((i) => i.paid), week.startDate, now);
+  // Finished trips count at their receipt totals (tax and fees included); other rows at their paid boxes.
+  const t = computeTally(week.budget, actualPaid(items, receipts), week.startDate, now);
+  const extra = receiptExtra(items, receipts);
   const under = t.status === "under";
   const split = week.extrasBudget ? computeSplitTally(week.budget, week.extrasBudget, items, week.startDate, now) : null;
   const spoken = `${formatMoney(t.spent)} of ${formatMoney(t.budget)} spent this week. ${formatMoney(Math.abs(t.left))} ${
@@ -145,6 +148,12 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
             Extras {formatMoney(split.extra.spent)} / {formatMoney(split.extra.budget)}
             {split.extra.left < 0 ? " · over" : ""}
           </span>
+          {extra !== 0 && (
+            <span className="chalk-pill" title="Receipt totals minus the paid boxes they cover: tax, fees, and register differences">
+              Receipt {extra > 0 ? "+" : "−"}
+              {formatMoney(Math.abs(extra))}
+            </span>
+          )}
         </p>
       )}
       <p className="font-sign mt-2 text-sm text-tag">{under ? "Under budget this week!" : "Over budget this week. Let's trim."}</p>

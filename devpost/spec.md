@@ -142,6 +142,7 @@ All in Convex, every record tagged with the signed-in user's ID (directly, or th
 - **pantry** *(slice 4)* — `userId`, `name` (lowercase), `have`.
 - **household** *(slice 4)* — `userId`, `servings`, `leftovers`.
 - **otherStores** *(slice 2)* — `userId`, `name`.
+- **receipts** *(submission day)* — `userId`, `weekId`, `store`, `subtotal`, `tax`, `fees`, `total`, `at`, `fromPhoto`. List items gain `receiptId` (paid rows covered by a confirmed trip); weeks gain `sample` (labelled demo history). The tally adds paid boxes of rows without a receipt plus receipt totals (`lib/tally.ts > actualPaid`); History rolls weeks up by week/month/quarter (`convex/history.ts`, `lib/history.ts`). Photos are read by Claude Sonnet in `app/api/receipt` (shrunk to ≤1600 px on the phone; not stored).
 - **regulars** *(slice 6)* — `userId`, `name`, `packs`, `estimate`, `productId` / `productName` / `size` / `imageUrl`. Weeks gain `extrasBudget`; list items gain `category` ("dinner" | "extra"); household gains `autoRegulars`.
 - Shared helpers (who's signed in, the active week, the product shape, adding regulars) live in `convex/model.ts`, so function files never import each other.
 

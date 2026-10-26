@@ -121,6 +121,8 @@ Source: `scope.md > The Unique Kernel`.
   - [ ] Entering an actual price updates the tally at the top immediately: spent of budget, amount left, and days left.
   - [ ] A row turns one color when paid ≤ estimate and another when paid > estimate.
   - [ ] When total spent is below the budget, the tally clearly says he's under budget this week.
+  - [ ] **Done shopping** *(added on submission day, at Tarik's request)*: after a trip he snaps the receipt; Claude reads the store, subtotal, tax, fees (delivery, bags, tip) and total; he checks and fixes them, then confirms (or types the total). The trip's receipt total then counts in the tally instead of the paid boxes it covers, so tax and fees are included; the List shows **Planned** (whole list), **Shelf** (paid boxes) and **Actual** (with receipts), and how the receipt compares to what was planned for the items on it. Undo removes a trip.
+  - [ ] **Spending history** *(same day)*: weekly, monthly and quarterly totals of budget, planned and actual, with under/over. Linked from the List and Budget pages. The demo account has 12 sample past weeks, labelled "Sample".
 
 ## States and Boundaries
 - **First use** — no budget yet: budget setup is shown before anything else.
@@ -161,7 +163,7 @@ Source: `scope.md > The Unique Kernel`.
 - ~~**YouTube playlist import**~~ — *brought back in during the build as slice 9 at Tarik's request (official YouTube API).*
 - **Web search for missing prices** — third data source; manual estimate covers it.
 - **Voice input** — nicer in the aisle, but an extra piece.
-- **Receipt photo logging** — second way to enter spending (from scope).
+- ~~**Receipt photo logging**~~ — built on submission day as "Done shopping" (see Running Tally).
 - ~~**Instacart integration**~~ — *brought back in during the build as the final slice (11) at Tarik's request.*
 
 ## Possible Later Enhancements

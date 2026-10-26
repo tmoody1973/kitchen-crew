@@ -144,6 +144,11 @@ Build mode: learn
   Verify: 6 new tests (102 total); demo account, local: Sales card for recipes found 2 of 12 top ingredients on sale (minced garlic save $1, green beans save $0.11) and the crew repeated those numbers exactly; a 2-dinner plan showed "Includes $5.22 in Kroger sales" = butter $3 + thighs $2 + green beans $0.22. Demo list rows show no sale today: none of its 23 products is on sale at 11th & Garfield.
   Learner check: open a plan's "what to buy" and check one "was" price against the Kroger app.
   Commits: `feat: show Kroger sale prices on the plan card and list`, `feat: ask the crew what's on sale`, `feat: prefer sale items when picking products`
+- [x] **11d. Done shopping, receipts, and spending history** *(added by Tarik on submission day: "A + B together", tally counts the receipt total)*
+  Becomes usable: "Done shopping" on the List takes a receipt photo; Claude reads store, subtotal, tax, fees and total; he confirms; the tally counts the receipt total (tax and fees in) instead of the covered paid boxes; the List shows Planned / Shelf / Actual; Undo removes a trip. `/history` rolls weeks up weekly, monthly, quarterly against budget and plan. Also the same day: Matches button, per-row Scan, brand-picker search.
+  Verify: 5 new tests (107 total). Demo account, local, phone size: a rendered Pick 'n Save receipt photo read exactly (store, $27.75, $0.81 tax, $0.10 bag fee, $28.66); confirm moved the tally $24.56 → $28.66 and covered 8 paid rows; "$2.95 over the $25.71 planned for the 8 items"; Undo returned it to $24.56. History: 13 weeks (12 labelled Sample), $2,549.29 of $2,925.
+  Not verified: a real crumpled paper receipt photographed on a phone.
+  Learner check: snap a real receipt after a shop and compare what the crew read to the paper.
 
 ## Hands-on Checkpoints
 

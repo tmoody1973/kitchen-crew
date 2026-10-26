@@ -27,4 +27,4 @@ npm-debug.log*
 /.impeccable/review/
 /.impeccable/questions/
 .env*
-/scripts/demo/snapshot.json
+/scripts/demo/*.json

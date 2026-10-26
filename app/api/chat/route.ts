@@ -18,7 +18,7 @@ import { importRecipe, ImportError } from "@/lib/recipes/import";
 import { scaleIngredients } from "@/lib/recipes/scale";
 import { pickProducts } from "@/lib/pick-products";
 import { staffPrompt } from "@/lib/staff-prompt";
-import { computeSplitTally, computeTally, isWeekActive } from "@/lib/tally";
+import { actualPaid, computeSplitTally, computeTally, isWeekActive } from "@/lib/tally";
 import { PLAN_LABELS, suggestedBudget } from "@/lib/usda";
 import { targetServings } from "@/lib/household";
 import { z } from "zod";
@@ -44,12 +44,13 @@ export async function POST(req: Request) {
 
   // What's left this week, from Convex, so Claude and the Budget Fit card see real numbers.
   const token = (await convexToken()) ?? undefined;
-  const [week, items, pantry, household, savedRecipes] = await Promise.all([
+  const [week, items, pantry, household, savedRecipes, receipts] = await Promise.all([
     fetchQuery(api.weeks.latest, {}, { token }),
     fetchQuery(api.listItems.mine, {}, { token }),
     fetchQuery(api.pantry.mine, {}, { token }),
     fetchQuery(api.household.mine, {}, { token }),
     fetchQuery(api.recipes.mine, {}, { token }),
+    fetchQuery(api.receipts.forWeek, {}, { token }),
   ]);
   // Recipes imported during this chat join the saved list, so the crew can plan with them right away.
   const recipesById = new Map(savedRecipes.map((r) => [r._id as string, r]));
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
   // No active week is fine for budget help; meal plans need one.
   const activeWeek = week && isWeekActive(week.startDate, Date.now()) ? week : null;
   const fullTally = activeWeek
-    ? computeTally(activeWeek.budget, items.map((i) => i.paid), activeWeek.startDate, Date.now())
+    ? computeTally(activeWeek.budget, actualPaid(items, receipts), activeWeek.startDate, Date.now())
     : null;
   // With a Dinners/Extras split, the crew and the Budget Fit card plan against what's left of the Dinners share.
   const tally =
