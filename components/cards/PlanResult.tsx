@@ -14,11 +14,13 @@ import PantryChips from "./PantryChips";
 export default function PlanResult({
   priced,
   storeName,
+  boxItems,
   initialRemoved = [],
   onRemovedChange,
 }: {
   priced: PricedPlan;
   storeName?: string;
+  boxItems?: string[];
   initialRemoved?: number[]; // restored from a saved chat
   onRemovedChange: (indexes: number[]) => void;
 }) {
@@ -112,6 +114,7 @@ export default function PlanResult({
       <MealPlanCard
         plan={current}
         storeName={storeName}
+        boxItems={boxItems}
         onRemove={remove}
         pantrySlot={
           <PantryChips

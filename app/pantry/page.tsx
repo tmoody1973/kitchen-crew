@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Check, ShoppingBasket, X } from "lucide-react";
 import RegularsSection from "@/components/RegularsSection";
+import FoodBox from "@/components/FoodBox";
 
 // What's in your pantry, remembered across weeks. The crew reads this when it plans.
 export default function PantryPage() {
@@ -41,6 +42,8 @@ export default function PantryPage() {
         </p>
       </header>
 
+      <FoodBox boxCount={pantry.filter((p) => p.fromBox && p.have).length} />
+
       <form onSubmit={add} className="flex gap-2">
         <input
           value={name}
@@ -64,7 +67,14 @@ export default function PantryPage() {
         <ul className="crate px-4">
           {pantry.map((item) => (
             <li key={item._id} className="row-rule flex items-center gap-3 py-3">
-              <span className="flex-1 text-lg font-black capitalize">{item.name}</span>
+              <span className="flex-1 text-lg font-black capitalize">
+                {item.name}
+                {item.fromBox && (
+                  <span className="ml-2 align-middle text-xs font-extrabold normal-case text-ink-soft">
+                    from box{item.qty ? ` · ${item.qty}` : ""}
+                  </span>
+                )}
+              </span>
               <button
                 type="button"
                 onClick={() => setHave({ name: item.name, have: !item.have })}

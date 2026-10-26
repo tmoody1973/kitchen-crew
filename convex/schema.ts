@@ -67,6 +67,8 @@ export default defineSchema({
     userId: v.string(),
     name: v.string(), // lowercase, trimmed
     have: v.boolean(),
+    qty: v.optional(v.number()), // how many (cans, boxes) — set by a food box
+    fromBox: v.optional(v.boolean()), // came in a food-pantry box; the crew plans around these first
   }).index("by_user", ["userId"]),
 
   // Non-Kroger stores Tarik has added (Sendik's, Whole Foods…), kept across weeks.

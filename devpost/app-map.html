@@ -107,6 +107,7 @@
       <tr><td>Spending history (weekly / monthly / quarterly)</td><td><code>lib/history.ts</code> · <code>rollUp</code>, <code>convex/history.ts</code>, <code>app/history/page.tsx</code></td></tr>
       <tr><td>Scanning (main Scan and per-row Scan)</td><td><code>components/BarcodeScanner.tsx</code> (<code>forItem</code> = scanning from a row) and <code>lib/barcode.ts</code></td></tr>
       <tr><td>The crew's web recipe search (Add from chat)</td><td><code>lib/recipes/search.ts</code>, the <code>searchRecipes</code> tool in <code>app/api/chat/route.ts</code>, <code>components/cards/RecipeSearchCard.tsx</code></td></tr>
+      <tr><td>Food box (plan the week around a pantry box)</td><td><code>components/FoodBox.tsx</code>, <code>lib/pantry-box.ts</code>, <code>app/api/pantry/photo</code>, <code>convex/pantry.ts</code> (<code>addBox</code>)</td></tr>
       <tr><td>Food help (pantries, free meals, WIC)</td><td><code>lib/food-help.ts</code>, <code>components/FoodHelpCard.tsx</code>, <code>app/food-help</code>, the <code>findFoodHelp</code> tool in <code>app/api/chat/route.ts</code></td></tr>
       <tr><td>SNAP (benefit, tags, SNAP vs cash, nearby stores)</td><td><code>lib/snap.ts</code>, <code>lib/snap-stores.ts</code>, <code>app/api/snap-stores</code>, <code>components/SnapStores.tsx</code></td></tr>
       <tr><td>Sending the list to a Pick 'n Save cart</td><td><code>lib/kroger-cart.ts</code> and <code>app/api/kroger/</code> (connect, callback, cart)</td></tr>

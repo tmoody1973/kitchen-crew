@@ -7,22 +7,12 @@ import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { ArrowRight, Camera, ReceiptText, Undo2 } from "lucide-react";
 import { actualPaid, estimateTotal, formatMoney } from "@/lib/tally";
+import { shrink } from "@/lib/photo";
 
 type Fields = { store: string; subtotal: string; tax: string; fees: string; total: string };
 
 const cents = (n: number) => Math.round(n * 100);
 const sum = (ns: number[]) => ns.reduce((s, n) => s + cents(n), 0) / 100;
-
-/** Shrinks a phone photo to ≤1600 px JPEG so it uploads fast and stays under the server's size limit. */
-async function shrink(file: File): Promise<string> {
-  const img = await createImageBitmap(file);
-  const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.round(img.width * scale);
-  canvas.height = Math.round(img.height * scale);
-  canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/jpeg", 0.82);
-}
 
 const money = (text: string): number | undefined | "invalid" => {
   if (!text.trim()) return undefined;

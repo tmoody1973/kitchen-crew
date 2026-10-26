@@ -56,6 +56,7 @@ export async function POST(req: Request) {
   ]);
   // Recipes imported during this chat join the saved list, so the crew can plan with them right away.
   const recipesById = new Map(savedRecipes.map((r) => [r._id as string, r]));
+  const boxItems = pantry.filter((p) => p.have && p.fromBox).map((p) => p.name);
   const pantrySets = {
     have: new Set(pantry.filter((p) => p.have).map((p) => p.name)),
     out: new Set(pantry.filter((p) => !p.have).map((p) => p.name)),
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
       removedMeals: removed,
       pantryHave: pantry.filter((p) => p.have).map((p) => p.name),
       pantryOut: pantry.filter((p) => !p.have).map((p) => p.name),
+      boxItems: pantry.filter((p) => p.have && p.fromBox).map((p) => (p.qty ? `${p.name} ×${p.qty}` : p.name)),
       servings,
       leftovers: household.leftovers,
       savedRecipes: savedRecipes.slice(0, 150).map((r) => ({ id: r._id, title: r.title, tags: r.tags })),
@@ -157,7 +159,7 @@ export async function POST(req: Request) {
             if (best) products.set(name, { ...best, substitute: swap, suggestedPacks: 1 });
           }
 
-          yield { needsStore: false, storeName, ...pricePlan(plan, products, tally.left) };
+          yield { needsStore: false, storeName, boxItems: boxItems.length ? boxItems : undefined, ...pricePlan(plan, products, tally.left) };
         },
       }),
       importRecipe: tool({

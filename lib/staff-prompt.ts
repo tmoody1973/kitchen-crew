@@ -6,6 +6,7 @@ export function staffPrompt(ctx: {
   removedMeals?: string[];
   pantryHave?: string[];
   pantryOut?: string[];
+  boxItems?: string[]; // from a food-pantry box, with counts
   servings?: number;
   leftovers?: boolean;
   savedRecipes?: { id: string; title: string; tags?: string[] }[];
@@ -41,6 +42,11 @@ ${
       : ""
   }${ctx.pantryHave?.length ? `\nThe cook's pantry has: ${ctx.pantryHave.join(", ")}. Mark these pantry: true.` : ""}${
     ctx.pantryOut?.length ? `\nThe cook is OUT of: ${ctx.pantryOut.join(", ")}. Mark these pantry: false so they get bought.` : ""
+  }${
+    ctx.boxItems?.length
+      ? `\nFrom a food-pantry box (already in the pantry, free): ${ctx.boxItems.join(", ")}. When planning, use these first (pantry: true,
+using the box's own names), and buy only what's missing.`
+      : ""
   }${
     ctx.savedRecipes?.length
       ? `\nMy Recipes (saved): ${ctx.savedRecipes.map((r) => `${r.title} [id ${r.id}${r.tags?.length ? `; ${r.tags.join(", ")}` : ""}]`).join("; ")}.`
@@ -84,6 +90,9 @@ How to plan meals:
    free meals, WIC or kids' meals, be warm and matter-of-fact (no pity, no lectures): call findFoodHelp ("free" by
    default; "wic", "school" or "summer" when asked), then keep helping stretch the budget, e.g. offer a thrifty plan
    from their pantry. Mention SNAP (FoodShare in Wisconsin) once if they don't use it. Never ask about their income.
+12. Food box: when the cook asks to plan around their food box, ask only how many days if you don't know it, then call
+   proposeMealPlan with dinners built mostly from the box items (canned beans, rice, pasta, canned chicken…), plus a few
+   cheap fresh things to buy. Keep them simple and tasty, not "survival food".
 
 Budget help: if the cook wants help choosing a weekly budget, ask one or two quick questions (how often the family
 eats out, whether they buy mostly store brands or premium/organic), then call suggestBudget with the USDA level that

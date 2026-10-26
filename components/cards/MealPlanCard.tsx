@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import type { PricedPlan } from "@/lib/meal-plan";
+import { fromBox } from "@/lib/pantry-box";
 import { formatMoney } from "@/lib/tally";
 import { formatServings } from "@/lib/household";
-import { BadgePercent, ChevronDown, Repeat2, Store, Users, X } from "lucide-react";
+import { BadgePercent, ChevronDown, Package, Repeat2, Store, Users, X } from "lucide-react";
 
 // Claude chose the meals; code priced them. This card just draws the data.
 export default function MealPlanCard({
@@ -12,12 +13,16 @@ export default function MealPlanCard({
   storeName,
   onRemove,
   pantrySlot,
+  boxItems,
 }: {
   plan: PricedPlan;
+  boxItems?: string[]; // food-box contents, to say how much of the plan the box covers
   storeName?: string;
   onRemove?: (mealIndex: number) => void; // index into plan.meals as shown
   pantrySlot?: React.ReactNode; // pantry chips, drawn by the parent
 }) {
+  const boxUsed = fromBox(plan.items, boxItems ?? []);
+  const snapToBuy = plan.items.reduce((s, i) => s + (!i.pantry && i.product?.snap ? i.cost : 0), 0);
   const [showItems, setShowItems] = useState(false);
   const toBuy = plan.items.filter((i) => !i.pantry);
   const pantry = plan.items.filter((i) => i.pantry);
@@ -70,6 +75,14 @@ export default function MealPlanCard({
         <span className="font-black">Shopping total</span>
         <span className="tag text-lg">{formatMoney(plan.total)}</span>
       </div>
+      {boxUsed.length > 0 && (
+        <p className="-mt-1 flex items-center gap-1 text-sm font-extrabold text-kale-ink">
+          <Package size={16} strokeWidth={2.75} aria-hidden />
+          From your food box: {boxUsed.length} {boxUsed.length === 1 ? "item" : "items"} · To buy: {toBuy.length} {toBuy.length === 1 ? "item" : "items"},{" "}
+          {formatMoney(plan.total)}
+          {snapToBuy > 0 ? ` (${formatMoney(Math.round(snapToBuy * 100) / 100)} SNAP-eligible)` : ""}
+        </p>
+      )}
       {(plan.savings ?? 0) > 0 && (
         <p className="-mt-1 flex items-center gap-1 text-sm font-extrabold text-kale-ink">
           <BadgePercent size={16} strokeWidth={2.75} aria-hidden />

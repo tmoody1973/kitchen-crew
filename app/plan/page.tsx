@@ -33,6 +33,12 @@ const SUGGESTIONS = ["What should we cook this week?", "Plan 3 days from my save
 
 type Removed = Record<string, number[]>; // plan card (tool call id) → removed dinner indexes
 
+// Links that open the planner with a first message: Budget Setup's "Let the crew help", the Pantry's food box.
+const ASK_STARTERS: Record<string, string> = {
+  budget: "Can you help me figure out a weekly grocery budget for my family?",
+  box: "I got a box from a food pantry. Can you plan this week's dinners around what's in it?",
+};
+
 // Which chat to show: ?chat=<id>, a fresh one (?new=1 or ?ask=budget), or your most recent.
 export default function PlanPage() {
   const [params, setParams] = useState<URLSearchParams | null>(null);
@@ -43,7 +49,7 @@ export default function PlanPage() {
   const [chatId, setChatId] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     if (chatId !== undefined || !params || chats === undefined) return;
-    const wantsNew = params.has("new") || params.get("ask") === "budget";
+    const wantsNew = params.has("new") || params.has("ask");
     setChatId(params.get("chat") ?? (wantsNew ? null : (chats[0]?._id ?? null)));
   }, [chatId, params, chats]);
   const chat = useQuery(api.chats.get, chatId ? { id: chatId } : "skip");
@@ -57,7 +63,7 @@ export default function PlanPage() {
       chatId={saved?._id}
       initialMessages={saved ? (JSON.parse(saved.messagesJson) as UIMessage[]) : []}
       initialRemoved={saved ? (JSON.parse(saved.removedJson) as Removed) : {}}
-      askBudget={params.get("ask") === "budget"}
+      ask={params.get("ask") ?? undefined}
     />
   );
 }
@@ -66,12 +72,12 @@ function ChatView({
   chatId,
   initialMessages,
   initialRemoved,
-  askBudget,
+  ask,
 }: {
   chatId?: string;
   initialMessages: UIMessage[];
   initialRemoved: Removed;
-  askBudget: boolean;
+  ask?: string; // ?ask=budget or ?ask=box starts that conversation
 }) {
   const router = useRouter();
   const saveChat = useMutation(api.chats.save);
@@ -89,10 +95,11 @@ function ChatView({
 
   // "Let the crew help" on Budget Setup opens /plan?ask=budget and starts the budget conversation.
   useEffect(() => {
-    if (!askBudget || askedBudget.current || messages.length > 0) return;
+    const starter = ASK_STARTERS[ask ?? ""];
+    if (!starter || askedBudget.current || messages.length > 0) return;
     askedBudget.current = true;
-    sendMessage({ text: "Can you help me figure out a weekly grocery budget for my family?" });
-  }, [askBudget, messages.length, sendMessage]);
+    sendMessage({ text: starter });
+  }, [ask, messages.length, sendMessage]);
 
   // Save after each crew reply (and when dinners are removed), so you can leave and come back.
   useEffect(() => {
@@ -209,6 +216,7 @@ function ChatView({
                   key={i}
                   priced={out}
                   storeName={out.storeName}
+                  boxItems={out.boxItems}
                   initialRemoved={removedByPlan[part.toolCallId]}
                   onRemovedChange={(indexes) => setRemovedByPlan((prev) => ({ ...prev, [part.toolCallId]: indexes }))}
                 />

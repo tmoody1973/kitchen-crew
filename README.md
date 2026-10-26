@@ -8,6 +8,7 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 
 ## What it does
 
+- **Food box:** got a box from a food pantry? Snap it (or tick what's in it) and the crew plans the week around it, buying only what's missing.
 - **Food help:** pantries, free meals, school meal sites and WIC near a ZIP (Feed America's directory, feedam.org), in the chat when money is tight and on a "Food help near you" page.
 - **SNAP households:** enter your monthly benefit (USDA's maximum pre-filled), see which list items SNAP covers (Kroger's flag), a SNAP-vs-cash tally, and nearby stores that take SNAP (USDA Retailer Locator).
 - **First sign-in:** a short welcome asks who's eating and suggests a budget for that household from USDA's food-cost tables.

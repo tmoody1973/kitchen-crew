@@ -1,6 +1,6 @@
 # Plan: Pantry Box mode and Classroom mode (for food banks like Hunger Task Force)
 
-Status: **proposed, not built** (drafted Oct 26, 2026). Built pieces it reuses: barcode scanner, receipt photo reading,
+Status: **Pantry Box mode built Oct 26, 2026** (photo + checklist + plan-around-the-box; barcode-into-pantry and count-down not built). Classroom mode: proposed, not built. Built pieces it reuses: barcode scanner, receipt photo reading,
 pantry, the crew's planner, SNAP math, food-help directory.
 
 ## 1. Pantry Box mode — "I got a food box; plan my week around it"

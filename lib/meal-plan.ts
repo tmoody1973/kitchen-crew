@@ -186,7 +186,7 @@ export type PlanProgress = { progress: true; done: number; total: number; curren
 export type PlanToolOutput =
   | PlanProgress // in-progress update while pricing; the last update is the plan itself
   | { progress?: false; needsStore: true }
-  | ({ progress?: false; needsStore: false; storeName?: string } & PricedPlan);
+  | ({ progress?: false; needsStore: false; storeName?: string; boxItems?: string[] } & PricedPlan);
 
 type SavedRecipe = {
   title: string;
