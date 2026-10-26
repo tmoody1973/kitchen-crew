@@ -70,6 +70,9 @@ export default function MealPlanCard({
         <span className="font-black">Shopping total</span>
         <span className="tag text-lg">{formatMoney(plan.total)}</span>
       </div>
+      <p className="-mt-1 text-xs font-bold text-ink-soft">
+        Kroger&apos;s current prices{storeName ? ` at ${storeName.split(" · ")[0]}` : ""}, for whole packages. The register can differ; the tally uses what you actually pay.
+      </p>
 
       <button
         type="button"

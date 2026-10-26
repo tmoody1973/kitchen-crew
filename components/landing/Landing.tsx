@@ -104,7 +104,7 @@ export default function Landing() {
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:underline">
               <GitHubMark /> GitHub
             </a>
-            <Link href="/plan" className="rounded-full border-2 border-ink px-3 py-1 hover:bg-line">
+            <Link href="/sign-in" className="rounded-full border-2 border-ink px-3 py-1 hover:bg-line">
               Sign in
             </Link>
           </nav>

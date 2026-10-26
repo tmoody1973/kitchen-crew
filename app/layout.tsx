@@ -21,7 +21,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     // Font variables live on <html> so the theme tokens defined at :root (--font-sans, --font-sign) can resolve them.
     <html lang="en" className={`${bowlby.variable} ${figtree.variable}`}>
       <body className="font-sans antialiased">
-        <ClerkProvider dynamic>
+        <ClerkProvider dynamic localization={{ signIn: { start: { title: "Continue to Mise", titleCombined: "Continue to Mise" } } }}>
           <Nav />
           <main className="mx-auto max-w-xl px-3 py-4 lg:max-w-6xl lg:px-8 lg:py-6">
             <ConvexClientProvider>{children}</ConvexClientProvider>

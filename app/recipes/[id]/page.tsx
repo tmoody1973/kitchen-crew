@@ -102,6 +102,11 @@ export default function RecipePage() {
       <div>
         <h1 className="font-sign text-3xl leading-tight">{recipe.title}</h1>
         {recipe.sourceName && <p className="font-bold text-ink-soft">from {recipe.sourceName}</p>}
+        {recipe.sourceType !== "crew" && !recipe.unread && (
+          <p className="mt-1 text-xs font-bold text-ink-soft">
+            Read by the crew from the {recipe.sourceType === "youtube" ? "video or the recipe it links" : "original page"}. Check amounts against the original before you cook.
+          </p>
+        )}
       </div>
       <TagEditor id={recipe._id} tags={recipe.tags ?? []} />
 

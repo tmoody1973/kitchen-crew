@@ -12,8 +12,8 @@ const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 function DatabaseGate({ children }: { children: ReactNode }) {
   const path = usePathname();
   const { isSignedIn } = useAuth();
-  // Signed-out visitors can only reach "/" (the middleware sends every other page to sign-in); the landing needs no database.
-  if (path === "/" && !isSignedIn) return <>{children}</>;
+  // Signed-out visitors can only reach "/" and "/sign-in" (the middleware sends every other page to sign-in); neither needs the database.
+  if ((path === "/" || path.startsWith("/sign-in")) && !isSignedIn) return <>{children}</>;
   return (
     <>
       <AuthLoading>

@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { DndContext, PointerSensor, useDraggable, useDroppable, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
-import { GripVertical, Lightbulb, MoreHorizontal, Plus, Users, UtensilsCrossed } from "lucide-react";
+import { ArrowRight, GripVertical, Lightbulb, MoreHorizontal, Plus, ShoppingBasket, Users, UtensilsCrossed } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { formatMoney, isWeekActive } from "@/lib/tally";
@@ -33,6 +33,7 @@ export default function WeekPage() {
   const thisMeals = useQuery(api.plans.meals, { offset: 0 });
   const nextMeals = useQuery(api.plans.meals, { offset: 1 });
   const recipes = useQuery(api.recipes.mine);
+  const listItems = useQuery(api.listItems.mine, {});
   const moveMeal = useMutation(api.plans.moveMeal);
   const [span, setSpan] = useState<1 | 2>(1);
   const [active, setActive] = useState<string>("");
@@ -127,6 +128,8 @@ export default function WeekPage() {
     target: c.target,
   }));
   const plannedThisWeek = thisMeals.filter((m) => m.dayIndex !== undefined).reduce((s, m) => s + m.estimatedCost, 0);
+  // Unpaid rows on this week's list, once there are dinners on the board.
+  const toBuy = thisMeals.some((m) => m.dayIndex !== undefined) ? (listItems ?? []).filter((i) => i.paid === undefined).length : 0;
   const dinnersBudget = week.budget - (week.extrasBudget ?? 0);
 
   async function move(id: Id<"meals">, to: Target) {
@@ -164,6 +167,19 @@ export default function WeekPage() {
           ))}
         </div>
       </header>
+
+      {/* The next step once dinners are on the board: go shop the list they built. */}
+      {toBuy > 0 && (
+        <Link href="/list" className="crate flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 py-3 font-extrabold hover:bg-line/40">
+          <span className="flex items-center gap-2">
+            <ShoppingBasket size={18} strokeWidth={2.75} aria-hidden />
+            Your shopping list is ready: {toBuy} {toBuy === 1 ? "item" : "items"} to buy
+          </span>
+          <span className="flex items-center gap-1 text-tomato-dark">
+            Go shopping <ArrowRight size={16} strokeWidth={3} aria-hidden />
+          </span>
+        </Link>
+      )}
 
       {/* Day strip: jump to a day; today is ringed, a dot means a dinner is planned. */}
       <nav aria-label="Days" className="-mx-3 flex gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none]">
