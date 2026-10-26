@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useState } from "react";
+import Link from "next/link";
 import { describeHousehold, formatServings, targetServings } from "@/lib/household";
 import { maxAllotment, weeklyShare } from "@/lib/snap";
 import { DEFAULT_MEMBERS, peopleIn } from "@/lib/usda";
@@ -25,7 +26,10 @@ export default function HouseholdSettings() {
 
   return (
     <section className="ruled flex flex-col gap-3">
-      <h2 className="sign text-2xl">Household</h2>
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 className="sign text-2xl">Household</h2>
+        <Link href="/welcome?edit" className="text-sm font-extrabold underline">Change name or who&apos;s eating</Link>
+      </div>
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="font-bold">Servings per dinner</p>

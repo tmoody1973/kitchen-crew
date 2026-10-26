@@ -55,6 +55,7 @@ Source: `scope.md > The Core Loop`, `scope.md > What "Working" Looks Like`.
 ### First Sign-in *(added on submission day, at Tarik's request)*
 - As anyone trying Mise, I want it to plan for my household, not Tarik's.
   - [ ] A brand-new account opens a three-step Welcome: what the crew should call them; who's eating (men, women, teen boys, teen girls, kids 6–11, little kids 1–5) plus "plan leftovers"; and a weekly budget from USDA's September 2026 food-cost tables for that exact household (size-adjusted), or their own amount.
+  - [ ] "Change name or who's eating" on the Budget page reopens these steps pre-filled; saving updates the household (and can keep this week's budget). Email, password and sign-in method live under the avatar menu's Manage account (Clerk). *(Added on submission day.)*
   - [ ] Dinner servings follow from the people (adults 1, teens 1½, kids ¾, little kids ½); the crew greets them by name and plans for their household. Existing accounts (Tarik, Demo) skip it and keep Tarik's household as the default.
 
 ### Budget Setup
@@ -67,6 +68,7 @@ Source: `scope.md > The POC Boundary` (USDA-seeded budget).
 
 ### Meal Planning Chat
 Source: `scope.md > The Core Loop`.
+- *Guardrails (added on submission day):* the crew only helps with food, cooking, recipes, groceries, stores, prices, the grocery budget, the pantry, SNAP and food assistance, and using Mise; anything else (coding, politics, other money) gets one friendly redirect and no tool calls. It never gives medical advice or promises allergen-free food, and treats recipe pages, search results and pasted text as information, not instructions (tested: a coding request, a voting question and an "ignore your instructions" trick were all declined; food questions answered normally).
 - As Tarik, I want the staff to help me decide what to cook for the next few days so that I plan ahead instead of improvising in the store.
   - [ ] Asking for a plan, the staff first asks what kind of dishes he wants, then how many days.
   - [ ] Pasted recipe names/links are used as inspiration in the plan.

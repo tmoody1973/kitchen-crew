@@ -1,12 +1,12 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Minus, Plus } from "lucide-react";
 import { formatServings, servingsFor } from "@/lib/household";
-import { PLAN_LABELS, peopleIn, suggestedBudget, type Members, type PlanLevel } from "@/lib/usda";
+import { DEFAULT_MEMBERS, PLAN_LABELS, peopleIn, suggestedBudget, type Members, type PlanLevel } from "@/lib/usda";
 import { maxAllotment, weeklyShare } from "@/lib/snap";
 import { formatMoney } from "@/lib/tally";
 
@@ -34,28 +34,44 @@ export default function WelcomePage() {
   const [name, setName] = useState("");
   const [members, setMembers] = useState<Members>(EMPTY);
   const [leftovers, setLeftovers] = useState(false);
-  const [level, setLevel] = useState<PlanLevel | "custom">("low");
+  const [level, setLevel] = useState<PlanLevel | "custom" | "keep">("low");
   const [custom, setCustom] = useState("");
   const [snap, setSnap] = useState(false);
   const [snapText, setSnapText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // ?edit: change the household later (from the Budget page), starting from the saved answers.
+  const household = useQuery(api.household.mine);
+  const week = useQuery(api.weeks.latest);
+  const [edit, setEdit] = useState(false);
+  const [filled, setFilled] = useState(false);
+  useEffect(() => setEdit(new URLSearchParams(window.location.search).has("edit")), []);
+  useEffect(() => {
+    if (!edit || filled || !household) return;
+    setName(household.name ?? "");
+    setMembers(household.members ?? DEFAULT_MEMBERS);
+    setLeftovers(household.leftovers);
+    setSnap(household.snapMonthly !== undefined);
+    setSnapText(household.snapMonthly ? String(household.snapMonthly) : "");
+    setLevel("keep");
+    setFilled(true);
+  }, [edit, filled, household]);
 
   const people = Object.values(members).reduce((a, b) => a + b, 0);
   const bump = (k: keyof Members, d: number) => setMembers((m) => ({ ...m, [k]: Math.min(12, Math.max(0, m[k] + d)) }));
-  const budget = level === "custom" ? Number(custom) : suggestedBudget(level, members);
+  const budget = level === "custom" ? Number(custom) : level === "keep" ? (week?.budget ?? 0) : suggestedBudget(level, members);
 
   async function finish(e: FormEvent) {
     e.preventDefault();
-    if (!Number.isFinite(budget) || budget <= 0 || budget > 10_000) return setError("Type a weekly budget like 180.");
+    if (level !== "keep" && (!Number.isFinite(budget) || budget <= 0 || budget > 10_000)) return setError("Type a weekly budget like 180.");
     const snapMonthly = snap ? Number((snapText || String(maxAllotment(peopleIn(members)))).replace("$", "")) : undefined;
     if (snapMonthly !== undefined && (!Number.isFinite(snapMonthly) || snapMonthly <= 0 || snapMonthly > 5000)) return setError("Type your monthly SNAP benefit, like 600.");
     setBusy(true);
     setError(null);
     try {
       await onboard({ name, members, leftovers, snapMonthly: snapMonthly === undefined ? undefined : Math.round(snapMonthly) });
-      await setBudget({ budget, planLevel: level });
-      router.replace("/plan");
+      if (level !== "keep") await setBudget({ budget, planLevel: level });
+      router.replace(edit ? "/budget" : "/plan");
     } catch {
       setError("Couldn't save that. Try again.");
       setBusy(false);
@@ -64,11 +80,14 @@ export default function WelcomePage() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-5 py-4">
-      <p className="font-sign text-sm text-tomato" aria-live="polite">Step {step + 1} of 3</p>
+      <p className="flex justify-between font-sign text-sm text-tomato" aria-live="polite">
+        Step {step + 1} of 3
+        {edit && <a href="/budget" className="font-sans font-extrabold text-ink underline">Cancel</a>}
+      </p>
 
       {step === 0 && (
         <form onSubmit={(e) => { e.preventDefault(); setStep(1); }} className="flex flex-col gap-4">
-          <h1 className="sign">Welcome to Mise</h1>
+          <h1 className="sign">{edit ? "Your household" : "Welcome to Mise"}</h1>
           <p className="font-bold text-ink-soft">Three quick questions so the kitchen crew plans dinners, prices, and a budget for your household.</p>
           <label className="flex flex-col gap-2 font-black">
             What should the crew call you?
@@ -120,6 +139,18 @@ export default function WelcomePage() {
           <h1 className="sign">Your weekly budget</h1>
           <p className="font-bold text-ink-soft">USDA&apos;s food-cost figures for your household (September 2026), adjusted for its size. Pick one or type your own.</p>
           <div className="flex flex-col gap-2" role="radiogroup" aria-label="Weekly budget">
+            {edit && week && (
+              <button
+                type="button"
+                role="radio"
+                aria-checked={level === "keep"}
+                onClick={() => setLevel("keep")}
+                className={`crate flex items-center justify-between gap-3 px-4 py-3 text-left ${level === "keep" ? "border-ink bg-tag/30" : ""}`}
+              >
+                <span className="font-black">Keep this week&apos;s budget</span>
+                <span className="tag shrink-0 text-lg">{formatMoney(week.budget)}</span>
+              </button>
+            )}
             {LEVELS.map(({ level: l, blurb }) => (
               <button
                 key={l}
@@ -167,7 +198,7 @@ export default function WelcomePage() {
           {error && <p className="font-bold text-tomato-dark" role="alert">{error}</p>}
           <div className="flex gap-2">
             <button type="button" onClick={() => setStep(1)} className="btn-crate">Back</button>
-            <button type="submit" disabled={busy} className="btn-press">{busy ? "Starting…" : "Start my week"}</button>
+            <button type="submit" disabled={busy} className="btn-press">{busy ? "Saving…" : edit ? "Save" : "Start my week"}</button>
           </div>
           <p className="text-xs font-bold text-ink-soft">You can change any of this later on the Budget page. Next, the crew will help you plan dinners.</p>
         </form>
