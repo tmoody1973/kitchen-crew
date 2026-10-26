@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { categoryOf, estimateTotal, formatMoney, rowStatus } from "@/lib/tally";
-import { Check, Minus, Plus, ShoppingBasket, TrendingUp, Utensils, X } from "lucide-react";
+import { Check, Minus, Plus, ScanBarcode, ShoppingBasket, TrendingUp, Utensils, X } from "lucide-react";
 import ProductPicker from "./ProductPicker";
+import { ScanSheet } from "./BarcodeScanner";
 
 /** "" → cleared box; anything else must be a non-negative number. */
 function parseAmount(text: string): number | undefined | "invalid" {
@@ -34,6 +36,7 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
   const [paidText, setPaidText] = useState(item.paid?.toString() ?? "");
   const [estimateText, setEstimateText] = useState("");
   const [picking, setPicking] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const packs = item.packs ?? 1;
@@ -195,6 +198,16 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
             {item.productId ? "Change brand" : "Find at Kroger"}
           </button>
         )}
+        {item.paid === undefined && (
+          <button type="button" onClick={() => setScanning(true)} className="flex items-center gap-1 px-1 text-ink underline" aria-label={`Scan ${item.name}`}>
+            <ScanBarcode size={16} strokeWidth={2.75} aria-hidden /> Scan
+          </button>
+        )}
+        {scanning &&
+          createPortal(
+            <ScanSheet items={[item]} storeId={krogerStoreId} offset={0} forItem={item} onClose={() => setScanning(false)} />,
+            document.body,
+          )}
         <button
           type="button"
           onClick={() => remove({ id: item._id }).catch(fail)}

@@ -8,11 +8,12 @@ import type { Doc } from "@/convex/_generated/dataModel";
 import { ScanBarcode, X } from "lucide-react";
 import { readBarcode } from "@/lib/barcode";
 import type { Product } from "@/lib/kroger";
-import { formatMoney } from "@/lib/tally";
+import { estimateTotal, formatMoney } from "@/lib/tally";
 
 type Result =
-  | { kind: "added" | "onList"; product: Product }
+  | { kind: "added" | "onList" | "swapped"; product: Product }
   | { kind: "sticker"; cents: number }
+  | { kind: "paid"; amount: number }
   | { kind: "error"; message: string };
 
 const FORMATS = ["upc_a", "upc_e", "ean_13", "ean_8"];
@@ -30,7 +31,23 @@ export default function BarcodeScanner({ items, storeId, offset }: { items: Doc<
   );
 }
 
-function ScanSheet({ items, storeId, offset, onClose }: { items: Doc<"listItems">[]; storeId?: string; offset: number; onClose: () => void }) {
+/**
+ * forItem: scanning from one list row. A sticker pays that row; the same product offers "Mark paid";
+ * a different product swaps the row to it (no duplicate row).
+ */
+export function ScanSheet({
+  items,
+  storeId,
+  offset,
+  forItem,
+  onClose,
+}: {
+  items: Doc<"listItems">[];
+  storeId?: string;
+  offset: number;
+  forItem?: Doc<"listItems">;
+  onClose: () => void;
+}) {
   const video = useRef<HTMLVideoElement>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [result, setResult] = useState<Result | null>(null);
@@ -38,11 +55,22 @@ function ScanSheet({ items, storeId, offset, onClose }: { items: Doc<"listItems"
   const [typed, setTyped] = useState("");
   const add = useMutation(api.listItems.add);
   const setPaid = useMutation(api.listItems.setPaid);
+  const setProduct = useMutation(api.listItems.setProduct);
+  // The row a scanned product belongs to: the row you scanned from, else an unpaid row with that product.
+  const rowFor = (product: Product) => forItem ?? items.find((i) => i.productId === product.productId && i.paid === undefined);
+
+  async function markPaid(item: Doc<"listItems">, amount: number) {
+    await setPaid({ id: item._id, paid: amount });
+    setResult({ kind: "paid", amount });
+  }
 
   async function handle(code: string) {
     const scan = readBarcode(code);
     if (!scan) return setResult({ kind: "error", message: "That barcode didn't read cleanly. Try again or type the numbers." });
-    if (scan.kind === "sticker") return setResult({ kind: "sticker", cents: scan.cents });
+    if (scan.kind === "sticker") {
+      if (forItem) return markPaid(forItem, scan.cents / 100).catch(() => setResult({ kind: "error", message: "Couldn't save. Try again." }));
+      return setResult({ kind: "sticker", cents: scan.cents });
+    }
     if (!storeId) return setResult({ kind: "error", message: "Pick a Kroger store on the List first, so I can look up prices." });
     setBusy(true);
     try {
@@ -50,7 +78,11 @@ function ScanSheet({ items, storeId, offset, onClose }: { items: Doc<"listItems"
       const data = (await res.json().catch(() => ({}))) as { product?: Product; error?: string };
       if (!data.product) return setResult({ kind: "error", message: data.error ?? "Couldn't look that up." });
       const product = data.product;
-      if (items.some((i) => i.productId === product.productId)) return setResult({ kind: "onList", product });
+      if (forItem && forItem.productId !== product.productId) {
+        await setProduct({ id: forItem._id, product });
+        return setResult({ kind: "swapped", product });
+      }
+      if (forItem || items.some((i) => i.productId === product.productId)) return setResult({ kind: "onList", product });
       await add({ name: product.name.slice(0, 80), product, offset });
       setResult({ kind: "added", product });
     } catch {
@@ -127,7 +159,13 @@ function ScanSheet({ items, storeId, offset, onClose }: { items: Doc<"listItems"
       {result && (
         <div className="mx-4 flex flex-col gap-3 rounded-2xl bg-chalk p-4 text-ink" role="status">
           {result.kind === "error" && <p className="font-bold text-tomato-dark">{result.message}</p>}
-          {(result.kind === "added" || result.kind === "onList") && (
+          {result.kind === "paid" && (
+            <p className="font-black">
+              Paid {formatMoney(result.amount)}
+              {forItem ? ` for ${forItem.name}` : ""}.
+            </p>
+          )}
+          {(result.kind === "added" || result.kind === "onList" || result.kind === "swapped") && (
             <div className="flex items-center gap-3">
               {result.product.imageUrl && (
                 // eslint-disable-next-line @next/next/no-img-element -- Kroger product photo
@@ -137,11 +175,22 @@ function ScanSheet({ items, storeId, offset, onClose }: { items: Doc<"listItems"
                 <p className="font-black leading-snug">{result.product.name}</p>
                 <p className="text-sm font-bold text-ink-soft">
                   {result.product.size ? `${result.product.size} · ` : ""}
-                  {formatMoney(result.product.price)} · {result.kind === "added" ? "added to your list" : "already on your list"}
+                  {formatMoney(result.product.price)} ·{" "}
+                  {result.kind === "added" ? "added to your list" : result.kind === "swapped" ? `now on your list for ${forItem?.name}` : "on your list"}
                 </p>
               </div>
             </div>
           )}
+          {(result.kind === "onList" || result.kind === "swapped") &&
+            (() => {
+              const row = rowFor(result.product);
+              const amount = row && row.paid === undefined ? estimateTotal(result.product.price, row.packs ?? 1) : undefined;
+              return amount === undefined ? null : (
+                <button type="button" onClick={() => markPaid(row!, amount).catch(() => setResult({ kind: "error", message: "Couldn't save. Try again." }))} className="btn-press self-start">
+                  Mark paid {formatMoney(amount)}
+                </button>
+              );
+            })()}
           {result.kind === "sticker" && (
             <>
               <p className="font-black">Sticker price {formatMoney(result.cents / 100)}. Which item is it?</p>
@@ -167,7 +216,11 @@ function ScanSheet({ items, storeId, offset, onClose }: { items: Doc<"listItems"
               )}
             </>
           )}
-          <button type="button" onClick={() => setResult(null)} className="btn-press self-start">Scan another</button>
+          {forItem && result.kind !== "error" ? (
+            <button type="button" onClick={onClose} className="btn-crate self-start">Done</button>
+          ) : (
+            <button type="button" onClick={() => setResult(null)} className="btn-crate self-start">Scan another</button>
+          )}
         </div>
       )}
 
