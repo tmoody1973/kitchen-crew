@@ -1,0 +1,14 @@
+# Never upload local secrets, private notes, review captures, or tooling folders.
+.env*
+!.env.example
+devpost/learner-profile.md
+.impeccable/review/
+.impeccable/questions/
+.next/
+.next-verify/
+node_modules/
+.agents/
+.claude/
+agent/
+.remember/
+skills-lock.json
