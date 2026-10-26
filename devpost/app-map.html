@@ -101,6 +101,12 @@
       <tr><td>How a plan is priced at Kroger</td><td><code>lib/meal-plan.ts</code> · <code>pricePlan</code>; Kroger calls in <code>lib/kroger.ts</code></td></tr>
       <tr><td>Which links count as a written recipe on YouTube</td><td><code>lib/recipes/links.ts</code> and the real examples in <code>lib/recipes/links.test.ts</code></td></tr>
       <tr><td>The List's views (All items / By dinner / By plan)</td><td><code>lib/list-groups.ts</code> and <code>app/list/page.tsx</code></td></tr>
+      <tr><td>Sale prices (plan card "Includes $X in Kroger sales", list tags)</td><td><code>lib/kroger.ts</code> · <code>saleRegular</code>; savings in <code>lib/meal-plan.ts</code> · <code>pricePlan</code></td></tr>
+      <tr><td>"What's on sale?" (the crew's Sales card)</td><td><code>lib/sales.ts</code> and the <code>findSales</code> tool in <code>app/api/chat/route.ts</code>; card in <code>components/cards/SalesCard.tsx</code></td></tr>
+      <tr><td>Done shopping and receipt reading</td><td><code>components/DoneShopping.tsx</code>, <code>app/api/receipt/route.ts</code>, <code>convex/receipts.ts</code>; the tally counts receipts via <code>actualPaid</code> in <code>lib/tally.ts</code></td></tr>
+      <tr><td>Spending history (weekly / monthly / quarterly)</td><td><code>lib/history.ts</code> · <code>rollUp</code>, <code>convex/history.ts</code>, <code>app/history/page.tsx</code></td></tr>
+      <tr><td>Scanning (main Scan and per-row Scan)</td><td><code>components/BarcodeScanner.tsx</code> (<code>forItem</code> = scanning from a row) and <code>lib/barcode.ts</code></td></tr>
+      <tr><td>Sending the list to a Pick 'n Save cart</td><td><code>lib/kroger-cart.ts</code> and <code>app/api/kroger/</code> (connect, callback, cart)</td></tr>
       <tr><td>Colors, fonts, buttons</td><td><code>app/globals.css</code> and <code>DESIGN.md</code></td></tr>
     </tbody>
   </table>

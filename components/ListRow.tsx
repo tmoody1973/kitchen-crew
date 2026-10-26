@@ -171,7 +171,7 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
         </p>
       )}
 
-      <div className="flex items-center gap-2 text-sm font-bold text-ink-soft lg:order-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-bold text-ink-soft lg:order-2">
         <span className="flex items-center gap-1.5" aria-label={`${packs} ${packs === 1 ? "package" : "packages"}`}>
           <button
             type="button"
@@ -194,12 +194,12 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
           </button>
         </span>
         {krogerStoreId && (
-          <button type="button" onClick={() => setPicking(!picking)} className="px-1 text-ink underline">
+          <button type="button" onClick={() => setPicking(!picking)} className="whitespace-nowrap px-1 text-ink underline">
             {item.productId ? "Change brand" : "Find at Kroger"}
           </button>
         )}
         {item.paid === undefined && (
-          <button type="button" onClick={() => setScanning(true)} className="flex items-center gap-1 px-1 text-ink underline" aria-label={`Scan ${item.name}`}>
+          <button type="button" onClick={() => setScanning(true)} className="flex items-center gap-1 whitespace-nowrap px-1 text-ink underline" aria-label={`Scan ${item.name}`}>
             <ScanBarcode size={16} strokeWidth={2.75} aria-hidden /> Scan
           </button>
         )}
