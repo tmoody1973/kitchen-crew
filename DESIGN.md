@@ -297,7 +297,7 @@ In the build, kale and squash appear only on list rows (under / over), the budge
 
 ## Layout
 
-One centered column, `max-width: 36rem`, with 12px side gutters and 16px top and bottom padding, on every screen and every viewport. There are no breakpoints: desktop shows the same phone column centered on the ground. The nav is a sticky top bar (ground at 95% with a light backdrop blur, 2px rule underneath) holding the tomato Mise wordmark and five icon-over-label links that scroll horizontally if needed.
+One centered column, `max-width: 36rem`, with 12px side gutters and 16px top and bottom padding, on phones. **From `lg` (1024px) the app widens to a 72rem column (32px gutters, 24px vertical padding) and each screen uses the width** (added after the build's final review, so laptop use needs less scrolling; phones are unchanged): List and My Recipes get a pinned left sidebar (tools, tally, search) beside the list or a photo grid (3 across, 4 from `xl`); list rows become one line; the recipe view becomes details · ingredients · steps (three columns from `xl`); Plan gets a pinned right rail with the tally and this week's dinners; Pantry/Regulars and Budget/Household sit side by side; the slim pinned tally that follows a phone scroll is hidden at `lg`, since the sidebar stays visible. The nav is a sticky top bar (ground at 95% with a light backdrop blur, 2px rule underneath) holding the tomato Mise wordmark and five icon-over-label links that scroll horizontally if needed.
 
 Spacing runs on Tailwind's 4px grid. Gaps between related items are 8px, between groups 12px, between sections 16px; crate interiors are 16px (12px for dense lists). The tally board sits first on List and Plan; on Plan the chat input is fixed at the bottom within thumb reach.
 

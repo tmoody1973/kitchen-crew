@@ -39,6 +39,12 @@ In a one-minute demo: start with a weekly budget for a family of three (seeded f
 - Instacart integration (learner has developer access; what it covers is not yet checked).
 - Planning further ahead (full Sunday-planning flow).
 
+## What Changed During the Build
+*(Added at the end of the build so this file matches the submission; details and dates are in `checklist.md > Revisions`.)*
+- **Now built, at Tarik's request during the build:** Instacart (send the list or a recipe; development key, so it opens Instacart's sandbox store), a week board, recipe links and a synced YouTube playlist, barcode scanning, a two-store price comparison, saved chats, pantry and household sizing, and a public landing page.
+- **Changed from the plan above:** purchases are logged by typing what was paid on each shopping-list row rather than in free text; the "named roles" became one crew voice whose answers come back as cards.
+- **Still later:** receipt photos, savings comparisons over time, and stores outside the Kroger family.
+
 ## Explicitly Cut
 - **Plaid / connecting a real bank account** — real bank credentials, account approval, and security work; far beyond a 2–4 hour build.
 - **Grubhub / Uber Eats data and coupon hunting** — no easy data access for a hobby project; would mean hand-pasting numbers anyway.
