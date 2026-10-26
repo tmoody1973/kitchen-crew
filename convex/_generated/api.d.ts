@@ -9,6 +9,7 @@
  */
 
 import type * as chats from "../chats.js";
+import type * as demo from "../demo.js";
 import type * as household from "../household.js";
 import type * as listItems from "../listItems.js";
 import type * as model from "../model.js";
@@ -26,6 +27,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   chats: typeof chats;
+  demo: typeof demo;
   household: typeof household;
   listItems: typeof listItems;
   model: typeof model;
