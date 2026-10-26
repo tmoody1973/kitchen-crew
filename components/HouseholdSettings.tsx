@@ -2,14 +2,25 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { formatServings, targetServings } from "@/lib/household";
+import { useState } from "react";
+import { describeHousehold, formatServings, targetServings } from "@/lib/household";
+import { maxAllotment, weeklyShare } from "@/lib/snap";
+import { DEFAULT_MEMBERS, peopleIn } from "@/lib/usda";
 import { Minus, Plus } from "lucide-react";
 
 // How big the crew makes each dinner. Saved right away.
 export default function HouseholdSettings() {
   const household = useQuery(api.household.mine);
   const save = useMutation(api.household.save);
+  const setSnap = useMutation(api.household.setSnap);
+  const [snapText, setSnapText] = useState<string | null>(null);
   if (!household) return null;
+  const members = household.members ?? DEFAULT_MEMBERS;
+  const snapOn = household.snapMonthly !== undefined;
+  const saveSnap = (text: string) => {
+    const n = Number(text.replace("$", ""));
+    if (Number.isFinite(n) && n > 0) setSnap({ snapMonthly: Math.round(n) }).catch(() => {});
+  };
   const set = (servings: number, leftovers: boolean) => save({ servings, leftovers });
 
   return (
@@ -18,7 +29,7 @@ export default function HouseholdSettings() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="font-bold">Servings per dinner</p>
-          <p className="text-sm text-ink-soft">2 adults + a teen who eats like 1½ = 3½</p>
+          <p className="text-sm text-ink-soft">{describeHousehold(members).replace(/ \(.*?\)/g, "")}; teens count as 1½</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -56,6 +67,34 @@ export default function HouseholdSettings() {
           className="check"
         />
       </label>
+      <label className="flex items-center justify-between gap-3 font-bold">
+        <span>
+          We use SNAP (EBT)
+          <span className="block text-sm font-normal text-ink-soft">The list marks SNAP-eligible items and the tally splits SNAP and cash</span>
+        </span>
+        <input
+          type="checkbox"
+          checked={snapOn}
+          onChange={(e) => setSnap({ snapMonthly: e.target.checked ? maxAllotment(peopleIn(members)) : undefined }).catch(() => {})}
+          className="check"
+        />
+      </label>
+      {snapOn && (
+        <label className="flex items-center justify-between gap-3 text-sm font-bold">
+          <span>
+            Monthly SNAP benefit
+            <span className="block font-normal text-ink-soft">About ${weeklyShare(household.snapMonthly!)} a week</span>
+          </span>
+          <input
+            inputMode="decimal"
+            value={snapText ?? String(household.snapMonthly)}
+            onChange={(e) => setSnapText(e.target.value)}
+            onBlur={(e) => { saveSnap(e.target.value); setSnapText(null); }}
+            aria-label="Monthly SNAP benefit in dollars"
+            className="field w-28 px-2 py-1.5 text-right text-base"
+          />
+        </label>
+      )}
     </section>
   );
 }

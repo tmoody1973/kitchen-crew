@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { actualPaid, computeSplitTally, computeTally, formatMoney, isWeekActive, receiptExtra } from "@/lib/tally";
+import { snapSplit, weeklyShare } from "@/lib/snap";
 import { ArrowRight } from "lucide-react";
 
 /** Keeps the tally in view: once the big board scrolls under the top menu, a slim copy pins just below it. */
@@ -66,6 +67,7 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
   const week = offset === 1 ? nextWeek : thisWeek;
   const items = useQuery(api.listItems.mine, { offset });
   const receipts = useQuery(api.receipts.forWeek, { offset });
+  const household = useQuery(api.household.mine);
   if (week === undefined || items === undefined || receipts === undefined) {
     return <div className="board h-[118px] animate-pulse" aria-label="Loading your week" />;
   }
@@ -98,6 +100,8 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
   // Finished trips count at their receipt totals (tax and fees included); other rows at their paid boxes.
   const t = computeTally(week.budget, actualPaid(items, receipts), week.startDate, now);
   const extra = receiptExtra(items, receipts);
+  const snapMonthly = household?.snapMonthly;
+  const snapPart = snapMonthly !== undefined ? snapSplit(items, receipts) : null;
   const under = t.status === "under";
   const split = week.extrasBudget ? computeSplitTally(week.budget, week.extrasBudget, items, week.startDate, now) : null;
   const spoken = `${formatMoney(t.spent)} of ${formatMoney(t.budget)} spent this week. ${formatMoney(Math.abs(t.left))} ${
@@ -138,16 +142,26 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
         </span>{" "}
         · {t.daysLeft} {t.daysLeft === 1 ? "day" : "days"} left
       </p>
-      {split && (
+      {(split || snapPart || extra !== 0) && (
         <p className="mt-2 flex flex-wrap gap-2 text-xs font-extrabold">
-          <span className={`chalk-pill ${split.dinner.left < 0 ? "border-tag text-tag" : ""}`}>
-            Dinners {formatMoney(split.dinner.spent)} / {formatMoney(split.dinner.budget)}
-            {split.dinner.left < 0 ? " · over" : ""}
-          </span>
-          <span className={`chalk-pill ${split.extra.left < 0 ? "border-tag text-tag" : ""}`}>
-            Extras {formatMoney(split.extra.spent)} / {formatMoney(split.extra.budget)}
-            {split.extra.left < 0 ? " · over" : ""}
-          </span>
+          {split && (
+            <>
+              <span className={`chalk-pill ${split.dinner.left < 0 ? "border-tag text-tag" : ""}`}>
+                Dinners {formatMoney(split.dinner.spent)} / {formatMoney(split.dinner.budget)}
+                {split.dinner.left < 0 ? " · over" : ""}
+              </span>
+              <span className={`chalk-pill ${split.extra.left < 0 ? "border-tag text-tag" : ""}`}>
+                Extras {formatMoney(split.extra.spent)} / {formatMoney(split.extra.budget)}
+                {split.extra.left < 0 ? " · over" : ""}
+              </span>
+            </>
+          )}
+          {snapPart && snapMonthly !== undefined && (
+            <span className="chalk-pill" title="SNAP: paid items Kroger marks SNAP-eligible; cash: everything else, plus tax and fees">
+              SNAP {formatMoney(snapPart.snap)} / {formatMoney(weeklyShare(snapMonthly))} · cash {formatMoney(snapPart.cash)}
+              {snapPart.unmarked > 0 ? ` · ${formatMoney(snapPart.unmarked)} unmarked` : ""}
+            </span>
+          )}
           {extra !== 0 && (
             <span className="chalk-pill" title="Receipt totals minus the paid boxes they cover: tax, fees, and register differences">
               Receipt {extra > 0 ? "+" : "−"}

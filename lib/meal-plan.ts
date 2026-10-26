@@ -40,6 +40,7 @@ export type Product = {
   price: number;
   regularPrice?: number; // set only when on sale; price is then the sale price
   imageUrl?: string;
+  snap?: boolean; // Kroger flags it SNAP-eligible
   suggestedPacks?: number;
   substitute?: string; // set when this is a swap ("kimchi" for zha cai)
 };

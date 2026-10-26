@@ -74,7 +74,7 @@ export async function rebuildWeek(ctx: MutationCtx, weekId: Id<"weeks">) {
       fromPlan: true,
       fromBoard: true,
       category: "dinner",
-      ...productFields(p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, regularPrice: p.regularPrice, imageUrl: p.imageUrl } : undefined),
+      ...productFields(p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, regularPrice: p.regularPrice, imageUrl: p.imageUrl, snap: p.snap } : undefined),
     });
   }
 }
@@ -90,6 +90,7 @@ export const product = v.object({
   price: v.number(),
   regularPrice: v.optional(v.number()), // set when on sale; price is the sale price
   imageUrl: v.optional(v.string()),
+  snap: v.optional(v.boolean()), // Kroger's SNAP-eligible flag
 });
 
 // Only show product photos served by Kroger.
@@ -107,6 +108,7 @@ export function productFields(p: Infer<typeof product> | undefined) {
     return {
       estimate: undefined,
       regularPrice: undefined,
+      snap: undefined,
       estimateSource: "manual" as const,
       productId: undefined,
       productName: undefined,
@@ -119,6 +121,7 @@ export function productFields(p: Infer<typeof product> | undefined) {
   return {
     estimate: p.price,
     regularPrice: p.regularPrice !== undefined && p.regularPrice > p.price ? p.regularPrice : undefined,
+    snap: p.snap,
     estimateSource: "kroger" as const,
     productId: p.productId.slice(0, 20),
     productName: p.name.slice(0, 200),

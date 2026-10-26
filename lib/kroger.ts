@@ -17,7 +17,7 @@ export function pickPrice(price: KrogerPrice | undefined): number | null {
 let token: { value: Promise<string>; expiresAt: number } | null = null;
 let stores: Promise<Store[]> | null = null;
 
-export type Store = { id: string; name: string };
+export type Store = { id: string; name: string; lat?: number; lng?: number };
 function getToken(): Promise<string> {
   if (token && Date.now() < token.expiresAt) return token.value;
   // Placeholder expiry until Kroger says how long the pass lasts; a failed request is forgotten so the next call retries.
@@ -55,7 +55,7 @@ async function krogerGet<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-type KrogerLocation = { locationId: string; chain: string; name: string; address: { city: string } };
+type KrogerLocation = { locationId: string; chain: string; name: string; address: { city: string }; geolocation?: { latitude: number; longitude: number } };
 
 const CHAIN_LABELS: Record<string, string> = { "PICK N SAVE": "Pick 'n Save", "METRO MARKET": "Metro Market" };
 
@@ -82,7 +82,7 @@ async function fetchStores(): Promise<Store[]> {
   const { data } = await krogerGet<{ data: KrogerLocation[] }>(
     `/locations?filter.zipCode.near=${encodeURIComponent(zip)}&filter.radiusInMiles=10&filter.limit=15`,
   );
-  return data.map((loc) => ({ id: loc.locationId, name: storeLabel(loc) }));
+  return data.map((loc) => ({ id: loc.locationId, name: storeLabel(loc), lat: loc.geolocation?.latitude, lng: loc.geolocation?.longitude }));
 }
 
 // One Kroger search at a time: slower (~0.4 s each) but never looks like a burst to Kroger's firewall.
@@ -103,7 +103,7 @@ export async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) =>
 }
 
 // regularPrice is set only when the item is on sale (price is then the sale price).
-export type Product = { productId: string; name: string; size?: string; price: number; regularPrice?: number; imageUrl?: string };
+export type Product = { productId: string; name: string; size?: string; price: number; regularPrice?: number; imageUrl?: string; snap?: boolean };
 
 type KrogerImage = { perspective: string; featured?: boolean; sizes: { size: string; url: string }[] };
 type KrogerProduct = {
@@ -111,6 +111,7 @@ type KrogerProduct = {
   description: string;
   images?: KrogerImage[];
   items?: { size?: string; price?: KrogerPrice }[];
+  snapEligible?: boolean; // Kroger sends true for SNAP-eligible food; absent for non-food and hot foods
 };
 
 /** The featured (else front) photo at 100×100. */
@@ -135,6 +136,7 @@ export function toProduct(p: KrogerProduct): Product | null {
     price,
     ...(regularPrice ? { regularPrice } : {}),
     imageUrl: pickImage(p.images),
+    snap: p.snapEligible === true, // ponytail: Kroger's flag; "not flagged" may also mean unknown, so the UI says "check at register"
   };
 }
 

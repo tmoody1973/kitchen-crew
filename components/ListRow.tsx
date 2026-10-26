@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createPortal } from "react-dom";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { categoryOf, estimateTotal, formatMoney, rowStatus } from "@/lib/tally";
@@ -37,6 +37,7 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
   const [estimateText, setEstimateText] = useState("");
   const [picking, setPicking] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const snapMode = useQuery(api.household.mine)?.snapMonthly !== undefined;
   const [error, setError] = useState<string | null>(null);
 
   const packs = item.packs ?? 1;
@@ -95,6 +96,11 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
             <p className="mt-0.5 truncate text-xs font-bold text-ink-soft">
               {item.productName}
               {item.size && ` · ${item.size}`}
+            </p>
+          )}
+          {snapMode && item.snap !== undefined && (
+            <p className={`mt-0.5 text-xs font-extrabold ${item.snap ? "text-kale-ink" : "text-ink-soft"}`}>
+              {item.snap ? "SNAP ✓" : "Not marked SNAP · plan to pay cash (check at register)"}
             </p>
           )}
           {item.regularPrice !== undefined && item.estimate !== undefined && item.regularPrice > item.estimate && (

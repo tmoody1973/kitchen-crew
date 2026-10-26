@@ -9,6 +9,7 @@ import TallyHeader from "@/components/TallyHeader";
 import ListRow from "@/components/ListRow";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import DoneShopping from "@/components/DoneShopping";
+import SnapStores from "@/components/SnapStores";
 import SendToKrogerCart from "@/components/SendToKrogerCart";
 import SendToInstacart from "@/components/SendToInstacart";
 import CompareStores from "@/components/CompareStores";
@@ -46,6 +47,7 @@ export default function ListPage() {
   const [offset, setOffset] = useState(0);
   const items = useQuery(api.listItems.mine, { offset });
   const dinners = useQuery(api.plans.meals, { offset });
+  const snapMode = useQuery(api.household.mine)?.snapMonthly !== undefined;
   // "All items" (one merged list, for the aisle), "By dinner" (prep night), or "By plan", remembered on this device.
   const [view, setView] = useState<View>("all");
   useEffect(() => {
@@ -97,6 +99,7 @@ export default function ListPage() {
       <TallyHeader offset={offset} />
       {offset === 0 && <StorePicker week={week} items={items} />}
       {offset === 0 && <CompareStores items={items} defaultStoreId={week.storeId} />}
+      {offset === 0 && snapMode && week.storeId && <SnapStores storeId={week.storeId} />}
       <AddItem krogerStoreId={viewing.storeId} offset={offset} />
       <div className="flex flex-wrap gap-2">
         <BarcodeScanner items={items} storeId={viewing.storeId} offset={offset} />
@@ -385,7 +388,7 @@ function AddRegulars({ krogerStoreId }: { krogerStoreId?: string }) {
             const p = fresh[n];
             return {
               id: r._id,
-              product: p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, regularPrice: p.regularPrice, imageUrl: p.imageUrl } : undefined,
+              product: p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, regularPrice: p.regularPrice, imageUrl: p.imageUrl, snap: p.snap } : undefined,
             };
           });
           const added = await addToList({ prices }).catch(() => -1);

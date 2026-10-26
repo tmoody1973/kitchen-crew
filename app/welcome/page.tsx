@@ -6,7 +6,8 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Minus, Plus } from "lucide-react";
 import { formatServings, servingsFor } from "@/lib/household";
-import { PLAN_LABELS, suggestedBudget, type Members, type PlanLevel } from "@/lib/usda";
+import { PLAN_LABELS, peopleIn, suggestedBudget, type Members, type PlanLevel } from "@/lib/usda";
+import { maxAllotment, weeklyShare } from "@/lib/snap";
 import { formatMoney } from "@/lib/tally";
 
 const GROUPS: { key: keyof Members; label: string; note: string }[] = [
@@ -35,6 +36,8 @@ export default function WelcomePage() {
   const [leftovers, setLeftovers] = useState(false);
   const [level, setLevel] = useState<PlanLevel | "custom">("low");
   const [custom, setCustom] = useState("");
+  const [snap, setSnap] = useState(false);
+  const [snapText, setSnapText] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,10 +48,12 @@ export default function WelcomePage() {
   async function finish(e: FormEvent) {
     e.preventDefault();
     if (!Number.isFinite(budget) || budget <= 0 || budget > 10_000) return setError("Type a weekly budget like 180.");
+    const snapMonthly = snap ? Number((snapText || String(maxAllotment(peopleIn(members)))).replace("$", "")) : undefined;
+    if (snapMonthly !== undefined && (!Number.isFinite(snapMonthly) || snapMonthly <= 0 || snapMonthly > 5000)) return setError("Type your monthly SNAP benefit, like 600.");
     setBusy(true);
     setError(null);
     try {
-      await onboard({ name, members, leftovers });
+      await onboard({ name, members, leftovers, snapMonthly: snapMonthly === undefined ? undefined : Math.round(snapMonthly) });
       await setBudget({ budget, planLevel: level });
       router.replace("/plan");
     } catch {
@@ -144,6 +149,21 @@ export default function WelcomePage() {
               />
             </label>
           </div>
+          <label className="flex items-center gap-3 font-bold">
+            <input type="checkbox" checked={snap} onChange={(e) => setSnap(e.target.checked)} className="h-5 w-5 accent-[var(--color-kale)]" />
+            We use SNAP (EBT)
+          </label>
+          {snap && (
+            <label className="crate flex items-center justify-between gap-3 px-4 py-3 text-sm font-bold">
+              <span>
+                Monthly SNAP benefit
+                <span className="block font-normal text-ink-soft">
+                  USDA&apos;s most for {peopleIn(members)} {peopleIn(members) === 1 ? "person" : "people"} is ${maxAllotment(peopleIn(members))}; yours may be less. About ${weeklyShare(Number(snapText) || maxAllotment(peopleIn(members)))} a week.
+                </span>
+              </span>
+              <input inputMode="decimal" value={snapText} onChange={(e) => setSnapText(e.target.value)} placeholder={String(maxAllotment(peopleIn(members)))} aria-label="Monthly SNAP benefit" className="field w-28 px-2 py-1.5 text-right text-base" />
+            </label>
+          )}
           {error && <p className="font-bold text-tomato-dark" role="alert">{error}</p>}
           <div className="flex gap-2">
             <button type="button" onClick={() => setStep(1)} className="btn-crate">Back</button>

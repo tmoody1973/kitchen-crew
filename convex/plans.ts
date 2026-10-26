@@ -12,6 +12,7 @@ const storedProduct = v.object({
   size: v.optional(v.string()),
   price: v.number(),
   regularPrice: v.optional(v.number()),
+  snap: v.optional(v.boolean()),
   imageUrl: v.optional(v.string()),
   suggestedPacks: v.optional(v.number()),
   substitute: v.optional(v.string()),

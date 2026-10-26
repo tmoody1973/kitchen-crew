@@ -37,6 +37,7 @@ export default defineSchema({
     leftovers: v.boolean(),
     autoRegulars: v.optional(v.boolean()), // add regulars to each new week's list automatically
     name: v.optional(v.string()), // what the crew calls you (onboarding)
+    snapMonthly: v.optional(v.number()), // monthly SNAP benefit, if the household uses SNAP
     members: v.optional(v.object({ men: v.number(), women: v.number(), teenBoys: v.number(), teenGirls: v.number(), kids: v.number(), littleKids: v.number() })),
   }).index("by_user", ["userId"]),
 
@@ -90,7 +91,7 @@ export default defineSchema({
         v.object({
           name: v.string(),
           product: v.optional(
-            v.object({ productId: v.string(), name: v.string(), size: v.optional(v.string()), price: v.number(), regularPrice: v.optional(v.number()), imageUrl: v.optional(v.string()), suggestedPacks: v.optional(v.number()), substitute: v.optional(v.string()) }),
+            v.object({ productId: v.string(), name: v.string(), size: v.optional(v.string()), price: v.number(), regularPrice: v.optional(v.number()), snap: v.optional(v.boolean()), imageUrl: v.optional(v.string()), suggestedPacks: v.optional(v.number()), substitute: v.optional(v.string()) }),
           ),
         }),
       ),
@@ -128,6 +129,7 @@ export default defineSchema({
     name: v.string(),
     estimate: v.optional(v.number()),
     regularPrice: v.optional(v.number()), // Kroger's regular price when the estimate is a sale price
+    snap: v.optional(v.boolean()), // Kroger's SNAP-eligible flag for the chosen product; missing = unknown (typed or older rows)
     estimateSource: v.union(v.literal("kroger"), v.literal("manual")),
     // The exact Kroger product chosen (brand + package), so re-pricing finds the same one.
     productId: v.optional(v.string()),

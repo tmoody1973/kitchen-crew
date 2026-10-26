@@ -93,7 +93,7 @@ export default function PlanResult({
               return {
                 name: ing.name,
                 product: p
-                  ? { productId: p.productId, name: p.name, size: p.size, price: p.price, regularPrice: p.regularPrice, imageUrl: p.imageUrl, suggestedPacks: p.suggestedPacks, substitute: p.substitute }
+                  ? { productId: p.productId, name: p.name, size: p.size, price: p.price, regularPrice: p.regularPrice, imageUrl: p.imageUrl, snap: p.snap, suggestedPacks: p.suggestedPacks, substitute: p.substitute }
                   : undefined,
               };
             }),

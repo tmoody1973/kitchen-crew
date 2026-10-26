@@ -8,6 +8,7 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 
 ## What it does
 
+- **SNAP households:** enter your monthly benefit (USDA's maximum pre-filled), see which list items SNAP covers (Kroger's flag), a SNAP-vs-cash tally, and nearby stores that take SNAP (USDA Retailer Locator).
 - **First sign-in:** a short welcome asks who's eating and suggests a budget for that household from USDA's food-cost tables.
 - **Budget:** a suggested weekly budget from USDA food-cost data, an optional Dinners / Extras split, and household servings.
 - **Planner chat:** the crew plans dinners from your saved recipes and pantry, sized for your household. Results come back as cards: a priced meal plan, a "fits your budget" check, recipe cards. Kroger prices are looked up one item at a time with a progress bar.

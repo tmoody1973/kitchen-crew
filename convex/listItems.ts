@@ -72,7 +72,7 @@ export const setEstimate = mutation({
   handler: async (ctx, { id, estimate }) => {
     checkAmount(estimate, "Estimate");
     await ownItem(ctx, id);
-    await ctx.db.patch(id, { estimate, estimateSource: "manual", regularPrice: undefined });
+    await ctx.db.patch(id, { estimate, estimateSource: "manual", regularPrice: undefined, snap: undefined });
   },
 });
 

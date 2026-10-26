@@ -41,6 +41,14 @@ Source: `scope.md > The Core Loop`, `scope.md > What "Working" Looks Like`.
 
 ## Features and Behavior
 
+### SNAP Households *(added on submission day, at Tarik's request)*
+- As a family using SNAP (EBT), I want to know what my benefits cover in the aisle and what needs cash.
+  - [ ] "We use SNAP" in the Welcome (and on the Budget page) asks for the monthly benefit, pre-filled with USDA's FY2027 maximum for the household size (1: $306, 2: $562, 3: $808, 4: $1,023…), editable because real benefits are often lower; it shows the weekly share (× 12 ÷ 52).
+  - [ ] List rows say "SNAP ✓" when Kroger flags the product SNAP-eligible, or "Not marked SNAP · plan to pay cash (check at register)" when it doesn't (non-food, hot foods).
+  - [ ] The tally shows "SNAP $X / $weekly · cash $Y · $Z unmarked": receipt tax and fees count as cash (SNAP can't pay fees); typed or older rows with no Kroger product are "unmarked", not guessed.
+  - [ ] "Other stores near you that take SNAP": grocery-type stores and farmers markets within 3 miles of the chosen Kroger store, from USDA's SNAP Retailer Locator (updated Oct 21, 2026), nearest first; no prices (Mise prices Kroger only).
+  - Not built: EBT payment. Mise doesn't sell anything; Pick 'n Save takes SNAP EBT for pickup and delivery, and "Send to my Pick 'n Save cart" leads there.
+
 ### Terms and Privacy *(added on submission day, at Tarik's request)*
 - [ ] Public `/terms` and `/privacy` pages in plain English, linked from the landing footer and the sign-in page ("By signing in you agree…"). Privacy names what's kept (account, entries, receipt totals; receipt photos not kept; Kroger keys only in device cookies), each service data goes to and why, no ads/analytics/selling, and deletion requests via a GitHub issue (Tarik's choice; no email published).
 
