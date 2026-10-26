@@ -126,7 +126,8 @@ export default function Landing() {
             </h1>
             <p className="max-w-[34rem] text-lg font-bold text-ink-soft sm:text-xl">
               Mise plans your family&apos;s dinners in a chat, prices every ingredient at your own Pick &apos;n Save or Metro
-              Market, turns the plan into a shopping list, and keeps a live tally while you shop.
+              Market, turns the plan into a shopping list, keeps a live tally while you shop, and checks the receipt when
+              you&apos;re done.
             </p>
             <Actions />
             <p className="hidden text-sm font-bold text-ink-soft lg:block">
@@ -155,6 +156,8 @@ export default function Landing() {
               <Facts
                 items={[
                   "Real Kroger prices for whole packages, not per-ounce guesses.",
+                  "Catches this week's Kroger sales and shows what you save.",
+                  "Ask \"what's on sale in my recipes?\" or have the crew find new recipes on the web.",
                   "Out of soy sauce? Tap its pantry chip and it gets priced.",
                   "Use the plan, or add it to what's already on the week.",
                 ]}
@@ -201,9 +204,10 @@ export default function Landing() {
               </p>
               <Facts
                 items={[
+                  "Register matches the shelf? One tap on Matches.",
+                  "Scan from a row: a deli sticker pays it, a different brand swaps it.",
                   "Compare your list at two stores, side by side.",
-                  "Scan a barcode to add an item, or read a deli sticker's price.",
-                  "Send everything still unpaid to Instacart.",
+                  "Send the list to your own Pick 'n Save cart, or to Instacart.",
                 ]}
               />
             </div>
@@ -237,6 +241,49 @@ export default function Landing() {
               <div className="hidden lg:block">
                 <LaptopShot src="/landing/recipe-laptop.webp" height={1000} alt="A recipe on a laptop: Creamy Miso Chicken with its photo and tags, ingredients scaled to 3½ servings, and numbered steps." />
               </div>
+            </div>
+          </div>
+        </Stall>
+
+        <Stall id="stall-month" title="Look back on the month" tone="bg-white">
+          <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="lg:col-span-5">
+              <PhoneShot src="/landing/history-phone.webp" alt="Spending history on a phone: $2,549.29 of $2,925 budgeted across 13 weeks, with October, September, and August each showing budget, planned, and actual." />
+            </div>
+            <div className="flex flex-col gap-5 lg:col-span-7">
+              <p className="max-w-[36rem] text-xl font-bold">
+                Done shopping? Snap the receipt. The crew reads the total, tax, and fees, you check them, and the week counts what
+                you really paid.
+              </p>
+              <Facts
+                items={[
+                  "Planned vs shelf vs actual, for every week.",
+                  "Weekly, monthly, and quarterly history against your budget.",
+                  "Receipt photos are read, then thrown away.",
+                ]}
+              />
+            </div>
+          </div>
+        </Stall>
+
+        <Stall id="stall-help" title="When money's tight" tone="bg-ground">
+          <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="flex flex-col gap-5 lg:col-span-7">
+              <p className="max-w-[36rem] text-xl font-bold">
+                Mise is built for any household, including families on SNAP. It shows what your benefits cover before the
+                register, and where to find free food nearby when the week runs short.
+              </p>
+              <Facts
+                items={[
+                  "Set up for your household: who's eating, and a USDA budget to match.",
+                  "SNAP ✓ on eligible items, and a tally split into SNAP and cash.",
+                  "Nearby stores and farmers markets that take SNAP.",
+                  "Food pantries, free meals, school meals, and WIC near you, in the chat or on one page.",
+                ]}
+              />
+            </div>
+            <div className="lg:col-span-5">
+              <PhoneShot src="/landing/help-phone.webp" alt="Food help near you on a phone: free food near 53206, with Saint Mark's Quality of Life Center, Hephatha Lutheran Church, and Emmaus Lutheran Food Pantry, their phones, and 'Walk-ins welcome'." />
             </div>
           </div>
         </Stall>
