@@ -13,6 +13,7 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 - **Week board:** dinners on days (one or two weeks), an Ideas column, move or remove a dinner and the shopping list rebuilds.
 - **Shopping list:** shelf price per row, a paid box, rows turn green or orange with a sentence saying which; brand/size picker; views by item, by dinner, or by plan; compare the list at two Kroger stores; scan a barcode; send unpaid items to Instacart.
 - **Recipes:** paste a website or YouTube link, or sync a YouTube playlist. Each recipe is read the first time it's opened (the channel's written recipe first, then the video), auto-tagged, searchable, scaled to your servings, US or metric.
+- **Kroger sales:** plans show "Includes $X in Kroger sales" and tag sale items; ask the crew "what's on sale?" for your list, your regulars, or the ingredients your saved recipes use most. (Kroger's API has sale prices, not coupons.)
 - **The money math is plain code.** Totals come from real prices and arithmetic in [`lib/tally.ts`](lib/tally.ts); the AI picks dinners and products but never adds up the bill.
 
 ## Stack

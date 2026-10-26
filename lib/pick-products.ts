@@ -37,7 +37,7 @@ export async function pickProducts(list: Candidates[]): Promise<Picks> {
       (c, n) =>
         `${n + 1}. Ingredient: ${c.name} (${c.amountText}, for ${c.dish})\n` +
         (c.options.length
-          ? c.options.map((o) => `  - id ${o.productId}: ${o.name}${o.size ? `, ${o.size}` : ""}, $${o.price}`).join("\n")
+          ? c.options.map((o) => `  - id ${o.productId}: ${o.name}${o.size ? `, ${o.size}` : ""}, $${o.price}${o.regularPrice ? ` (ON SALE, regularly $${o.regularPrice})` : ""}`).join("\n")
           : "  (no store matches)"),
     )
     .join("\n\n");
@@ -48,6 +48,7 @@ export async function pickProducts(list: Candidates[]): Promise<Picks> {
     instructions:
       "For each ingredient, choose the store product a home cook would actually buy for that recipe. " +
       "Prefer the plain, everyday version over flavored, prepared, or novelty items, and a sensible size. " +
+      "When options are equally right for the recipe, prefer the one ON SALE; never pick a wrong or odd product just because it's on sale. " +
       "Use null if no option is really that ingredient. Only use ids from the list. " +
       "For packs, say how many of that product covers the amount needed (3 carrots → 1 bag; 2 cans → 2; 3 cloves garlic → 1 bulb). " +
       "If no option is really the ingredient, set productId null and suggest the closest everyday substitute a cook would use " +

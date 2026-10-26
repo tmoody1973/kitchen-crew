@@ -62,6 +62,7 @@ Source: `scope.md > The Core Loop`.
   - [ ] "Use this plan" turns the plan into shopping list rows; his own and already-paid items are kept. *(Slice 4.)*
   - [ ] "Add to this week" adds a plan's dinners without replacing the current plan, so dinners from different chats can be combined; ingredients already on the list get more packs instead of duplicate rows. *(Added in build, slice 5.)*
   - [ ] When the store has no real match for an ingredient, the crew suggests an everyday substitute and prices that, shown as a swap. *(Added in build, slice 5.)*
+  - [ ] Plans show Kroger sales: "Includes $X in Kroger sales" under the total and "On sale · was $Y" on each sale ingredient; when two products are equally right, the sale one is picked. Asking "what's on sale?" shows a Sales card for this week's list, his regulars, or the ingredients his saved recipes use most, and the crew can offer dinners from those recipes. The crew only repeats savings the cards show. *(Added on submission day, at Tarik's request. Kroger's API has sale prices but no coupons.)*
   - [ ] His planner conversations are saved: leaving to open a recipe, reloading, or switching devices returns to where he left off; he can start a new chat or reopen an older one. *(Added in build, slice 5.)*
 
 ### Recipes *(added in build, slice 5)*
@@ -168,7 +169,7 @@ Source: `scope.md > The Unique Kernel`.
 
 ## Non-Goals
 - **Bank connection (Plaid)** — credentials and security work far beyond the PoC (cut in scope).
-- **Grubhub / Uber Eats / coupon hunting** — no practical data access (cut in scope).
+- **Grubhub / Uber Eats / coupon hunting** — no practical data access (cut in scope). Kroger's API has no coupon or weekly-ad data either; its *sale prices* are shown (see Meal Planning Chat).
 - **Multiple users or accounts** — it's for Tarik's own household.
 
 ## Open Questions

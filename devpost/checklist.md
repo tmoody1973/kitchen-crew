@@ -138,6 +138,12 @@ Build mode: learn
   Verify: 3 comparison tests; on Tarik's list (23 unpaid) Metro Market Van Buren $101.42 vs Pick 'n Save 11th & Garfield $101.22 over 22 shared items, Shaoxing cooking wine at neither; ~15 s first run, ~9 s cached; phone width 390.
   Learner check: run Compare stores on the List and check one of the listed differences against the item's price.
   Commit: `feat: compare list prices at two Kroger stores`
+- [x] **11c. Kroger sale prices while planning** *(added by Tarik on submission day; he picked all three options plus "ask the crew")*
+  Becomes usable: the Meal Plan card says "Includes $X in Kroger sales" under the total and tags each sale item "On sale · was $Y · save $Z"; list rows carry the same tag; asking the crew "what's on sale?" shows a **Sales card** for this week's list, the regulars, or the ingredients the saved recipes use most; the product picker prefers a sale item when it's just as right for the recipe.
+  Why no coupons: Kroger's 13 APIs (5 public, 8 partner) have no coupon or weekly-ad endpoint; the Products API gives a regular and a promo price per item, which the app already used for prices but didn't show.
+  Verify: 6 new tests (102 total); demo account, local: Sales card for recipes found 2 of 12 top ingredients on sale (minced garlic save $1, green beans save $0.11) and the crew repeated those numbers exactly; a 2-dinner plan showed "Includes $5.22 in Kroger sales" = butter $3 + thighs $2 + green beans $0.22. Demo list rows show no sale today: none of its 23 products is on sale at 11th & Garfield.
+  Learner check: open a plan's "what to buy" and check one "was" price against the Kroger app.
+  Commits: `feat: show Kroger sale prices on the plan card and list`, `feat: ask the crew what's on sale`, `feat: prefer sale items when picking products`
 
 ## Hands-on Checkpoints
 
