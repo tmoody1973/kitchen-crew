@@ -115,7 +115,7 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
 export function pricePlan(plan: PlanInput, products: Map<string, Product | null>, remaining: number): PricedPlan {
   const items: ShoppingItem[] = mergeIngredients(plan).map((item) => {
     const product = products.get(key(item.name)) ?? null;
-    const { packs, exact } = packagesNeeded(item.need, product?.size, product?.suggestedPacks);
+    const { packs, exact } = packagesNeeded(item.need, product?.size, product?.suggestedPacks, item.name);
     const cost = item.pantry || !product ? 0 : (estimateTotal(product.price, packs) ?? 0);
     return { ...item, product, packs, exact, cost };
   });

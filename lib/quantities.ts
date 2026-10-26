@@ -59,14 +59,23 @@ export function parseSize(size: string | undefined): Amount | null {
 
 export type Packs = { packs: number; exact: boolean };
 
+// Recipes count these by the stalk, but stores sell them by the bunch ("Green Onions, 1 each").
+const STALKS_PER_BUNCH: [RegExp, number][] = [
+  [/green onion|scallion|spring onion/i, 8],
+  [/celery/i, 9],
+];
+
 /**
  * Packages needed for a recipe amount: round up, since you can't buy 1.5 packs.
  * When units don't convert (3 carrots vs a 2 lb bag), use the product picker's suggested count;
  * with no suggestion, fall back to 1 package marked inexact ("check amount").
  */
-export function packagesNeeded(need: Amount | null, size: string | undefined, suggested?: number): Packs {
+export function packagesNeeded(need: Amount | null, size: string | undefined, suggested?: number, name?: string): Packs {
   const pkg = parseSize(size);
   if (need && pkg && need.dim === pkg.dim) {
+    // A single "each" of bunch-sold produce is a whole bunch, not one stalk.
+    const bunch = name && need.dim === "count" && pkg.base === 1 ? STALKS_PER_BUNCH.find(([re]) => re.test(name))?.[1] : undefined;
+    if (bunch) return { packs: Math.max(1, Math.ceil(need.base / bunch - 1e-6)), exact: true };
     // Same kind of unit: exact math.
     return { packs: Math.max(1, Math.ceil(need.base / pkg.base - 1e-6)), exact: true };
   }

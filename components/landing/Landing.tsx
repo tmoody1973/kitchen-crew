@@ -186,7 +186,7 @@ export default function Landing() {
         <Stall id="stall-list" title="Shop with the tally" tone="bg-white">
           <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
             <div className="lg:col-span-5">
-              <PhoneShot src="/landing/list-phone.webp" alt="The shopping list on a phone: the tally board at $32.79 of $225, the store picker, Compare stores, Scan, Send to Instacart, and a paid row marked 'Nice! $0.30 under the $3.99 estimate'." />
+              <PhoneShot src="/landing/list-phone-v2.webp" alt="The shopping list on a phone: the tally board at $24.56 of $225, the store picker, Compare stores, Scan, Send to Instacart, and a paid row marked 'Nice! $0.30 under the $3.99 estimate'." />
             </div>
             <div className="flex flex-col gap-5 lg:col-span-7">
               <p className="max-w-[36rem] text-xl font-bold">

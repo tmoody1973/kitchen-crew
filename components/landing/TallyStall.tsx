@@ -6,8 +6,8 @@ import { BoardNumber } from "@/components/TallyHeader";
 import { formatMoney } from "@/lib/tally";
 
 const BUDGET = 225;
-// Already paid earlier in the demo week (green onions and pasta), so the board ends where the List screenshot shows: $32.79.
-const PRIOR = 10.91;
+// Already paid earlier in the demo week (green onions and pasta), so the board ends where the List screenshot shows: $24.56.
+const PRIOR = 2.68;
 const DAYS_LEFT = 7;
 // Rows from the demo account's sample week: the Kroger estimate, then what was typed in as paid.
 const ROWS = [

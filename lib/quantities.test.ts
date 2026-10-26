@@ -45,4 +45,15 @@ describe("recipe amounts → packages", () => {
     expect(packagesNeeded(addAmounts(toBase(0.4, "lb"), toBase(0.4, "lb")), "1 lb").packs).toBe(1);
     expect(addAmounts(toBase(1, "lb"), toBase(1, "cup"))).toBeNull();
   });
+
+  it("buys green onions and celery by the bunch, not one bunch per stalk", () => {
+    // Recipes count stalks; Kroger sells "Green Onions, 1 each" = one bunch (~8 stalks).
+    expect(packagesNeeded(toBase(8, "ct"), "1 each", undefined, "green onions")).toEqual({ packs: 1, exact: true });
+    expect(packagesNeeded(toBase(10, "ct"), "1 each", undefined, "Scallions")).toEqual({ packs: 2, exact: true });
+    expect(packagesNeeded(toBase(3, "ct"), "1 ct", undefined, "celery")).toEqual({ packs: 1, exact: true });
+  });
+
+  it("still buys one each per item for things sold singly", () => {
+    expect(packagesNeeded(toBase(3, "ct"), "1 each", undefined, "lemons")).toEqual({ packs: 3, exact: true });
+  });
 });
