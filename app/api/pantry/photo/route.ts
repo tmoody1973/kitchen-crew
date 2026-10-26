@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { spendAllowance } from "@/lib/ai-allowance";
 import { generateText, Output } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
@@ -27,6 +28,8 @@ export async function POST(req: Request) {
   if (!match) return Response.json({ error: "Send a photo (JPEG, PNG or WebP)." }, { status: 400 });
   const [, mediaType, data] = match;
   if (data.length * 0.75 > MAX_BYTES) return Response.json({ error: "That photo is too large. Try again a little farther away." }, { status: 413 });
+  const limited = await spendAllowance("photo");
+  if (limited) return Response.json({ error: limited }, { status: 429 });
   try {
     const { output } = await generateText({
       model: anthropic("claude-sonnet-5-5"),

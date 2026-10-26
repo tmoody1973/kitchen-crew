@@ -25,6 +25,7 @@ import { PLAN_LABELS, suggestedBudget } from "@/lib/usda";
 import { describeHousehold, targetServings } from "@/lib/household";
 import { z } from "zod";
 import { convexToken } from "@/lib/convex-token";
+import { spendAllowance } from "@/lib/ai-allowance";
 
 export const maxDuration = 300; // a plan may read a few playlist videos before pricing
 
@@ -46,6 +47,8 @@ export async function POST(req: Request) {
 
   // What's left this week, from Convex, so Claude and the Budget Fit card see real numbers.
   const token = (await convexToken()) ?? undefined;
+  const limited = await spendAllowance("chat", token);
+  if (limited) return new Response(limited, { status: 429 });
   const [week, items, pantry, household, savedRecipes, receipts] = await Promise.all([
     fetchQuery(api.weeks.latest, {}, { token }),
     fetchQuery(api.listItems.mine, {}, { token }),

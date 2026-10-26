@@ -52,6 +52,7 @@ PRD ref: `prd.md > The Core Journey`.
 - **Demo recording:** on the laptop or phone — sign in → budget suggestion → plan 3 days in chat → use plan → enter 2–3 prices → tally shows under budget.
 - **Submission:** short demo video + public GitHub repo (required). The live URL is a bonus.
 - **Before going live:** a GitHub Actions check that runs typecheck, the test, and the build on every push (`6-ship` sets this up).
+- **AI cost guard** *(added after the build)*: each person gets a daily allowance of Claude requests (40 crew chats, 10 photo reads, 30 recipe reads; more for the shared demo login), counted in Convex by the `@convex-dev/rate-limiter` component (`convex/aiUsage.ts`, amounts in `lib/ai-limits.ts`) and resetting at midnight Milwaukee time. A used-up allowance answers 429 with a plain note. A monthly spend cap on the Anthropic account is the hard backstop. See `docs/decisions/007-daily-ai-allowance.md`.
 
 ## Look and Feel
 Carried from `prd.md > Look and Feel`.

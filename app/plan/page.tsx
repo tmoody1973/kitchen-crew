@@ -29,6 +29,11 @@ function Working({ icon: Icon, children }: { icon: typeof BookOpen; children: Re
   );
 }
 
+/** The chat route answers 429 with a plain note when today's crew chats are used up. */
+function isOverLimit(error: Error): boolean {
+  return (error as Error & { statusCode?: number }).statusCode === 429;
+}
+
 const SUGGESTIONS = ["What should we cook this week?", "Plan 3 days from my saved recipes", "Something cheap and cozy for 2 nights", "What's on sale in my recipes?"];
 
 type Removed = Record<string, number[]>; // plan card (tool call id) → removed dinner indexes
@@ -277,10 +282,17 @@ function ChatView({
       {status === "submitted" && <p className="animate-pulse font-bold text-ink-soft">The crew is thinking…</p>}
       {error && (
         <div className="crate flex items-center gap-3 border-tomato p-3 font-bold text-tomato-dark" role="alert">
-          Couldn&apos;t reach the crew.
-          <button onClick={() => regenerate()} className="btn-crate ml-auto px-3 py-1.5 text-sm">
-            Try again
-          </button>
+          {/* 429 = today's chat allowance is used up; the server's note says when it comes back, so no retry button. */}
+          {isOverLimit(error) ? (
+            error.message
+          ) : (
+            <>
+              Couldn&apos;t reach the crew.
+              <button onClick={() => regenerate()} className="btn-crate ml-auto px-3 py-1.5 text-sm">
+                Try again
+              </button>
+            </>
+          )}
         </div>
       )}
       <div ref={bottom} />

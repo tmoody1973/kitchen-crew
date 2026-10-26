@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { fetchMutation } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { convexToken } from "@/lib/convex-token";
+import { spendAllowance } from "@/lib/ai-allowance";
 import { importRecipe, ImportError } from "@/lib/recipes/import";
 
 export const maxDuration = 120;
@@ -14,6 +15,8 @@ export async function POST(req: Request) {
   if (typeof url !== "string" || !url.trim() || url.length > 2000) return Response.json({ error: "Paste a recipe link" }, { status: 400 });
   const token = await convexToken();
   if (!token) return Response.json({ error: "Not signed in" }, { status: 401 });
+  const limited = await spendAllowance("recipe", token);
+  if (limited) return Response.json({ error: limited }, { status: 429 });
   try {
     const recipe = await importRecipe(url.trim());
     const id = await fetchMutation(api.recipes.save, { recipe }, { token });

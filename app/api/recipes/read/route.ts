@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { fetchMutation, fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { convexToken } from "@/lib/convex-token";
+import { spendAllowance } from "@/lib/ai-allowance";
 import { importRecipe, ImportError } from "@/lib/recipes/import";
 
 export const maxDuration = 120;
@@ -18,6 +19,8 @@ export async function POST(req: Request) {
   const saved = await fetchQuery(api.recipes.get, { id }, { token });
   if (!saved) return Response.json({ error: "Recipe not found" }, { status: 404 });
   if (!saved.unread || !saved.sourceUrl) return Response.json({ ok: true });
+  const limited = await spendAllowance("recipe", token);
+  if (limited) return Response.json({ error: limited }, { status: 429 });
   try {
     const recipe = await importRecipe(saved.sourceUrl);
     // Same link → saveRecipe updates this entry and clears "not read yet".
