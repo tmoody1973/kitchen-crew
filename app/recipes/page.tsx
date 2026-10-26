@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { ArrowRight, ChefHat, Globe, PlayCircle, RefreshCw, Search, X } from "lucide-react";
+import { ArrowRight, ChefHat, Globe, Link as LinkIcon, PlayCircle, RefreshCw, Search, X } from "lucide-react";
 import { filterRecipes, topTags } from "@/lib/recipes/filter";
 import { formatServings } from "@/lib/household";
 import { dayLabel } from "@/lib/weeks";
@@ -17,6 +18,51 @@ function SourceBadge({ type }: { type: keyof typeof ICON }) {
     <span className="absolute bottom-1 left-1 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-chalk">
       <Icon size={12} strokeWidth={2.75} aria-hidden />
     </span>
+  );
+}
+
+/** Paste a recipe website or YouTube link: the crew's reader saves it, then the recipe opens. */
+function AddFromLink() {
+  const router = useRouter();
+  const [url, setUrl] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function add(e: FormEvent) {
+    e.preventDefault();
+    if (!url.trim() || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/recipes/import", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }) });
+      const data = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
+      if (!data.id) throw new Error(data.error ?? "I couldn't read that recipe.");
+      router.push(`/recipes/${data.id}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "I couldn't read that recipe.");
+      setBusy(false);
+    }
+  }
+  return (
+    <form onSubmit={add} className="flex flex-col gap-1.5">
+      <div className="flex gap-2">
+        <input
+          type="url"
+          inputMode="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Paste a recipe or YouTube link"
+          maxLength={2000}
+          aria-label="Recipe link"
+          disabled={busy}
+          className="field min-w-0 flex-1 px-3 py-2.5 text-base"
+        />
+        <button type="submit" disabled={busy || !url.trim()} className="btn-press shrink-0">
+          <LinkIcon size={18} strokeWidth={2.75} aria-hidden /> {busy ? "Reading…" : "Add"}
+        </button>
+      </div>
+      {busy && <p className="text-sm font-bold text-ink-soft" role="status">The crew is reading the recipe. Videos can take up to a minute.</p>}
+      {error && <p className="text-sm font-bold text-tomato-dark" role="alert">{error}</p>}
+    </form>
   );
 }
 
@@ -112,9 +158,9 @@ export default function RecipesPage() {
       <header className="ruled">
         <h1 className="sign">My Recipes</h1>
         <p className="font-bold text-ink-soft">
-          {recipes.length} saved. Paste a recipe link in <Link href="/plan" className="font-extrabold text-ink underline">the planner</Link> to add one,
-          or ask the crew to plan from your saved recipes.
+          {recipes.length} saved. Add one from a link, or ask <Link href="/plan" className="font-extrabold text-ink underline">the crew</Link> to plan from your saved recipes.
         </p>
+        <AddFromLink />
         <SyncPlaylist />
       </header>
 
