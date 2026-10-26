@@ -1,8 +1,11 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Every page and server route requires sign-in; signed-out visitors go to Clerk's sign-in page.
-export default clerkMiddleware(async (auth) => {
-  await auth.protect();
+// The landing page is public; every other page and server route requires sign-in
+// (signed-out visitors go to Clerk's sign-in page).
+const isPublic = createRouteMatcher(["/"]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (!isPublic(req)) await auth.protect();
 });
 
 export const config = {

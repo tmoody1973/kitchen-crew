@@ -17,6 +17,8 @@ const LINKS = [
 // Market-stall header: the Mise sign, then the stalls you can visit.
 export default function Nav() {
   const path = usePathname();
+  // The landing page (/) has its own market-sign header; signed-in visitors there are redirected into the app.
+  if (path === "/") return null;
   return (
     <header className="sticky top-0 z-20 border-b-2 border-line bg-ground/95 backdrop-blur-sm">
       <div className="mx-auto flex max-w-xl items-center gap-1 px-2 py-2 lg:max-w-6xl lg:px-8">

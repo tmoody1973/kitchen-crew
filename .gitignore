@@ -25,3 +25,4 @@ npm-debug.log*
 
 # design review screenshots (real data, profile photo)
 /.impeccable/review/
+/.impeccable/questions/

@@ -65,7 +65,10 @@ Carried from `prd.md > Look and Feel`.
 ## Components
 
 ### Sign-in and App Shell
-Clerk sign-in; every page and server route requires a signed-in user. Navigation between Budget, Plan, and List; the tally header shows on the Plan and List screens.
+Clerk sign-in; every page and server route requires a signed-in user, **except the landing page at `/`** *(added after final review)*: `middleware.ts` marks `/` public; `app/page.tsx` sends signed-in people into the app (`components/HomeRedirect.tsx`: Budget if no active week, else Plan) and shows signed-out visitors the landing (`components/landing/`). `components/ConvexClientProvider.tsx` lets signed-out visitors through its database gate on `/` only (the landing needs no data); everywhere else the gate still shows the app only once Convex accepts the Clerk token. The app nav is hidden on `/`. Navigation between Budget, Plan, and List; the tally header shows on the Plan and List screens.
+
+### Landing Page (`components/landing/`) *(added after final review, Tarik's request)*
+Built with the `/impeccable` flow: Persuade mode inside the Market Stall world; structure "Walk the market" (dealt by the concept roll and locked by Tarik); code-led (no image generation); direction contract in `.impeccable/surfaces/components-landing.md`. A striped awning and the Mise sign; first screen "Stay under budget. Eat well." with "See how it works" (becomes "Watch the demo" once `DEMO_VIDEO_URL` in `Landing.tsx` is set) and "See the code on GitHub"; the first stall is a live chalkboard tally (`TallyStall.tsx`) that ticks six sample rows paid once when in view (reduced motion: final state). Four stalls (crew, week board, list, recipe shelf) each show a real screen from a **demo account's sample week** (Clerk dev user "Demo Week", data seeded through the app's own Convex functions; screenshots in `public/landing/*.webp` with provenance sidecars), then "The money math is plain code, never the AI" and a closing call to action. No testimonials or metrics.
 PRD ref: `prd.md > Screens and Layout`.
 
 ### Budget Setup Screen

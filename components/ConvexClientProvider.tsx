@@ -1,16 +1,21 @@
 "use client";
 
 import { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { AuthLoading, Authenticated, ConvexReactClient, Unauthenticated } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { useAuth } from "@clerk/nextjs";
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-// Hands Clerk's sign-in token to Convex, and only shows the app once Convex accepts it.
-export default function ConvexClientProvider({ children }: { children: ReactNode }) {
+/** Shows the app only once Convex accepts the Clerk sign-in. The public landing page (/) skips this for signed-out visitors. */
+function DatabaseGate({ children }: { children: ReactNode }) {
+  const path = usePathname();
+  const { isSignedIn } = useAuth();
+  // Signed-out visitors can only reach "/" (the middleware sends every other page to sign-in); the landing needs no database.
+  if (path === "/" && !isSignedIn) return <>{children}</>;
   return (
-    <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+    <>
       <AuthLoading>
         <p className="p-8 text-center font-extrabold text-ink-soft">Waking up the crew…</p>
       </AuthLoading>
@@ -20,6 +25,15 @@ export default function ConvexClientProvider({ children }: { children: ReactNode
         </p>
       </Unauthenticated>
       <Authenticated>{children}</Authenticated>
+    </>
+  );
+}
+
+// Hands Clerk's sign-in token to Convex.
+export default function ConvexClientProvider({ children }: { children: ReactNode }) {
+  return (
+    <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+      <DatabaseGate>{children}</DatabaseGate>
     </ConvexProviderWithClerk>
   );
 }

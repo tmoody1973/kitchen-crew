@@ -24,7 +24,7 @@ Budget tracking, meal planning, and real store prices in one conversation: the c
 ## Capabilities and Constraints
 - Stack: Next.js 15 (App Router), Convex, Clerk sign-in, Vercel AI SDK with Claude (Sonnet for the crew, Haiku for product picks), Tailwind 4, Kroger Public API, YouTube Data API.
 - Prices only from Kroger-family stores; other stores compare against Kroger.
-- Planned: Kanban week board (1 or 2 weeks), YouTube playlist sync with tags and search, barcode scanning, Instacart hand-off.
+- Built: Kanban week board (1 or 2 weeks), YouTube playlist sync with tags and search, barcode scanning (phone camera check pending an https deploy), Instacart hand-off (development key: sandbox store), two-store price comparison, and a public landing page at `/` for signed-out visitors.
 - Name decided: **Mise** (from *mise en place*, "everything in its place"), chosen by Tarik from a brainstorm; replaces the working name "Kitchen Crew". The assistant persona can stay "the crew".
 
 ## Brand Commitments

@@ -22,6 +22,7 @@ Source: `scope.md > The Core Loop`, `scope.md > What "Working" Looks Like`.
 *Grew during the build (details below):* he picks which Pick 'n Save or Metro Market he's shopping at; pastes recipe website or YouTube links and the crew reads the real recipe; marks pantry staples he has or is out of; sizes dinners for his household (teen counted as 1½, optional lunch leftovers); and his planner chats are saved so he can leave and come back.
 
 ## Screens and Layout
+- **Landing page** *(added after final review)* — the public front door at `/` for signed-out visitors and Devpost judges: what Mise does, a live sample tally, real screens from a demo week, and links to the demo video and GitHub; signed-in people skip it and go straight into the app.
 - **Budget setup** — first-use only: suggested weekly budget, a field to change it, optional "help me figure it out" questions.
 - **Planner chat** — conversation with the staff; replies come back as interactive cards (meal plan, budget fit) rather than plain paragraphs, per `scope.md > Inspiration & Identity` (generative UI). The plan is editable in place.
 - **Shopping list** — tally pinned at the top; list rows below (item · Kroger estimate · actual-paid box).

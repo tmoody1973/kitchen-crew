@@ -36,7 +36,7 @@ function ScrollPin({ children, slim }: { children: ReactNode; slim: ReactNode })
 }
 
 /** Board numerals in cells; a digit that changes flips over, like a market price board. */
-function BoardNumber({ value }: { value: string }) {
+export function BoardNumber({ value }: { value: string }) {
   const prev = useRef(value);
   const changed = prev.current !== value;
   const old = prev.current;

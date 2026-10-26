@@ -59,6 +59,19 @@ typography:
     fontSize: "0.75rem"
     fontWeight: 400
     letterSpacing: "0.04em"
+  display-hero:
+    fontFamily: "Bowlby One, Figtree, sans-serif"
+    fontSize: "2.75rem"
+    fontWeight: 400
+    lineHeight: 0.98
+    letterSpacing: "0.01em"
+  display-stall:
+    fontFamily: "Bowlby One, Figtree, sans-serif"
+    fontSize: "2.6rem"
+    fontWeight: 400
+    lineHeight: 1
+    letterSpacing: "0.01em"
+    fontFeature: "\"tnum\" 1"
 rounded:
   tag: "4px"
   cell: "5px"
@@ -169,6 +182,32 @@ components:
     textColor: "{colors.chalk}"
     rounded: "{rounded.field}"
     padding: "4px 8px"
+  awning:
+    backgroundColor: "{colors.tomato}"
+    textColor: "{colors.chalk}"
+    height: "1.25rem"
+  stall-sign:
+    backgroundColor: "{colors.crate}"
+    textColor: "{colors.chalk}"
+    rounded: "{rounded.stamp}"
+    padding: "0.45rem 1rem 0.35rem"
+  stamp-board-verdict:
+    textColor: "{colors.tag}"
+    typography: "{typography.label-stamp}"
+    rounded: "{rounded.stamp}"
+    padding: "4px 10px 3px"
+  laptop-frame:
+    backgroundColor: "{colors.crate}"
+    rounded: "{rounded.board}"
+    padding: "6px"
+  phone-bezel:
+    backgroundColor: "{colors.slate}"
+    rounded: "2.4rem"
+    padding: "9px"
+    width: "19rem"
+  chalk-band:
+    backgroundColor: "{colors.slate}"
+    textColor: "{colors.chalk}"
 ---
 
 # Design System: Mise
@@ -199,7 +238,7 @@ A market palette: one tomato for action, one tag yellow for prices, a slate-and-
 - **Tomato Lip** (`tomato-dark`): the press button's bottom lip, so the button reads as a raised block, and the ink of every error message.
 
 ### Secondary
-- **Shelf-Tag Yellow** (`tag`): every estimate price (shelf tag), text selection, the field focus halo, the "tagged" stamp, the selected option in pickers and menus (at 40% over white), and over-budget readings on the chalkboard (tag-on-slate replaces squash there).
+- **Shelf-Tag Yellow** (`tag`): every estimate price (shelf tag), text selection, the field focus halo, the "tagged" stamp, the selected option in pickers and menus (at 40% over white), and over-budget readings on the chalkboard (tag-on-slate replaces squash there). On the landing it is also the message color on slate: the board's verdict stamp and the chalkboard band's heading.
 
 ### Tertiary (the budget legend)
 - **Kale** (`kale`): row borders and fills when paid is at or under estimate.
@@ -228,7 +267,7 @@ A market palette: one tomato for action, one tag yellow for prices, a slate-and-
 
 **The Ink-and-Tag Rule.** Every status that is not about the budget (have / out in the pantry, selected, info, swaps) uses ink or tag yellow, never kale or squash. Errors use tomato.
 
-In the build, kale and squash appear only on list rows (under / over), the budget-fit verdict card, and the under / over stamps.
+In the build, kale and squash appear only on list rows (under / over), the budget-fit verdict card, and the under / over stamps. The landing keeps the legend: its sample rows go kale or squash with the sentence beside them, while the verdict stamp on the slate board is tag yellow, because kale ink is too dark to read on slate and yellow is already the board's message color.
 
 ## Typography
 
@@ -245,8 +284,14 @@ In the build, kale and squash appear only on list rows (under / over), the budge
 - **Label** (Figtree 800, 0.875rem): row status sentences, field values, crate-button labels, chalk pills (0.75rem). Nav labels are 11px / 800.
 - **Stamp label** (Bowlby One 400, 0.75rem to 1rem, 0.04em): verdict stamps.
 
+**Landing display steps** (the Persuade surface only; the app ramp tops out at Display):
+- **Display Hero** (`display-hero`, Bowlby One 400, line-height 0.98): the landing's one h1 at its phone size; it steps up to 3.75rem at `sm` and 4.5rem at `lg`. Closing line uses the same face at 2.25rem to 3.75rem, line-height 1.
+- **Display Stall** (`display-stall`, Bowlby One 400, line-height 1, tabular): the tally stall's board numerals on phones, stepping to 3rem at `sm`. Stall signs are 1.5rem, 1.875rem at `sm`.
+
 ### Named Rules
 **The Sign-on-the-Ground Rule.** Bowlby headings stand directly on the ground like a stall sign; they never sit inside a card header.
+
+**The Painted Plate Exception (landing only).** On the landing, each stall's Bowlby heading is painted on a crate-wood stall sign rather than standing bare on the ground. The sign is the stall's own hardware, not a card header, and it never holds anything but the heading. App screens keep the Sign-on-the-Ground Rule unchanged.
 
 **The Bold Aisle Rule.** Reading text is 700 or heavier. The lightest loaded Figtree weight is 500; there is no light or regular body text.
 
@@ -255,6 +300,8 @@ In the build, kale and squash appear only on list rows (under / over), the budge
 One centered column, `max-width: 36rem`, with 12px side gutters and 16px top and bottom padding, on every screen and every viewport. There are no breakpoints: desktop shows the same phone column centered on the ground. The nav is a sticky top bar (ground at 95% with a light backdrop blur, 2px rule underneath) holding the tomato Mise wordmark and five icon-over-label links that scroll horizontally if needed.
 
 Spacing runs on Tailwind's 4px grid. Gaps between related items are 8px, between groups 12px, between sections 16px; crate interiors are 16px (12px for dense lists). The tally board sits first on List and Plan; on Plan the chat input is fixed at the bottom within thumb reach.
+
+**Landing layout (Persuade surface).** The signed-out landing breaks out of the 36rem column: each band bleeds to the viewport edges (16px gutters, 32px from `sm`) and holds a centered 72rem inner column that becomes a 12-column grid at `lg` (copy 7/12 beside proof 5/12, or the reverse; 40 to 56px gaps). Stalls alternate white and ground bands, each opening with an awning edge, with 64px bottom padding (96px at `lg`). The first viewport is the promise beside the tally stall; on phones they stack with the actions above the fold.
 
 **The Ruled Section Rule.** A section on the ground is separated by a 2px dashed crate-paper rule with 1rem above its content, not wrapped in a card. Rows inside a section are divided by the same dashed rule, never boxed.
 
@@ -268,11 +315,15 @@ Mostly flat with physical, printed depth: depth comes from borders, lips and har
 - **Press lip** (`border-bottom: 5px solid #a82b1b`; 4px ink on crate buttons): the button stands on its lip and sinks 3px (2px) when pressed.
 - **Field halo** (`box-shadow: 0 0 0 3px #ffd23f`): input focus.
 
+On the landing only, two more soft drops appear: a short hang shadow under each stall sign (`0 8px 14px -10px rgb(29 36 31 / 0.6)`) and a product-shot lift under phone and laptop frames (`0 24px 40px -24px rgb(29 36 31 / 0.55)`). App screens still carry only the board lift.
+
 **The Printed Edge Rule.** Hard offset shadows belong to shelf tags only; buttons get their depth from a bottom lip, not a shadow.
 
 ## Shapes
 
-Chunky and rounded, like stall hardware. Small printed objects have tight corners (tag 4px, board cell 5px, stamp and checkbox 7px); things you touch are softer (fields 12px, buttons 14px, crates 16px, board 18px); pills and round buttons are fully rounded. Outlines are thick: 2px ink on fields, checkboxes and crate buttons; 2.5px currentColor on stamps; 4px crate wood around the board. Tags and stamps are tilted -3deg; nothing else rotates.
+Chunky and rounded, like stall hardware. Small printed objects have tight corners (tag 4px, board cell 5px, stamp and checkbox 7px); things you touch are softer (fields 12px, buttons 14px, crates 16px, board 18px); pills and round buttons are fully rounded. Outlines are thick: 2px ink on fields, checkboxes and crate buttons; 2.5px currentColor on stamps; 4px crate wood around the board. Tags and stamps are tilted -3deg; nothing else rotates in the app.
+
+**The Hung Sign Exception (landing only).** The landing's stall sign hangs at -1.5deg, half the tag tilt, so it reads as a board swinging on its strings rather than a printed tag. It is the only other rotated object, and only on the landing.
 
 The board cell carries two 3x2px slate notches at mid-height on its left and right edges: the flap seam, drawn at the edges so it never crosses a digit.
 
@@ -316,6 +367,19 @@ Errors are announced (`role="alert"`) in Figtree bold, in Tomato Lip ink. Inline
 ### Navigation
 Sticky top bar on the ground. Links are lucide icons (18px, stroke 2.5) over 11px Figtree 800 labels in Ink Soft, 12px corners; hover takes a crate-paper fill; the active link is an ink pill with chalk text and `aria-current="page"`.
 
+### Landing (Persuade surface)
+The signed-out front door is a market you walk, built from the same world; nothing here is reused on app screens.
+- **Awning edge:** striped canvas, tomato and chalk stripes 2.25rem wide, its bottom cut into a scalloped edge by a repeating 0.55rem half-circle mask. Taller across the top of the page (1.75rem, 2.25rem at `sm`), 1.25rem above each stall and at the foot. Decorative, hidden from screen readers.
+- **Stall sign:** the stall's h2. A crate-wood plate with chalk Bowlby lettering, 7px corners (the stamp step), padding 0.45rem 1rem 0.35rem, tilted -1.5deg, hung from the awning on two 2px Ink Soft strings 1.1rem long, inset 1.2rem from each side.
+- **Tally stall:** the chalkboard tally playing a sample week. Six sample rows (rounded 16px, 2px border, white until paid, then kale or squash wash with an icon and a sentence) carry a shelf tag for the estimate and a Bowlby paid figure. The board's verdict is a tag-yellow stamp, its space reserved so nothing shifts. A small "Sample week" caption sits below.
+- **Laptop frame:** the screenshot sits in a 6px crate-wood frame with 18px top corners (the board step) on a 14px crate counter edge that overhangs 3% each side and has rounded bottom corners. Laptop shots show from `lg`; phones get the phone shot instead.
+- **Phone shot:** a slate bezel (9px, 2.4rem corners, inner image 1.7rem) at most 19rem wide, centered.
+- **Facts list:** three short Figtree 700 lines divided by the dashed row rule, beside each stall's one Figtree 700 paragraph at 1.25rem.
+- **Chalkboard band:** a full-bleed slate passage with a tag-yellow Bowlby heading and chalk Figtree 700 lines, the quiet "why the totals are honest" moment before the close.
+- **Actions:** one press button (Watch the demo, or See how it works until the video exists) and one crate button (GitHub), at the top and again at the close. Sign in is a small ink-outlined pill in the header.
+
+**Motion: the one authored moment.** When the tally stall is 40% in view (IntersectionObserver), it pays one sample row every 700ms, once; changed digits flip as in the app, rows take their kale or squash wash over 300ms, and after the last row the verdict stamp lands: scale 1.7 to 1 at a constant -3deg with opacity 0 to 1, 380ms `cubic-bezier(0.16, 1, 0.3, 1)`. Then it rests. Under `prefers-reduced-motion` the stall renders its final state at once and the stamp-land animation is off.
+
 ### Icons
 lucide-react outline icons, stroke 2.5 to 3, sized 13 to 18px, always `aria-hidden` beside a word.
 
@@ -326,13 +390,14 @@ lucide-react outline icons, stroke 2.5 to 3, sized 13 to 18px, always `aria-hidd
 - **Do** pair kale or squash with the word ("under", "fits", "over by $4"); color is never the only signal.
 - **Do** use ink or tagged stamps for statuses unrelated to the budget.
 - **Do** separate sections and rows with the 2px dashed crate-paper rule.
-- **Do** honor `prefers-reduced-motion`: the board flip and button transitions switch off.
+- **Do** honor `prefers-reduced-motion`: the board flip, the landing's stamp landing and button transitions switch off; the landing tally shows its final state.
 - **Do** keep tap targets large (fields, 40px round buttons, full-width press buttons in the aisle).
 
 ### Don't:
 - **Don't** use kale or squash for errors, selection, quantities or decoration; errors are tomato, selection is tag yellow.
 - **Don't** nest crates inside crates or box rows inside a section.
-- **Don't** put a Bowlby sign inside a card header; signs stand on the ground.
+- **Don't** put a Bowlby sign inside a card header; signs stand on the ground (the landing's crate stall sign is the one scoped exception).
 - **Don't** give buttons or crates a drop shadow; hard offset edges are for shelf tags only.
 - **Don't** draw the flap seam across the digits; it lives as notches at the cell edges.
 - **Don't** add charts or soft gradient cards; the board is the dashboard.
+- **Don't** carry the landing's awning, stall signs, -1.5deg tilt or device frames into app screens; they belong to the Persuade surface.
