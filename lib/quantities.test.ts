@@ -54,6 +54,6 @@ describe("recipe amounts → packages", () => {
   });
 
   it("still buys one each per item for things sold singly", () => {
-    expect(packagesNeeded(toBase(3, "ct"), "1 each", undefined, "lemons")).toEqual({ packs: 3, exact: true });
+    expect(packagesNeeded(toBase(3, "ct"), "1 each", undefined, "lemons")).toEqual({ packs: 99, exact: true }); // deliberately broken to prove CI goes red
   });
 });
