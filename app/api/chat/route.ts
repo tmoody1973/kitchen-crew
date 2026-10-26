@@ -15,6 +15,7 @@ import { productsById, rankByRelevance, searchCandidates, Product } from "@/lib/
 import { bestSale, bySaving, toSale, topIngredients, type Sale } from "@/lib/sales";
 import { mergeIngredients, planToolSchema, pricePlan, resolvePlan, validatePlan, PlanToolOutput } from "@/lib/meal-plan";
 import { importRecipe, ImportError } from "@/lib/recipes/import";
+import { searchRecipes } from "@/lib/recipes/search";
 import { scaleIngredients } from "@/lib/recipes/scale";
 import { pickProducts } from "@/lib/pick-products";
 import { staffPrompt } from "@/lib/staff-prompt";
@@ -180,6 +181,21 @@ export async function POST(req: Request) {
           } catch (err) {
             if (!(err instanceof ImportError)) console.error("Recipe import failed:", err);
             return { ok: false as const, error: err instanceof ImportError ? err.message : "I couldn't read that recipe." };
+          }
+        },
+      }),
+      searchRecipes: tool({
+        description:
+          "Search the web for recipe pages (TinyFish Search) and show a Recipe Search card; Tarik taps Add to save any of them to My Recipes.",
+        inputSchema: z.object({ query: z.string().min(2).max(100).describe("What to look for, e.g. 'cozy chickpea curry' or 'quick weeknight salmon'") }),
+        execute: async ({ query }) => {
+          try {
+            const hits = await searchRecipes(query);
+            const saved = new Set(savedRecipes.flatMap((r) => (r.sourceUrl ? [r.sourceUrl] : [])));
+            return { ok: true as const, query, hits: hits.map((h) => ({ ...h, saved: saved.has(h.url) })) };
+          } catch (err) {
+            console.error("Recipe search failed:", err);
+            return { ok: false as const, error: "Couldn't search the web just now. Try again in a minute." };
           }
         },
       }),

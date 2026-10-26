@@ -14,9 +14,10 @@ import PlanResult from "@/components/cards/PlanResult";
 import BudgetCard, { type BudgetSuggestion } from "@/components/cards/BudgetCard";
 import RecipeCard, { type RecipeImport } from "@/components/cards/RecipeCard";
 import SalesCard, { type SalesResult } from "@/components/cards/SalesCard";
+import RecipeSearchCard, { type RecipeSearch } from "@/components/cards/RecipeSearchCard";
 import PricingProgress from "@/components/cards/PricingProgress";
 import type { PlanToolOutput } from "@/lib/meal-plan";
-import { ArrowUp, BadgePercent, BookOpen, Calculator, NotebookPen, Store } from "lucide-react";
+import { ArrowUp, BadgePercent, BookOpen, Calculator, NotebookPen, Search, Store } from "lucide-react";
 
 /** A quiet working line while a tool runs. */
 function Working({ icon: Icon, children }: { icon: typeof BookOpen; children: React.ReactNode }) {
@@ -218,6 +219,15 @@ function ChatView({
               return (
                 <Working key={i} icon={BookOpen}>
                   Reading the recipe…
+                </Working>
+              );
+            }
+            if (part.type === "tool-searchRecipes") {
+              if (part.state === "output-available") return <RecipeSearchCard key={i} data={part.output as RecipeSearch} />;
+              if (part.state === "output-error") return null;
+              return (
+                <Working key={i} icon={Search}>
+                  Searching the web for recipes…
                 </Working>
               );
             }
