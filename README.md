@@ -30,7 +30,7 @@ You need Node.js 20+ and accounts for the services below (all have free develope
 | Convex | database and server functions | https://convex.dev (created by `npx convex dev`) |
 | Clerk | sign-in | https://clerk.com: create an application and a JWT template named `convex` |
 | Anthropic | the crew, recipe reading, tags | https://console.anthropic.com |
-| Kroger | store list and prices | https://developer.kroger.com: a client with the `product.compact` scope |
+| Kroger | store list and prices; "Send to my cart" | https://developer.kroger.com: a client with the `product.compact` and `cart.basic:write` scopes, and redirect URI `<your-site>/api/kroger/callback` |
 | YouTube Data API v3 | recipe videos and playlist sync | Google Cloud console |
 | TinyFish *(optional)* | reading recipe sites that block plain fetching | https://tinyfish.ai |
 | Instacart *(optional)* | "Send to Instacart" | Instacart Developer Platform (a development key opens Instacart's sandbox store) |

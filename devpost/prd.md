@@ -103,6 +103,7 @@ Source: `scope.md > The POC Boundary` (Kroger prices).
 - As Tarik, I want a shopping list with real store prices so that I know what the plan should cost before I'm in the aisle.
   - [ ] Each row shows the item, its Kroger estimated price, and an empty actual-paid box.
   - [ ] If Kroger has no price, the row says "no price found" and Tarik can type an estimate.
+  - [ ] **Send to my Pick 'n Save cart** *(added on submission day, at Tarik's request)*: he signs in at Kroger once per device and approves "add to cart"; unpaid items with a Kroger product go into his real Pick 'n Save / Metro Market pickup cart at their pack counts, and he checks out in the store's app. Kroger's public API can only add to the cart (it can't read the cart or orders), so the tally still comes from paid boxes and receipts.
   - [ ] When the brand picker's matches are wrong, he types his own search ("petite diced tomatoes") and picks from those; sale items show "was $X". Works for list rows and regulars. *(Added on submission day, at Tarik's request.)*
   - [ ] When the register matches the shelf price, one tap on **Matches** fills the paid box with the estimate (he can still type a different amount); the row then says "Right on the estimate." *(Added on submission day, at Tarik's request.)*
   - [ ] Tarik picks which nearby Pick 'n Save or Metro Market he's shopping at; prices come from that store, and switching stores re-prices the list (estimates he typed stay). *Added in build (slice 2) at Tarik's request: he shops at several stores.*
