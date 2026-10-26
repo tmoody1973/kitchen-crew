@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, Play } from "lucide-react";
+import { ArrowDown, ArrowRight, Play } from "lucide-react";
 import TallyStall from "./TallyStall";
 
 // Swap in the demo video link once it's published (6-ship). Until then the main button walks the stalls instead.
@@ -15,19 +15,25 @@ function GitHubMark() {
   );
 }
 
+// The first thing to do is try the real app; the demo video (or a walk down the page) and the code come second.
 function Actions() {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      {DEMO_VIDEO_URL ? (
-        <a href={DEMO_VIDEO_URL} target="_blank" rel="noopener noreferrer" className="btn-press text-lg">
-          <Play size={20} strokeWidth={3} aria-hidden /> Watch the demo
-        </a>
-      ) : (
-        <a href="#stalls" className="btn-press text-lg">
-          <ArrowDown size={20} strokeWidth={3} aria-hidden /> See how it works
-        </a>
-      )}
-      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="btn-crate">
+    <div className="flex flex-col items-start gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <Link href="/sign-in" className="btn-press text-lg">
+          Try the sample week <ArrowRight size={20} strokeWidth={3} aria-hidden />
+        </Link>
+        {DEMO_VIDEO_URL ? (
+          <a href={DEMO_VIDEO_URL} target="_blank" rel="noopener noreferrer" className="btn-crate">
+            <Play size={18} strokeWidth={3} aria-hidden /> Watch the demo
+          </a>
+        ) : (
+          <a href="#stalls" className="btn-crate">
+            <ArrowDown size={18} strokeWidth={3} aria-hidden /> See how it works
+          </a>
+        )}
+      </div>
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm font-extrabold underline">
         <GitHubMark /> See the code on GitHub
       </a>
     </div>
