@@ -47,6 +47,7 @@ Source: `scope.md > The Core Loop`, `scope.md > What "Working" Looks Like`.
   - [ ] List rows say "SNAP ✓" when Kroger flags the product SNAP-eligible, or "Not marked SNAP · plan to pay cash (check at register)" when it doesn't (non-food, hot foods).
   - [ ] The tally shows "SNAP $X / $weekly · cash $Y · $Z unmarked": receipt tax and fees count as cash (SNAP can't pay fees); typed or older rows with no Kroger product are "unmarked", not guessed.
   - [ ] "Other stores near you that take SNAP": grocery-type stores and farmers markets within 3 miles of the chosen Kroger store, from USDA's SNAP Retailer Locator (updated Oct 21, 2026), nearest first; no prices (Mise prices Kroger only).
+  - [ ] **Food help near you** (`/food-help`, linked from the Budget page and from the tally when over budget): food pantries, free meals, school and summer meal sites, and WIC offices near a ZIP, from Feed America's public directory (feedam.org, a 501(c)(3); credited on screen), with phone, walk-in and appointment notes, "call ahead", and 211 as the fallback. In the chat, when the cook says money is tight or asks about pantries, WIC or kids' meals, the crew warmly shows the same card, mentions FoodShare/SNAP once, and offers a pantry-first plan; it never asks about income.
   - Not built: EBT payment. Mise doesn't sell anything; Pick 'n Save takes SNAP EBT for pickup and delivery, and "Send to my Pick 'n Save cart" leads there.
 
 ### Terms and Privacy *(added on submission day, at Tarik's request)*

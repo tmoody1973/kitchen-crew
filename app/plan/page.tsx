@@ -15,6 +15,7 @@ import BudgetCard, { type BudgetSuggestion } from "@/components/cards/BudgetCard
 import RecipeCard, { type RecipeImport } from "@/components/cards/RecipeCard";
 import SalesCard, { type SalesResult } from "@/components/cards/SalesCard";
 import RecipeSearchCard, { type RecipeSearch } from "@/components/cards/RecipeSearchCard";
+import FoodHelpCard, { type FoodHelpResult } from "@/components/FoodHelpCard";
 import PricingProgress from "@/components/cards/PricingProgress";
 import type { PlanToolOutput } from "@/lib/meal-plan";
 import { ArrowUp, BadgePercent, BookOpen, Calculator, NotebookPen, Search, Store } from "lucide-react";
@@ -219,6 +220,15 @@ function ChatView({
               return (
                 <Working key={i} icon={BookOpen}>
                   Reading the recipe…
+                </Working>
+              );
+            }
+            if (part.type === "tool-findFoodHelp") {
+              if (part.state === "output-available") return <FoodHelpCard key={i} data={part.output as FoodHelpResult} />;
+              if (part.state === "output-error") return null;
+              return (
+                <Working key={i} icon={Search}>
+                  Finding food help near you…
                 </Working>
               );
             }

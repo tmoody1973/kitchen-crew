@@ -83,6 +83,7 @@ export default function HouseholdSettings() {
           className="check"
         />
       </label>
+      <Link href="/food-help" className="text-sm font-extrabold underline">Food help near you: pantries, free meals, WIC, school meals</Link>
       {snapOn && (
         <label className="flex items-center justify-between gap-3 text-sm font-bold">
           <span>

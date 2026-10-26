@@ -16,6 +16,7 @@ import { bestSale, bySaving, toSale, topIngredients, type Sale } from "@/lib/sal
 import { mergeIngredients, planToolSchema, pricePlan, resolvePlan, validatePlan, PlanToolOutput } from "@/lib/meal-plan";
 import { importRecipe, ImportError } from "@/lib/recipes/import";
 import { searchRecipes } from "@/lib/recipes/search";
+import { findFoodHelp } from "@/lib/food-help";
 import { scaleIngredients } from "@/lib/recipes/scale";
 import { pickProducts } from "@/lib/pick-products";
 import { staffPrompt } from "@/lib/staff-prompt";
@@ -183,6 +184,24 @@ export async function POST(req: Request) {
           } catch (err) {
             if (!(err instanceof ImportError)) console.error("Recipe import failed:", err);
             return { ok: false as const, error: err instanceof ImportError ? err.message : "I couldn't read that recipe." };
+          }
+        },
+      }),
+      findFoodHelp: tool({
+        description:
+          "Show nearby free food help (food pantries, free meals, school meal sites, WIC offices) from Feed America's public directory. " +
+          "Use when the cook says money is tight, they can't afford food, or asks about pantries, free meals, WIC, or kids' meals.",
+        inputSchema: z.object({
+          mode: z.enum(["free", "school", "summer", "wic"]).describe("free = pantries and free meals; school/summer = kids' meal sites; wic = WIC offices"),
+          zip: z.string().regex(/^\d{5}$/).optional().describe("Only if the cook gave a ZIP code"),
+        }),
+        execute: async ({ mode, zip }) => {
+          const z = zip ?? process.env.KROGER_ZIP ?? "";
+          try {
+            return { ok: true as const, zip: z, mode, places: await findFoodHelp(z, mode) };
+          } catch (err) {
+            console.error("Food help lookup failed:", err);
+            return { ok: false as const, error: "Couldn't reach the food-help directory. Try again in a minute, or call or text 211." };
           }
         },
       }),

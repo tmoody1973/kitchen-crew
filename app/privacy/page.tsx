@@ -30,6 +30,8 @@ export default function PrivacyPage() {
         <li><strong>Kroger</strong>: ingredient names and store IDs to look up prices; if you connect your Kroger account, the products on your list are added to your Kroger-family cart (Pick &apos;n Save, Metro Market). Mise only requests permission to add to your cart.</li>
         <li><strong>TinyFish</strong>: recipe search words and recipe web addresses, to search the web and read recipe pages.</li>
         <li><strong>YouTube (Google)</strong>: video links, to read a recipe video&apos;s description and captions.</li>
+        <li><strong>Feed America</strong> (feedam.org): a ZIP code and the kind of help you&apos;re looking for, to list nearby food pantries, free meals, school meal sites and WIC offices.</li>
+        <li><strong>USDA</strong>: a store&apos;s map location, to list nearby stores that take SNAP.</li>
         <li><strong>Instacart</strong>: only when you tap &ldquo;Send to Instacart&rdquo;, the item names and amounts on your list.</li>
       </ul>
       <p>Each of these services handles data under its own privacy policy.</p>

@@ -171,6 +171,11 @@ export default function TallyHeader({ offset = 0 }: { offset?: number }) {
         </p>
       )}
       <p className="font-sign mt-2 text-sm text-tag">{under ? "Under budget this week!" : "Over budget this week. Let's trim."}</p>
+      {!under && (
+        <Link href="/food-help" className="mt-1 inline-block text-xs font-extrabold text-chalk underline">
+          Need help covering food this week? Find free food near you
+        </Link>
+      )}
     </section>
     </ScrollPin>
   );
