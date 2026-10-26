@@ -10,11 +10,13 @@
 
 import type * as chats from "../chats.js";
 import type * as demo from "../demo.js";
+import type * as history from "../history.js";
 import type * as household from "../household.js";
 import type * as listItems from "../listItems.js";
 import type * as model from "../model.js";
 import type * as pantry from "../pantry.js";
 import type * as plans from "../plans.js";
+import type * as receipts from "../receipts.js";
 import type * as recipes from "../recipes.js";
 import type * as regulars from "../regulars.js";
 import type * as weeks from "../weeks.js";
@@ -28,11 +30,13 @@ import type {
 declare const fullApi: ApiFromModules<{
   chats: typeof chats;
   demo: typeof demo;
+  history: typeof history;
   household: typeof household;
   listItems: typeof listItems;
   model: typeof model;
   pantry: typeof pantry;
   plans: typeof plans;
+  receipts: typeof receipts;
   recipes: typeof recipes;
   regulars: typeof regulars;
   weeks: typeof weeks;
