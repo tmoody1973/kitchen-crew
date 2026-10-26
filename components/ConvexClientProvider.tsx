@@ -13,7 +13,7 @@ function DatabaseGate({ children }: { children: ReactNode }) {
   const path = usePathname();
   const { isSignedIn } = useAuth();
   // Signed-out visitors can only reach "/" and "/sign-in" (the middleware sends every other page to sign-in); neither needs the database.
-  if ((path === "/" || path.startsWith("/sign-in")) && !isSignedIn) return <>{children}</>;
+  if ((path === "/" || path.startsWith("/sign-in") || path === "/terms" || path === "/privacy") && !isSignedIn) return <>{children}</>;
   return (
     <>
       <AuthLoading>

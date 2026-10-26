@@ -32,6 +32,10 @@ export default function SignInPage() {
           options: { socialButtonsPlacement: "bottom" },
         }}
       />
+      <p className="text-sm font-bold text-ink-soft">
+        By signing in you agree to the <Link href="/terms" className="underline">Terms</Link> and{" "}
+        <Link href="/privacy" className="underline">Privacy Policy</Link>.
+      </p>
     </div>
   );
 }

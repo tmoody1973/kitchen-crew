@@ -68,6 +68,10 @@ npm run build       # production build
 
 Judges sign in to a demo account with a labelled sample week (credentials are shared privately, never in this repo). To put it back to its saved state after people have used it: `./scripts/demo-reset.sh` (needs Convex admin access and the local, git-ignored snapshot; `convex/demo.ts` holds the internal snapshot/restore functions, which the app cannot call).
 
+## Terms and privacy
+
+The live app's [Terms of Service](https://mise-weld.vercel.app/terms) and [Privacy Policy](https://mise-weld.vercel.app/privacy) (`app/terms`, `app/privacy`) say what Mise stores, which services receive data and why, and how to ask for deletion.
+
 ## Known limits
 
 - Prices come only from Kroger-family stores (Pick 'n Save, Metro Market) near `KROGER_ZIP`; other stores can be named, with prices typed in by hand.

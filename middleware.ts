@@ -2,7 +2,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // The landing page and Mise's sign-in page are public; every other page and server route requires sign-in
 // (signed-out visitors go to Clerk's sign-in page).
-const isPublic = createRouteMatcher(["/", "/sign-in(.*)"]);
+const isPublic = createRouteMatcher(["/", "/sign-in(.*)", "/terms", "/privacy"]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (!isPublic(req)) await auth.protect();

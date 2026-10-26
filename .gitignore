@@ -28,3 +28,4 @@ npm-debug.log*
 /.impeccable/questions/
 .env*
 /scripts/demo/*.json
+/devpost/video-notes.md

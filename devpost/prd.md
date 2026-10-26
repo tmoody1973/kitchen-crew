@@ -41,6 +41,9 @@ Source: `scope.md > The Core Loop`, `scope.md > What "Working" Looks Like`.
 
 ## Features and Behavior
 
+### Terms and Privacy *(added on submission day, at Tarik's request)*
+- [ ] Public `/terms` and `/privacy` pages in plain English, linked from the landing footer and the sign-in page ("By signing in you agree…"). Privacy names what's kept (account, entries, receipt totals; receipt photos not kept; Kroger keys only in device cookies), each service data goes to and why, no ads/analytics/selling, and deletion requests via a GitHub issue (Tarik's choice; no email published).
+
 ### First Sign-in *(added on submission day, at Tarik's request)*
 - As anyone trying Mise, I want it to plan for my household, not Tarik's.
   - [ ] A brand-new account opens a three-step Welcome: what the crew should call them; who's eating (men, women, teen boys, teen girls, kids 6–11, little kids 1–5) plus "plan leftovers"; and a weekly budget from USDA's September 2026 food-cost tables for that exact household (size-adjusted), or their own amount.

@@ -268,7 +268,8 @@ export default function Landing() {
       <div className={`${bleed} awning h-5`} aria-hidden="true" />
       <footer className={bleed}>
         <p className={`${inner} py-6 text-sm font-bold text-ink-soft`}>
-          Mise · built with Next.js, Convex, Clerk, Claude, and the Kroger API · a Devpost hackathon project
+          Mise · built with Next.js, Convex, Clerk, Claude, and the Kroger API · a Devpost hackathon project ·{" "}
+          <a href="/terms" className="underline">Terms</a> · <a href="/privacy" className="underline">Privacy</a>
         </p>
       </footer>
     </div>
