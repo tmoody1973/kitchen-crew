@@ -50,6 +50,14 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
     await setPaid({ id: item._id, paid }).catch(fail);
   }
 
+  // Paid exactly the shelf price: one tap instead of typing it (the box still takes a different amount).
+  async function paidMatches() {
+    if (total === undefined) return;
+    setPaidText(total.toString());
+    setError(null);
+    await setPaid({ id: item._id, paid: total }).catch(fail);
+  }
+
   async function saveEstimate() {
     const estimate = parseAmount(estimateText);
     if (estimate === "invalid" || estimate === undefined) return setError("Type an estimate like 4.29");
@@ -123,6 +131,16 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
             {formatMoney(total!)}
           </span>
         )}
+        {total !== undefined && item.paid === undefined && (
+          <button
+            type="button"
+            onClick={paidMatches}
+            className="btn-crate px-3 py-2.5 text-sm lg:py-1.5"
+            aria-label={`Paid ${formatMoney(total)} for ${item.name}, same as the estimate`}
+          >
+            <Check size={16} strokeWidth={3} aria-hidden /> Matches
+          </button>
+        )}
         <label className="ml-auto flex shrink-0 items-center gap-2 text-sm font-extrabold text-ink-soft">
           Paid
           <span className="sr-only"> for {item.name}</span>
@@ -143,7 +161,9 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
         <p className={`flex items-center gap-1 text-sm font-extrabold lg:order-4 lg:basis-full ${status === "under" ? "text-kale-ink" : "text-squash-ink"}`}>
           {status === "under" ? <Check size={16} strokeWidth={3} aria-hidden /> : <TrendingUp size={16} strokeWidth={3} aria-hidden />}
           {status === "under"
-            ? `Nice! ${formatMoney(total! - item.paid!)} under ${versus}`
+            ? item.paid === total
+              ? "Right on the estimate"
+              : `Nice! ${formatMoney(total! - item.paid!)} under ${versus}`
             : `${formatMoney(item.paid! - total!)} more than ${versus}`}
         </p>
       )}
