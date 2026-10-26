@@ -58,6 +58,10 @@ You need Node.js 20+ and accounts for the services below (all have free develope
 
 Never commit `.env.local`; it is git-ignored.
 
+## Deploying
+
+Pushing to `main` deploys the website on Vercel automatically. Convex functions don't deploy with it: when a change touches `convex/`, run `npx convex dev --once` first (the live app uses the Convex dev deployment), then push.
+
 ## Checks
 
 ```bash
