@@ -2,9 +2,18 @@
 
 Mise keeps a family's weekly grocery spending under budget. You set a weekly budget, plan dinners in a chat with a "kitchen crew" (Claude), and every ingredient is priced at your own Kroger-family store (Pick 'n Save or Metro Market) before you commit. The plan becomes a week board and a shopping list, and a live tally tracks what you actually pay as you shop.
 
-**Live:** https://mise-weld.vercel.app (sign-in required past the landing page; a demo login is provided to judges privately).
+**Live:** https://mise-weld.vercel.app (sign-in required past the landing page; the demo login is under Try it below).
 
 Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn Skill Pack. The planning documents are in [`devpost/`](devpost/).
+
+## Try it
+
+Live app: https://mise-weld.vercel.app  
+Demo login (a shared sample household): mise.demo+clerk_test@example.com / SampleWeek-e67d!
+
+If it asks for a verification code, enter 424242.  
+Or sign up with your own email to start your own household from scratch.  
+Prices are Kroger's live estimates, so they may differ from the video.
 
 ## What it does
 
@@ -69,7 +78,7 @@ npm run build       # production build
 
 ## Demo account
 
-Judges sign in to a demo account with a labelled sample week (credentials are shared privately, never in this repo). To put it back to its saved state after people have used it: `./scripts/demo-reset.sh` (needs Convex admin access and the local, git-ignored snapshot; `convex/demo.ts` holds the internal snapshot/restore functions, which the app cannot call).
+Judges sign in to a demo account with a labelled sample week (the login is under Try it above). To put it back to its saved state after people have used it: `./scripts/demo-reset.sh` (needs Convex admin access and the local, git-ignored snapshot; `convex/demo.ts` holds the internal snapshot/restore functions, which the app cannot call).
 
 ## Terms and privacy
 
