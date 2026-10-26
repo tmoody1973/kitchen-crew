@@ -124,7 +124,7 @@ export default function Landing() {
             </p>
             <Actions />
             <p className="hidden text-sm font-bold text-ink-soft lg:block">
-              A hackathon project built for one Milwaukee family&apos;s kitchen. Sign-in is for the household.
+              A hackathon project built for one Milwaukee family&apos;s kitchen. Judges: the demo login is in the submission&apos;s testing instructions.
             </p>
           </div>
           <div className="flex flex-col gap-3 lg:col-span-5">

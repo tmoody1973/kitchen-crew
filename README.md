@@ -2,6 +2,8 @@
 
 Mise keeps a family's weekly grocery spending under budget. You set a weekly budget, plan dinners in a chat with a "kitchen crew" (Claude), and every ingredient is priced at your own Kroger-family store (Pick 'n Save or Metro Market) before you commit. The plan becomes a week board and a shopping list, and a live tally tracks what you actually pay as you shop.
 
+**Live:** https://mise-weld.vercel.app (sign-in required past the landing page; a demo login is provided to judges privately).
+
 Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn Skill Pack. The planning documents are in [`devpost/`](devpost/).
 
 ## What it does
