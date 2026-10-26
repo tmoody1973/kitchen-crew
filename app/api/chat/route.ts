@@ -21,7 +21,7 @@ import { pickProducts } from "@/lib/pick-products";
 import { staffPrompt } from "@/lib/staff-prompt";
 import { actualPaid, computeSplitTally, computeTally, isWeekActive } from "@/lib/tally";
 import { PLAN_LABELS, suggestedBudget } from "@/lib/usda";
-import { targetServings } from "@/lib/household";
+import { describeHousehold, targetServings } from "@/lib/household";
 import { z } from "zod";
 import { convexToken } from "@/lib/convex-token";
 
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   if (!Array.isArray(messages) || messages.length === 0 || messages.length > 60) {
     return Response.json({ error: "Send 1–60 messages" }, { status: 400 });
   }
-  // Dinners Tarik removed on the latest plan card, so a later "swap Thursday" works from his edited plan.
+  // Dinners removed on the latest plan card, so a later "swap Thursday" works from the edited plan.
   const removed = Array.isArray(removedMeals)
     ? removedMeals.filter((m): m is string => typeof m === "string").map((m) => m.slice(0, 100)).slice(0, 14)
     : [];
@@ -83,13 +83,15 @@ export async function POST(req: Request) {
       servings,
       leftovers: household.leftovers,
       savedRecipes: savedRecipes.slice(0, 150).map((r) => ({ id: r._id, title: r.title, tags: r.tags })),
+      name: household.name,
+      household: household.members ? describeHousehold(household.members) : undefined,
     }),
     messages: await convertToModelMessages(messages),
     stopWhen: isStepCount(5), // import → plan → (retry once) → closing line
     tools: {
       proposeMealPlan: tool({
         description:
-          "Show Tarik a costed meal plan card. Call only after you know the kind of dishes and the number of days.",
+          "Show the cook a costed meal plan card. Call only after you know the kind of dishes and the number of days.",
         inputSchema: planToolSchema,
         // A generator: each `yield` before the last is a progress update for the chat's progress bar.
         execute: async function* (input): AsyncGenerator<PlanToolOutput> {
@@ -113,7 +115,7 @@ export async function POST(req: Request) {
           const plan = resolved.plan;
           const problem = validatePlan(plan, servings);
           if (problem) throw new Error(`Plan rejected: ${problem}`);
-          if (!activeWeek || !tally) throw new Error("No budget set this week. Ask Tarik to set one on the Budget page first.");
+          if (!activeWeek || !tally) throw new Error("No budget set this week. Ask the cook to set one on the Budget page first.");
           if (!activeWeek.storeId) {
             yield { needsStore: true };
             return;
@@ -141,7 +143,7 @@ export async function POST(req: Request) {
           }
           // All lookups failing means Kroger is down, not that nothing matched: say so instead of a $0 plan.
           if (toBuy.length > 0 && failures === toBuy.length) {
-            throw new Error("Couldn't reach Kroger for prices. Tell Tarik to try again in a minute; don't retry now.");
+            throw new Error("Couldn't reach Kroger for prices. Tell the cook to try again in a minute; don't retry now.");
           }
           yield { progress: true, done: total, total, current: undefined, storeName };
           const { products, substitutes } = await pickProducts(candidates);
@@ -159,7 +161,7 @@ export async function POST(req: Request) {
       }),
       importRecipe: tool({
         description:
-          "Read a recipe from a website or YouTube link Tarik pasted, save it to My Recipes, and show a Recipe Card.",
+          "Read a recipe from a website or YouTube link the cook pasted, save it to My Recipes, and show a Recipe Card.",
         inputSchema: z.object({ url: z.string().max(2000) }),
         execute: async ({ url }) => {
           try {
@@ -186,7 +188,7 @@ export async function POST(req: Request) {
       }),
       searchRecipes: tool({
         description:
-          "Search the web for recipe pages (TinyFish Search) and show a Recipe Search card; Tarik taps Add to save any of them to My Recipes.",
+          "Search the web for recipe pages (TinyFish Search) and show a Recipe Search card; the cook taps Add to save any of them to My Recipes.",
         inputSchema: z.object({ query: z.string().min(2).max(100).describe("What to look for, e.g. 'cozy chickpea curry' or 'quick weeknight salmon'") }),
         execute: async ({ query }) => {
           try {
@@ -201,13 +203,13 @@ export async function POST(req: Request) {
       }),
       findSales: tool({
         description:
-          "Check which items are on sale at Tarik's Kroger store and show a Sales card. scope: needed = this week's shopping list, " +
-          "regulars = the things he buys most weeks, recipes = the ingredients his saved recipes use most.",
+          "Check which items are on sale at the cook's Kroger store and show a Sales card. scope: needed = this week's shopping list, " +
+          "regulars = the things they buy most weeks, recipes = the ingredients their saved recipes use most.",
         inputSchema: z.object({ scope: z.enum(["needed", "regulars", "recipes"]) }),
         execute: async ({ scope }) => {
           const storeId = activeWeek?.storeId;
           const storeName = activeWeek?.storeName?.split(" · ")[0];
-          if (!storeId) return { ok: false as const, error: "No Kroger store is picked yet. Ask Tarik to pick one on the List page." };
+          if (!storeId) return { ok: false as const, error: "No Kroger store is picked yet. Ask the cook to pick one on the List page." };
           try {
             if (scope === "recipes") {
               // ponytail: the 12 most-used ingredients, one search at a time (each cached 30 minutes).
@@ -229,16 +231,16 @@ export async function POST(req: Request) {
             return { ok: true as const, scope, storeName, checked: Math.min(rows.length, 50), sales };
           } catch (err) {
             console.error("Sales check failed:", err);
-            return { ok: false as const, error: "Couldn't reach Kroger for sale prices. Tell Tarik to try again in a minute." };
+            return { ok: false as const, error: "Couldn't reach Kroger for sale prices. Tell the cook to try again in a minute." };
           }
         },
       }),
       suggestBudget: tool({
         description:
-          "Show Tarik a Budget Card with a suggested weekly grocery budget for his household, based on USDA food-cost data.",
+          "Show the cook a Budget Card with a suggested weekly grocery budget for their household, based on USDA food-cost data.",
         inputSchema: z.object({
-          level: z.enum(["thrifty", "low", "moderate"]).describe("The USDA plan level that fits how he cooks and shops"),
-          reason: z.string().max(200).describe("One short, friendly sentence on why this level fits him"),
+          level: z.enum(["thrifty", "low", "moderate"]).describe("The USDA plan level that fits how they cook and shop"),
+          reason: z.string().max(200).describe("One short, friendly sentence on why this level fits them"),
         }),
         execute: async ({ level, reason }) => ({
           recommended: level,
@@ -246,7 +248,7 @@ export async function POST(req: Request) {
           levels: (["thrifty", "low", "moderate"] as const).map((l) => ({
             level: l,
             label: PLAN_LABELS[l],
-            amount: suggestedBudget(l),
+            amount: suggestedBudget(l, household.members ?? undefined),
           })),
         }),
       }),

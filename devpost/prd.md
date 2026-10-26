@@ -41,6 +41,11 @@ Source: `scope.md > The Core Loop`, `scope.md > What "Working" Looks Like`.
 
 ## Features and Behavior
 
+### First Sign-in *(added on submission day, at Tarik's request)*
+- As anyone trying Mise, I want it to plan for my household, not Tarik's.
+  - [ ] A brand-new account opens a three-step Welcome: what the crew should call them; who's eating (men, women, teen boys, teen girls, kids 6–11, little kids 1–5) plus "plan leftovers"; and a weekly budget from USDA's September 2026 food-cost tables for that exact household (size-adjusted), or their own amount.
+  - [ ] Dinner servings follow from the people (adults 1, teens 1½, kids ¾, little kids ½); the crew greets them by name and plans for their household. Existing accounts (Tarik, Demo) skip it and keep Tarik's household as the default.
+
 ### Budget Setup
 Source: `scope.md > The POC Boundary` (USDA-seeded budget).
 - As Tarik, I want a sensible starting budget suggested for me so that I don't have to guess.

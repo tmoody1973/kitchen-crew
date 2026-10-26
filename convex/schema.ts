@@ -36,6 +36,8 @@ export default defineSchema({
     servings: v.number(),
     leftovers: v.boolean(),
     autoRegulars: v.optional(v.boolean()), // add regulars to each new week's list automatically
+    name: v.optional(v.string()), // what the crew calls you (onboarding)
+    members: v.optional(v.object({ men: v.number(), women: v.number(), teenBoys: v.number(), teenGirls: v.number(), kids: v.number(), littleKids: v.number() })),
   }).index("by_user", ["userId"]),
 
   // Things bought most weeks (sparkling water, bananas, chips…), priced at the chosen store.

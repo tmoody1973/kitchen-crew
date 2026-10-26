@@ -8,6 +8,7 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 
 ## What it does
 
+- **First sign-in:** a short welcome asks who's eating and suggests a budget for that household from USDA's food-cost tables.
 - **Budget:** a suggested weekly budget from USDA food-cost data, an optional Dinners / Extras split, and household servings.
 - **Planner chat:** the crew plans dinners from your saved recipes and pantry, sized for your household. Results come back as cards: a priced meal plan, a "fits your budget" check, recipe cards. Kroger prices are looked up one item at a time with a progress bar.
 - **Week board:** dinners on days (one or two weeks), an Ideas column, move or remove a dinner and the shopping list rebuilds.

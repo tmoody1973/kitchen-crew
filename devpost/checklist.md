@@ -149,6 +149,10 @@ Build mode: learn
   Verify: 5 new tests (107 total). Demo account, local, phone size: a rendered Pick 'n Save receipt photo read exactly (store, $27.75, $0.81 tax, $0.10 bag fee, $28.66); confirm moved the tally $24.56 → $28.66 and covered 8 paid rows; "$2.95 over the $25.71 planned for the 8 items"; Undo returned it to $24.56. History: 13 weeks (12 labelled Sample), $2,549.29 of $2,925.
   Not verified: a real crumpled paper receipt photographed on a phone.
   Learner check: snap a real receipt after a shop and compare what the crew read to the paper.
+- [x] **11e. First sign-in onboarding, web recipe search, Kroger cart** *(added by Tarik on submission day)*
+  Becomes usable: a new account gets a 3-step Welcome (name, who's eating, USDA budget for that household) and the crew plans for that household by name; the crew searches the web for recipes (TinyFish) with Add from chat; "Send to my Pick 'n Save cart" via Kroger sign-in.
+  Verify: 3 new tests (USDA reference family of four, thrifty = $236.30 published vs $236 computed; Tarik's household still $222). New test user "Maria" (1 woman, 2 kids, 1 little kid): first stop /welcome, 3 servings, budgets $199 / $227 / $276, crew opened with "Hi Maria! … cooking for 4"; test user deleted. Recipe search: 6 chickpea curries, A Couple Cooks saved from chat. Kroger cart: Tarik connected his Kroger account after adding the redirect URI.
+  Not verified: whether cart items landed in the Pick 'n Save cart (waiting on Tarik).
 
 ## Hands-on Checkpoints
 
