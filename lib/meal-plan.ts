@@ -38,6 +38,7 @@ export type Product = {
   name: string;
   size?: string;
   price: number;
+  regularPrice?: number; // set only when on sale; price is then the sale price
   imageUrl?: string;
   suggestedPacks?: number;
   substitute?: string; // set when this is a swap ("kimchi" for zha cai)
@@ -71,10 +72,11 @@ export type ShoppingItem = {
   packs: number;
   exact: boolean; // false → "check amount" (units didn't convert)
   cost: number; // cost to buy; 0 for pantry staples and "no price found"
+  saved: number; // Kroger sale savings on this item (regular − sale) × packs; 0 when not on sale
 };
 
 /** Same ingredient across meals becomes one item, amounts added before rounding up to packages. */
-export function mergeIngredients(plan: PlanInput): Omit<ShoppingItem, "product" | "packs" | "exact" | "cost">[] {
+export function mergeIngredients(plan: PlanInput): Omit<ShoppingItem, "product" | "packs" | "exact" | "cost" | "saved">[] {
   const merged = new Map<string, { name: string; amounts: string[]; need: Amount | null; pantry: boolean }>();
   for (const meal of plan.meals) {
     for (const ing of meal.ingredients) {
@@ -101,6 +103,7 @@ export type PricedPlan = {
   meals: { day: string; name: string; servings: number; cost: number; ingredients: string[]; recipeId?: string }[];
   items: ShoppingItem[];
   total: number;
+  savings: number; // sum of items' sale savings, already taken off total
   remaining: number;
   fits: boolean;
   overBy: number;
@@ -117,7 +120,8 @@ export function pricePlan(plan: PlanInput, products: Map<string, Product | null>
     const product = products.get(key(item.name)) ?? null;
     const { packs, exact } = packagesNeeded(item.need, product?.size, product?.suggestedPacks, item.name);
     const cost = item.pantry || !product ? 0 : (estimateTotal(product.price, packs) ?? 0);
-    return { ...item, product, packs, exact, cost };
+    const saved = item.pantry || !product?.regularPrice ? 0 : round2((product.regularPrice - product.price) * packs);
+    return { ...item, product, packs, exact, cost, saved };
   });
 
   // A meal's cost is its share of each item it uses (by amount when units add up, else split evenly).
@@ -142,7 +146,8 @@ export function pricePlan(plan: PlanInput, products: Map<string, Product | null>
   });
 
   const total = round2(items.reduce((sum, i) => sum + i.cost, 0));
-  return { plan, meals, items, total, remaining, fits: total <= remaining, overBy: round2(Math.max(0, total - remaining)) };
+  const savings = round2(items.reduce((sum, i) => sum + i.saved, 0));
+  return { plan, meals, items, total, savings, remaining, fits: total <= remaining, overBy: round2(Math.max(0, total - remaining)) };
 }
 
 /** The products already chosen for a priced plan, keyed by item name, for re-pricing without new lookups. */

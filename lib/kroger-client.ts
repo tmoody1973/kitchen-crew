@@ -1,5 +1,5 @@
 // Browser-side calls to our own server routes (the Kroger keys stay on the server).
-export type Product = { productId: string; name: string; size?: string; price: number; imageUrl?: string };
+export type Product = { productId: string; name: string; size?: string; price: number; regularPrice?: number; imageUrl?: string };
 
 /** Current price per item at a store; re-prices the same product when one was chosen. null = no price found. */
 export async function fetchPrices(

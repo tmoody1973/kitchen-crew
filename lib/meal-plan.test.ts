@@ -208,3 +208,21 @@ describe("the shopping list follows the board", () => {
     expect(priceBoard([{ name: "old plan dinner", dayIndex: 1 }], 200)).toBeNull(); // no stored ingredients
   });
 });
+
+describe("sale savings", () => {
+  it("counts (regular − sale) × packs and totals it, leaving the plan total at the sale price", () => {
+    const onSale: Product = { ...thighs, regularPrice: 5.49 };
+    const products = new Map<string, Product | null>([["chicken thighs", onSale], ["fish sauce", fishSauce], ["jasmine rice", rice]]);
+    const priced = pricePlan(plan, products, 100);
+    const item = priced.items.find((i) => i.name.toLowerCase() === "chicken thighs")!;
+    expect(item.saved).toBeCloseTo(1.5 * item.packs, 2);
+    expect(item.cost).toBeCloseTo(3.99 * item.packs, 2);
+    expect(priced.savings).toBeCloseTo(item.saved, 2);
+    expect(priced.items.find((i) => i.name === "fish sauce")!.saved).toBe(0);
+  });
+
+  it("is zero with no sale items", () => {
+    const priced = pricePlan(plan, new Map([["chicken thighs", thighs]]), 100);
+    expect(priced.savings).toBe(0);
+  });
+});

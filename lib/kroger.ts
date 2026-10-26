@@ -102,7 +102,8 @@ export async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) =>
   return results;
 }
 
-export type Product = { productId: string; name: string; size?: string; price: number; imageUrl?: string };
+// regularPrice is set only when the item is on sale (price is then the sale price).
+export type Product = { productId: string; name: string; size?: string; price: number; regularPrice?: number; imageUrl?: string };
 
 type KrogerImage = { perspective: string; featured?: boolean; sizes: { size: string; url: string }[] };
 type KrogerProduct = {
@@ -118,11 +119,23 @@ export function pickImage(images: KrogerImage[] | undefined): string | undefined
   return img?.sizes.find((s) => s.size === "small")?.url;
 }
 
-function toProduct(p: KrogerProduct): Product | null {
+/** The regular price when Kroger has the item on sale, else undefined. */
+export function saleRegular(price: KrogerPrice | undefined): number | undefined {
+  return price?.promo && price.promo > 0 && price.regular && price.regular > price.promo ? price.regular : undefined;
+}
+
+export function toProduct(p: KrogerProduct): Product | null {
   const price = pickPrice(p.items?.[0]?.price);
-  return price === null
-    ? null
-    : { productId: p.productId, name: p.description, size: p.items?.[0]?.size, price, imageUrl: pickImage(p.images) };
+  if (price === null) return null;
+  const regularPrice = saleRegular(p.items?.[0]?.price);
+  return {
+    productId: p.productId,
+    name: p.description,
+    size: p.items?.[0]?.size,
+    price,
+    ...(regularPrice ? { regularPrice } : {}),
+    imageUrl: pickImage(p.images),
+  };
 }
 
 /** "Tomatoes" → "tomato", "thighs" → "thigh", so plurals still match. */

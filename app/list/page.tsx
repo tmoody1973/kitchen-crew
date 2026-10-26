@@ -363,7 +363,7 @@ function AddRegulars({ krogerStoreId }: { krogerStoreId?: string }) {
             const p = fresh[n];
             return {
               id: r._id,
-              product: p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, imageUrl: p.imageUrl } : undefined,
+              product: p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, regularPrice: p.regularPrice, imageUrl: p.imageUrl } : undefined,
             };
           });
           const added = await addToList({ prices }).catch(() => -1);

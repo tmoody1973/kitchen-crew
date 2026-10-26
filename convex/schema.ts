@@ -72,7 +72,7 @@ export default defineSchema({
         v.object({
           name: v.string(),
           product: v.optional(
-            v.object({ productId: v.string(), name: v.string(), size: v.optional(v.string()), price: v.number(), imageUrl: v.optional(v.string()), suggestedPacks: v.optional(v.number()), substitute: v.optional(v.string()) }),
+            v.object({ productId: v.string(), name: v.string(), size: v.optional(v.string()), price: v.number(), regularPrice: v.optional(v.number()), imageUrl: v.optional(v.string()), suggestedPacks: v.optional(v.number()), substitute: v.optional(v.string()) }),
           ),
         }),
       ),
@@ -109,6 +109,7 @@ export default defineSchema({
     weekId: v.id("weeks"),
     name: v.string(),
     estimate: v.optional(v.number()),
+    regularPrice: v.optional(v.number()), // Kroger's regular price when the estimate is a sale price
     estimateSource: v.union(v.literal("kroger"), v.literal("manual")),
     // The exact Kroger product chosen (brand + package), so re-pricing finds the same one.
     productId: v.optional(v.string()),

@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { PricedPlan } from "@/lib/meal-plan";
 import { formatMoney } from "@/lib/tally";
 import { formatServings } from "@/lib/household";
-import { ChevronDown, Repeat2, Store, Users, X } from "lucide-react";
+import { BadgePercent, ChevronDown, Repeat2, Store, Users, X } from "lucide-react";
 
 // Claude chose the meals; code priced them. This card just draws the data.
 export default function MealPlanCard({
@@ -70,6 +70,12 @@ export default function MealPlanCard({
         <span className="font-black">Shopping total</span>
         <span className="tag text-lg">{formatMoney(plan.total)}</span>
       </div>
+      {(plan.savings ?? 0) > 0 && (
+        <p className="-mt-1 flex items-center gap-1 text-sm font-extrabold text-kale-ink">
+          <BadgePercent size={16} strokeWidth={2.75} aria-hidden />
+          Includes {formatMoney(plan.savings)} in Kroger sales{storeName ? ` at ${storeName.split(" · ")[0]}` : ""}
+        </p>
+      )}
       <p className="-mt-1 text-xs font-bold text-ink-soft">
         Kroger&apos;s current prices{storeName ? ` at ${storeName.split(" · ")[0]}` : ""}, for whole packages. The register can differ; the tally uses what you actually pay.
       </p>
@@ -107,6 +113,11 @@ export default function MealPlanCard({
                     : "No price found"}
                   {item.product && !item.exact && " · check amount"}
                 </p>
+                {item.product?.regularPrice && (item.saved ?? 0) > 0 && (
+                  <p className="text-xs font-extrabold text-kale-ink">
+                    On sale · was {formatMoney(item.product.regularPrice)} · save {formatMoney(item.saved)}
+                  </p>
+                )}
               </div>
               <span className="shrink-0 font-black">{item.product ? formatMoney(item.cost) : "—"}</span>
             </li>

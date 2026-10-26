@@ -86,6 +86,12 @@ export default function ListRow({ item, krogerStoreId, note }: { item: Doc<"list
               {item.size && ` · ${item.size}`}
             </p>
           )}
+          {item.regularPrice !== undefined && item.estimate !== undefined && item.regularPrice > item.estimate && (
+            <p className="mt-0.5 text-xs font-extrabold text-kale-ink">
+              On sale · was {formatMoney(item.regularPrice)}
+              {packs > 1 ? " each" : ""} · save {formatMoney((item.regularPrice - item.estimate) * packs)}
+            </p>
+          )}
           {item.estimate === undefined && (
             <form
               onSubmit={(e) => {

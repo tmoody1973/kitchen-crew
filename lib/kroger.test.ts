@@ -46,3 +46,17 @@ describe("Kroger access pass", () => {
     expect(tokenCalls).toBe(2);
   });
 });
+
+describe("sale prices", () => {
+  it("keeps the regular price only when Kroger has a lower promo", async () => {
+    const { saleRegular, toProduct } = await import("./kroger");
+    expect(saleRegular({ regular: 5.49, promo: 3.99 })).toBe(5.49);
+    expect(saleRegular({ regular: 5.49, promo: 0 })).toBeUndefined();
+    expect(saleRegular({ regular: 3.99, promo: 3.99 })).toBeUndefined();
+    expect(saleRegular(undefined)).toBeUndefined();
+    const p = toProduct({ productId: "1", description: "Thighs", items: [{ size: "1 lb", price: { regular: 5.49, promo: 3.99 } }] });
+    expect(p).toMatchObject({ price: 3.99, regularPrice: 5.49 });
+    const q = toProduct({ productId: "2", description: "Rice", items: [{ price: { regular: 4.5, promo: 0 } }] });
+    expect(q && "regularPrice" in q).toBe(false);
+  });
+});

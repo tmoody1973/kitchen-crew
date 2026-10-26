@@ -74,7 +74,7 @@ export async function rebuildWeek(ctx: MutationCtx, weekId: Id<"weeks">) {
       fromPlan: true,
       fromBoard: true,
       category: "dinner",
-      ...productFields(p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, imageUrl: p.imageUrl } : undefined),
+      ...productFields(p ? { productId: p.productId, name: p.name, size: p.size, price: p.price, regularPrice: p.regularPrice, imageUrl: p.imageUrl } : undefined),
     });
   }
 }
@@ -88,6 +88,7 @@ export const product = v.object({
   name: v.string(),
   size: v.optional(v.string()),
   price: v.number(),
+  regularPrice: v.optional(v.number()), // set when on sale; price is the sale price
   imageUrl: v.optional(v.string()),
 });
 
@@ -105,6 +106,7 @@ export function productFields(p: Infer<typeof product> | undefined) {
   if (!p) {
     return {
       estimate: undefined,
+      regularPrice: undefined,
       estimateSource: "manual" as const,
       productId: undefined,
       productName: undefined,
@@ -113,8 +115,10 @@ export function productFields(p: Infer<typeof product> | undefined) {
     };
   }
   checkAmount(p.price, "Price");
+  checkAmount(p.regularPrice, "Regular price");
   return {
     estimate: p.price,
+    regularPrice: p.regularPrice !== undefined && p.regularPrice > p.price ? p.regularPrice : undefined,
     estimateSource: "kroger" as const,
     productId: p.productId.slice(0, 20),
     productName: p.name.slice(0, 200),
